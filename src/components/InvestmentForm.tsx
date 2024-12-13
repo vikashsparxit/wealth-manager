@@ -78,12 +78,16 @@ export const InvestmentForm = ({ onSubmit, onCancel, investment }: Props) => {
                 setFormData({ ...formData, type: value as InvestmentType })
               }
             >
-              <SelectTrigger>
+              <SelectTrigger className="w-full bg-background">
                 <SelectValue placeholder="Select type" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-background border shadow-lg">
                 {investmentTypes.map((type) => (
-                  <SelectItem key={type} value={type}>
+                  <SelectItem 
+                    key={type} 
+                    value={type}
+                    className="cursor-pointer hover:bg-accent focus:bg-accent"
+                  >
                     {type}
                   </SelectItem>
                 ))}
@@ -99,12 +103,16 @@ export const InvestmentForm = ({ onSubmit, onCancel, investment }: Props) => {
                 setFormData({ ...formData, owner: value as FamilyMember })
               }
             >
-              <SelectTrigger>
+              <SelectTrigger className="w-full bg-background">
                 <SelectValue placeholder="Select owner" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-background border shadow-lg">
                 {familyMembers.map((member) => (
-                  <SelectItem key={member} value={member}>
+                  <SelectItem 
+                    key={member} 
+                    value={member}
+                    className="cursor-pointer hover:bg-accent focus:bg-accent"
+                  >
                     {member}
                   </SelectItem>
                 ))}
