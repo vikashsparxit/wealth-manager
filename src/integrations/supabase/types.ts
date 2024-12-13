@@ -9,7 +9,42 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      investments: {
+        Row: {
+          created_at: string
+          current_value: number
+          date_of_investment: string
+          id: string
+          invested_amount: number
+          notes: string | null
+          owner: Database["public"]["Enums"]["family_member"]
+          type: Database["public"]["Enums"]["investment_type"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          current_value: number
+          date_of_investment: string
+          id?: string
+          invested_amount: number
+          notes?: string | null
+          owner: Database["public"]["Enums"]["family_member"]
+          type: Database["public"]["Enums"]["investment_type"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          current_value?: number
+          date_of_investment?: string
+          id?: string
+          invested_amount?: number
+          notes?: string | null
+          owner?: Database["public"]["Enums"]["family_member"]
+          type?: Database["public"]["Enums"]["investment_type"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -18,7 +53,19 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      family_member: "Myself" | "My Wife" | "My Daughter" | "Family"
+      investment_type:
+        | "Real Estate"
+        | "Gold"
+        | "Bonds"
+        | "LIC"
+        | "ULIP"
+        | "Sukanya Samridhi"
+        | "Mutual Funds"
+        | "Stocks"
+        | "NPS"
+        | "PPF"
+        | "Startups"
     }
     CompositeTypes: {
       [_ in never]: never

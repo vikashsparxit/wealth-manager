@@ -7,6 +7,7 @@ import { PieChart, LineChart } from "@/components/Charts";
 import { InvestmentForm } from "@/components/InvestmentForm";
 import { InvestmentList } from "@/components/InvestmentList";
 import { DollarSign, TrendingUp, Users } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 
 export const Dashboard = () => {
   const [investments, setInvestments] = useState<Investment[]>([]);
@@ -16,29 +17,83 @@ export const Dashboard = () => {
     growth: 0,
   });
   const [showForm, setShowForm] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
   useEffect(() => {
-    const loadedInvestments = investmentService.getAll();
-    setInvestments(loadedInvestments);
-    setSummary(investmentService.calculateSummary(loadedInvestments));
+    loadInvestments();
   }, []);
 
-  const handleAddInvestment = (investment: Omit<Investment, "id">) => {
-    const newInvestment = investmentService.add(investment);
-    const updatedInvestments = [...investments, newInvestment];
-    setInvestments(updatedInvestments);
-    setSummary(investmentService.calculateSummary(updatedInvestments));
-    setShowForm(false);
+  const loadInvestments = async () => {
+    try {
+      setLoading(true);
+      const loadedInvestments = await investmentService.getAll();
+      setInvestments(loadedInvestments);
+      setSummary(investmentService.calculateSummary(loadedInvestments));
+    } catch (error) {
+      console.error("Error loading investments:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load investments. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleUpdateInvestment = (investment: Investment) => {
-    investmentService.update(investment);
-    const updatedInvestments = investments.map((i) =>
-      i.id === investment.id ? investment : i
-    );
-    setInvestments(updatedInvestments);
-    setSummary(investmentService.calculateSummary(updatedInvestments));
+  const handleAddInvestment = async (investment: Omit<Investment, "id">) => {
+    try {
+      const newInvestment = await investmentService.add(investment);
+      const updatedInvestments = [...investments, newInvestment];
+      setInvestments(updatedInvestments);
+      setSummary(investmentService.calculateSummary(updatedInvestments));
+      setShowForm(false);
+      toast({
+        title: "Success",
+        description: "Investment added successfully.",
+      });
+    } catch (error) {
+      console.error("Error adding investment:", error);
+      toast({
+        title: "Error",
+        description: "Failed to add investment. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
+
+  const handleUpdateInvestment = async (investment: Investment) => {
+    try {
+      await investmentService.update(investment);
+      const updatedInvestments = investments.map((i) =>
+        i.id === investment.id ? investment : i
+      );
+      setInvestments(updatedInvestments);
+      setSummary(investmentService.calculateSummary(updatedInvestments));
+      toast({
+        title: "Success",
+        description: "Investment updated successfully.",
+      });
+    } catch (error) {
+      console.error("Error updating investment:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update investment. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="container mx-auto py-8">
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto py-8">
