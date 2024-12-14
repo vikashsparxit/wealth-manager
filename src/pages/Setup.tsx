@@ -1,116 +1,148 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
-import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useSettings } from "@/hooks/useSettings";
+import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 
-const Setup = () => {
-  const [name, setName] = useState("");
-  const [loading, setLoading] = useState(false);
-  const { user } = useAuth();
+const currencies = [
+  { value: "INR", label: "Indian Rupee (₹)" },
+  { value: "USD", label: "US Dollar ($)" },
+  { value: "EUR", label: "Euro (€)" },
+  { value: "GBP", label: "British Pound (£)" },
+] as const;
+
+type CurrencyType = typeof currencies[number]["value"];
+
+export const Setup = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const { user } = useAuth();
+  const { settings, initializeSettings } = useSettings();
+  const [dashboardName, setDashboardName] = useState("");
+  const [currency, setCurrency] = useState<CurrencyType>("INR");
+  const [fullName, setFullName] = useState(user?.user_metadata.full_name || user?.user_metadata.name || "");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    const checkUserSetup = async () => {
-      if (!user) {
-        navigate("/login");
-        return;
-      }
-
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("full_name")
-        .eq("id", user.id)
-        .single();
-
-      if (profile?.full_name) {
-        // User already has a name set, redirect to dashboard
-        navigate("/");
-      }
-    };
-
-    checkUserSetup();
-  }, [user, navigate]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name.trim() || !user) return;
-
-    try {
-      setLoading(true);
-      console.log("Updating user profile with name:", name);
-
-      const { error: profileError } = await supabase
-        .from("profiles")
-        .update({ full_name: name.trim() })
-        .eq("id", user.id);
-
-      if (profileError) throw profileError;
-
-      // Update the family member entry for "Myself"
-      const { error: familyMemberError } = await supabase
-        .from("family_members")
-        .update({ name: name.trim() })
-        .eq("user_id", user.id)
-        .eq("name", "Myself");
-
-      if (familyMemberError) throw familyMemberError;
-
-      toast({
-        title: "Welcome!",
-        description: "Your profile has been set up successfully.",
-      });
-
+    if (settings) {
       navigate("/");
-    } catch (error) {
-      console.error("Error setting up profile:", error);
-      toast({
-        title: "Error",
-        description: "Failed to set up your profile. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
+    }
+  }, [settings, navigate]);
+
+  const handleCurrencyChange = (value: string) => {
+    if (currencies.some(curr => curr.value === value)) {
+      setCurrency(value as CurrencyType);
     }
   };
 
-  if (!user) return null;
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return;
+
+    setIsSubmitting(true);
+    try {
+      // Update user's full name if changed
+      if (fullName !== user.user_metadata.full_name) {
+        await supabase
+          .from('profiles')
+          .update({ full_name: fullName })
+          .eq('id', user.id);
+      }
+
+      await initializeSettings({
+        dashboard_name: dashboardName,
+        base_currency: currency
+      });
+      navigate("/");
+    } catch (error) {
+      console.error("Error saving settings:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-md p-6 space-y-6">
-        <div className="space-y-2 text-center">
-          <h1 className="text-2xl font-bold tracking-tight">Welcome!</h1>
-          <p className="text-muted-foreground">
-            Please enter your name to complete the setup
+      <div className="max-w-md w-full space-y-8">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold">Welcome to Your Wealth Dashboard</h1>
+          <p className="mt-2 text-muted-foreground">
+            Let's set up your dashboard preferences before we begin
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Input
-              type="text"
-              placeholder="Enter your name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              autoFocus
-            />
+        <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <label htmlFor="fullName" className="text-sm font-medium">
+                Your Name
+              </label>
+              <Input
+                id="fullName"
+                type="text"
+                required
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                placeholder="Enter your name"
+                className="w-full"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor="dashboardName" className="text-sm font-medium">
+                Dashboard Name
+              </label>
+              <Input
+                id="dashboardName"
+                type="text"
+                required
+                value={dashboardName}
+                onChange={(e) => setDashboardName(e.target.value)}
+                placeholder="My Wealth Dashboard"
+                className="w-full"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor="currency" className="text-sm font-medium">
+                Base Currency
+              </label>
+              <Select value={currency} onValueChange={handleCurrencyChange}>
+                <SelectTrigger id="currency" className="w-full bg-background">
+                  <SelectValue placeholder="Select currency" />
+                </SelectTrigger>
+                <SelectContent className="bg-background border shadow-lg">
+                  {currencies.map((curr) => (
+                    <SelectItem 
+                      key={curr.value} 
+                      value={curr.value}
+                      className="cursor-pointer hover:bg-accent focus:bg-accent"
+                    >
+                      {curr.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           <Button
             type="submit"
             className="w-full"
-            disabled={loading || !name.trim()}
+            disabled={isSubmitting || !dashboardName || !fullName}
           >
-            {loading ? "Setting up..." : "Continue"}
+            {isSubmitting ? "Setting up..." : "Continue to Dashboard"}
           </Button>
         </form>
-      </Card>
+      </div>
     </div>
   );
 };

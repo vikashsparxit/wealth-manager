@@ -8,36 +8,28 @@ import { useAuth } from "@/contexts/AuthContext";
 export const useInvestments = () => {
   const [investments, setInvestments] = useState<Investment[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
   const { toast } = useToast();
   const { user } = useAuth();
 
   const loadInvestments = async () => {
     try {
-      console.log("useInvestments - Starting to load investments");
       setLoading(true);
-      setError(null);
-
+      console.log("Loading investments for user:", user?.id);
       if (!user) {
-        console.log("useInvestments - No user found, skipping investment load");
-        setLoading(false);
+        console.log("No user found, skipping investment load");
         return;
       }
-
-      console.log("useInvestments - Loading investments for user:", user.id);
       const loadedInvestments = await investmentService.getAll(user.id);
-      console.log("useInvestments - Loaded investments:", loadedInvestments);
+      console.log("Loaded investments:", loadedInvestments);
       setInvestments(loadedInvestments);
-    } catch (err) {
-      console.error("useInvestments - Error loading investments:", err);
-      setError(err as Error);
+    } catch (error) {
+      console.error("Error loading investments:", error);
       toast({
         title: "Error",
         description: "Failed to load investments. Please try again.",
         variant: "destructive",
       });
     } finally {
-      console.log("useInvestments - Finished loading investments");
       setLoading(false);
     }
   };
@@ -92,14 +84,16 @@ export const useInvestments = () => {
   };
 
   useEffect(() => {
-    console.log("useInvestments - Auth state changed, user:", user?.id);
-    loadInvestments();
+    if (user) {
+      loadInvestments();
+    } else {
+      setInvestments([]);
+    }
   }, [user]);
 
   return {
     investments,
     loading,
-    error,
     addInvestment,
     updateInvestment,
   };

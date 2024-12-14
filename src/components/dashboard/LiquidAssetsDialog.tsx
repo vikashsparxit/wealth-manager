@@ -19,7 +19,7 @@ export const LiquidAssetsDialog = ({ liquidAssets, onUpdate, selectedMember }: L
   const [open, setOpen] = useState(false);
   const [amount, setAmount] = useState("0");
   const [owner, setOwner] = useState<FamilyMember>("Myself");
-  const [familyMembers, setFamilyMembers] = useState<Array<{ name: string }>>([]);
+  const [familyMembers, setFamilyMembers] = useState<Array<{ name: FamilyMember }>>([]);
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -39,8 +39,7 @@ export const LiquidAssetsDialog = ({ liquidAssets, onUpdate, selectedMember }: L
         return;
       }
 
-      console.log('Loaded family members for liquid assets:', data);
-      setFamilyMembers(data);
+      setFamilyMembers(data as Array<{ name: FamilyMember }>);
     };
 
     if (open) {
@@ -82,6 +81,7 @@ export const LiquidAssetsDialog = ({ liquidAssets, onUpdate, selectedMember }: L
   const handleOpenChange = (newOpen: boolean) => {
     setOpen(newOpen);
     if (!newOpen) {
+      // Add a small delay before enabling interactions
       setTimeout(() => {
         document.body.style.pointerEvents = 'auto';
       }, 100);

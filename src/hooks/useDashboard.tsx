@@ -10,46 +10,27 @@ export const useDashboard = () => {
   
   const { 
     investments, 
-    loading: investmentsLoading, 
-    error: investmentsError,
+    loading, 
     addInvestment, 
     updateInvestment 
   } = useInvestments();
   
   const { 
     liquidAssets, 
-    loading: liquidAssetsLoading,
-    error: liquidAssetsError,
     updateLiquidAsset 
   } = useLiquidAssets();
 
-  // Consider loading complete only when both data sources are loaded
-  const loading = investmentsLoading || liquidAssetsLoading;
-  const error = investmentsError || liquidAssetsError;
-
   const filteredInvestments = useMemo(() => {
-    console.log("useDashboard - Filtering investments for member:", selectedMember);
     return selectedMember === "Wealth Combined"
       ? investments
       : investments.filter(inv => inv.owner === selectedMember);
   }, [selectedMember, investments]);
 
   const summary = useMemo(() => {
-    console.log("useDashboard - Calculating summary for filtered investments");
     return investmentService.calculateSummary(filteredInvestments);
   }, [filteredInvestments]);
 
   const hasData = investments.length > 0 || liquidAssets.length > 0;
-
-  console.log("useDashboard state:", {
-    loading,
-    error,
-    hasData,
-    investmentsCount: investments.length,
-    liquidAssetsCount: liquidAssets.length,
-    investmentsLoading,
-    liquidAssetsLoading
-  });
 
   return {
     investments,
@@ -57,7 +38,6 @@ export const useDashboard = () => {
     summary,
     showForm,
     loading,
-    error,
     liquidAssets,
     selectedMember,
     hasData,

@@ -6,47 +6,35 @@ import { useAuth } from "@/contexts/AuthContext";
 
 export const useLiquidAssets = () => {
   const [liquidAssets, setLiquidAssets] = useState<LiquidAsset[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
   const { toast } = useToast();
   const { user } = useAuth();
 
   const loadLiquidAssets = async () => {
     try {
-      console.log("useLiquidAssets - Starting to load liquid assets");
-      setLoading(true);
-      setError(null);
-
       if (!user) {
-        console.log("useLiquidAssets - No user found, skipping liquid assets load");
-        setLoading(false);
+        console.log("No user found, skipping liquid assets load");
         return;
       }
-
-      console.log("useLiquidAssets - Loading liquid assets for user:", user.id);
-      const { data, error: supabaseError } = await supabase
+      console.log("Loading liquid assets for user:", user.id);
+      const { data, error } = await supabase
         .from("liquid_assets")
         .select("*")
         .eq('user_id', user.id);
 
-      if (supabaseError) {
-        console.error("useLiquidAssets - Error loading liquid assets:", supabaseError);
-        throw supabaseError;
+      if (error) {
+        console.error("Error loading liquid assets:", error);
+        throw error;
       }
 
-      console.log("useLiquidAssets - Loaded liquid assets:", data);
+      console.log("Loaded liquid assets:", data);
       setLiquidAssets(data as LiquidAsset[]);
-    } catch (err) {
-      console.error("useLiquidAssets - Error in loadLiquidAssets:", err);
-      setError(err as Error);
+    } catch (error) {
+      console.error("Error in loadLiquidAssets:", error);
       toast({
         title: "Error",
         description: "Failed to load liquid assets. Please try again.",
         variant: "destructive",
       });
-    } finally {
-      console.log("useLiquidAssets - Finished loading liquid assets");
-      setLoading(false);
     }
   };
 
@@ -112,14 +100,15 @@ export const useLiquidAssets = () => {
   };
 
   useEffect(() => {
-    console.log("useLiquidAssets - Auth state changed, user:", user?.id);
-    loadLiquidAssets();
+    if (user) {
+      loadLiquidAssets();
+    } else {
+      setLiquidAssets([]);
+    }
   }, [user]);
 
   return {
     liquidAssets,
-    loading,
-    error,
     updateLiquidAsset,
   };
 };

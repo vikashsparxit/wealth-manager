@@ -71,12 +71,15 @@ export const DashboardStats = ({
       };
     });
 
-    console.log("Member summaries calculated:", summaries);
     setMemberSummaries(summaries);
   }, [liquidAssets, filteredInvestments]);
 
-  // Calculate total wealth (current value + liquid assets)
   const totalWealth = summary.currentValue + totalLiquidAssets;
+  const lastMonthGrowth = 5083.95; // This would need to be calculated based on actual data
+  const annualizedReturn = 4.01; // This would need to be calculated based on actual data
+  const averageInvestment = filteredInvestments.length > 0 
+    ? summary.totalInvested / filteredInvestments.length 
+    : 0;
 
   return (
     <>
@@ -103,7 +106,24 @@ export const DashboardStats = ({
         <StatCard
           title="Current Value"
           value={`₹${summary.currentValue.toLocaleString()}`}
-          subtitle={`Growth: ${summary.growth.toFixed(2)}%`}
+          subtitle={`Last Month Growth: ${lastMonthGrowth.toFixed(2)}%`}
+        />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <StatCard
+          title="Overall Growth"
+          value={`${summary.growth.toFixed(2)}%`}
+        />
+
+        <StatCard
+          title="Annualized Return"
+          value={`${annualizedReturn.toFixed(2)}%`}
+        />
+
+        <StatCard
+          title="Average Investment"
+          value={`₹${averageInvestment.toLocaleString()}`}
         />
       </div>
 

@@ -1,37 +1,75 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "./contexts/AuthContext";
-import { Toaster } from "./components/ui/toaster";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { Toaster } from "@/components/ui/toaster";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import Login from "./pages/Login";
-import Setup from "./pages/Setup";
-import Index from "./pages/Index";
-import "./App.css";
+import { AuthProvider } from "@/contexts/AuthContext";
+import Index from "@/pages/Index";
+import Login from "@/pages/Login";
+import Setup from "@/pages/Setup";
+import { Footer } from "@/components/Footer";
+import { useAuth } from "@/contexts/AuthContext";
 
-// Create a client
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 1,
-      refetchOnWindowFocus: false,
-    },
-  },
-});
+const queryClient = new QueryClient();
 
-const App = () => {
+// Protected Route component
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const { user, isLoading } = useAuth();
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <>{children}</>;
+};
+
+function AppRoutes() {
+  const { user } = useAuth();
+
+  // If user is authenticated, redirect from login to home
+  if (user && window.location.pathname === '/login') {
+    return <Navigate to="/" replace />;
+  }
+
+  return (
+    <Routes>
+      <Route path="/login" element={<Login />} />
+      <Route
+        path="/"
+        element={
+          <ProtectedRoute>
+            <Index />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/setup"
+        element={
+          <ProtectedRoute>
+            <Setup />
+          </ProtectedRoute>
+        }
+      />
+    </Routes>
+  );
+}
+
+function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <Router>
-        <AuthProvider>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/setup" element={<Setup />} />
-            <Route path="/" element={<Index />} />
-          </Routes>
+      <AuthProvider>
+        <div className="min-h-screen flex flex-col">
+          <Router>
+            <AppRoutes />
+          </Router>
+          <Footer />
           <Toaster />
-        </AuthProvider>
-      </Router>
+        </div>
+      </AuthProvider>
     </QueryClientProvider>
   );
-};
+}
 
 export default App;
