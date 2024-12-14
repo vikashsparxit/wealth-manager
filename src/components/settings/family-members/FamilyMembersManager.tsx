@@ -5,6 +5,7 @@ import { MembersList } from "./MembersList";
 import { FamilyMembersDialogTitle } from "./FamilyMembersDialogTitle";
 import { useFamilyMembersManager } from "./hooks/useFamilyMembersManager";
 import { Member } from "./types";
+import { FamilyRelationship } from "@/types/investment";
 
 export const FamilyMembersManager = () => {
   const {
@@ -20,7 +21,7 @@ export const FamilyMembersManager = () => {
       ...prev,
       editingId: member.id,
       editValue: member.name,
-      editRelationship: member.relationship || "Other"
+      editRelationship: member.relationship || "Spouse"
     }));
   };
 
@@ -35,7 +36,7 @@ export const FamilyMembersManager = () => {
           loading={state.loading}
           onAdd={addMember}
           onMemberChange={(value) => setState(prev => ({ ...prev, newMember: value }))}
-          onRelationshipChange={(value) => setState(prev => ({ ...prev, relationship: value }))}
+          onRelationshipChange={(value: FamilyRelationship) => setState(prev => ({ ...prev, relationship: value }))}
         />
 
         <MembersList
@@ -49,7 +50,7 @@ export const FamilyMembersManager = () => {
           onCancelEdit={() => setState(prev => ({ ...prev, editingId: null }))}
           onToggleStatus={toggleMemberStatus}
           setEditValue={(value) => setState(prev => ({ ...prev, editValue: value }))}
-          setEditRelationship={(value) => setState(prev => ({ ...prev, editRelationship: value }))}
+          setEditRelationship={(value: FamilyRelationship) => setState(prev => ({ ...prev, editRelationship: value }))}
         />
       </Card>
     </DialogContent>
