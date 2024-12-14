@@ -15,11 +15,7 @@ interface Member {
   investment_count: number;
 }
 
-interface FamilyMembersManagerProps {
-  onClose: () => void;
-}
-
-export const FamilyMembersManager = ({ onClose }: FamilyMembersManagerProps) => {
+export const FamilyMembersManager = () => {
   const [newMember, setNewMember] = useState("");
   const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(false);
@@ -180,7 +176,6 @@ export const FamilyMembersManager = ({ onClose }: FamilyMembersManagerProps) => 
 
   return (
     <DialogContent className="sm:max-w-[600px]" onInteractOutside={() => {
-      onClose();
       // Add a small delay before enabling interactions
       setTimeout(() => {
         document.body.style.pointerEvents = 'auto';

@@ -18,6 +18,16 @@ export const EmptyDashboard = ({ onAddInvestment, onManageMembers, onManageTypes
   const [showTypesDialog, setShowTypesDialog] = useState(false);
   const dashboardName = settings?.dashboard_name || "My Wealth Dashboard";
 
+  const handleDialogChange = (setter: (open: boolean) => void) => (open: boolean) => {
+    setter(open);
+    // Add a small delay before enabling interactions
+    if (!open) {
+      setTimeout(() => {
+        document.body.style.pointerEvents = 'auto';
+      }, 100);
+    }
+  };
+
   return (
     <div className="flex flex-col items-center justify-center h-[60vh] space-y-8 text-center">
       <div className="space-y-2">
@@ -44,8 +54,8 @@ export const EmptyDashboard = ({ onAddInvestment, onManageMembers, onManageTypes
         </Button>
       </div>
 
-      <Dialog open={showMembersDialog} onOpenChange={setShowMembersDialog}>
-        <DialogContent className="sm:max-w-[600px]">
+      <Dialog open={showMembersDialog} onOpenChange={handleDialogChange(setShowMembersDialog)}>
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>Family Members</DialogTitle>
           </DialogHeader>
@@ -53,8 +63,8 @@ export const EmptyDashboard = ({ onAddInvestment, onManageMembers, onManageTypes
         </DialogContent>
       </Dialog>
 
-      <Dialog open={showTypesDialog} onOpenChange={setShowTypesDialog}>
-        <DialogContent className="sm:max-w-[600px]">
+      <Dialog open={showTypesDialog} onOpenChange={handleDialogChange(setShowTypesDialog)}>
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>Investment Types</DialogTitle>
           </DialogHeader>

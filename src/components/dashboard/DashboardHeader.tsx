@@ -15,7 +15,7 @@ import { useState } from "react";
 import { ProfileDialog } from "@/components/profile/ProfileDialog";
 import { FamilyMembersManager } from "@/components/settings/FamilyMembersManager";
 import { InvestmentTypesManager } from "@/components/settings/InvestmentTypesManager";
-import { Dialog } from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 interface DashboardHeaderProps {
   onAddInvestment: () => void;
@@ -118,14 +118,18 @@ export const DashboardHeader = ({ onAddInvestment }: DashboardHeaderProps) => {
         open={showMembersDialog} 
         onOpenChange={handleDialogChange(setShowMembersDialog)}
       >
-        <FamilyMembersManager onClose={() => setShowMembersDialog(false)} />
+        <DialogContent>
+          <FamilyMembersManager />
+        </DialogContent>
       </Dialog>
 
       <Dialog 
         open={showTypesDialog} 
         onOpenChange={handleDialogChange(setShowTypesDialog)}
       >
-        <InvestmentTypesManager onClose={() => setShowTypesDialog(false)} />
+        <DialogContent>
+          <InvestmentTypesManager />
+        </DialogContent>
       </Dialog>
     </div>
   );
