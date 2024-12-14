@@ -219,7 +219,8 @@ export type Database = {
         | "Spouse"
         | "Son"
         | "Daughter"
-        | "Other"
+        | "Mother"
+        | "Father"
       investment_type:
         | "Real Estate"
         | "Gold"

@@ -9,7 +9,8 @@ const relationshipOptions: FamilyRelationship[] = [
   "Spouse",
   "Son",
   "Daughter",
-  "Other"
+  "Mother",
+  "Father"
 ];
 
 export const AddMemberForm = ({ 

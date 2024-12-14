@@ -1,19 +1,37 @@
 export type FamilyMember = "Myself" | "My Wife" | "My Daughter";
 
-export type FamilyRelationship = "Primary User" | "Spouse" | "Son" | "Daughter" | "Other";
+export type FamilyRelationship = "Primary User" | "Spouse" | "Son" | "Daughter" | "Mother" | "Father";
 
 export type InvestmentType =
-  | "Real Estate"
-  | "Gold"
-  | "Bonds"
+  | "Physical Gold"
+  | "Digital Gold"
+  | "Sovereign Gold Bonds (SGB)"
+  | "Silver"
+  | "Stocks"
+  | "US Stocks"
+  | "Pre-IPO Investments"
+  | "Startup Equity"
+  | "ETFs"
+  | "Mutual Funds"
+  | "PPF"
+  | "EPF"
+  | "NPS"
+  | "Fixed Deposite"
+  | "Govt Bonds"
+  | "Corporate Bonds"
+  | "Treasury Bills"
+  | "Tax-Free Bonds"
+  | "Sukanya Samriddhi Yojana (SSY)"
+  | "Debentures"
   | "LIC"
   | "ULIP"
-  | "Sukanya Samridhi"
-  | "Mutual Funds"
-  | "Stocks"
-  | "NPS"
-  | "PPF"
-  | "Startups";
+  | "Residential Property"
+  | "Commercial Property"
+  | "REITs"
+  | "Land"
+  | "Cryptocurrency"
+  | "NFT"
+  | "Recurring Deposits";
 
 export type CurrencyType =
   | "INR"
