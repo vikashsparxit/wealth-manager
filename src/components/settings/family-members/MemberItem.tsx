@@ -44,12 +44,12 @@ export const MemberItem = ({
             <SelectTrigger className="w-[200px]">
               <SelectValue placeholder="Select relationship" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-background border shadow-lg">
               {relationshipOptions.map((option) => (
                 <SelectItem 
                   key={option} 
                   value={option}
-                  className="cursor-pointer"
+                  className="cursor-pointer py-2 px-4 hover:bg-accent rounded-md"
                 >
                   {option}
                 </SelectItem>

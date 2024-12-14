@@ -26,7 +26,7 @@ export const FamilyMembersManager = () => {
   return (
     <DialogContent className="sm:max-w-[600px]">
       <DialogHeader>
-        <DialogTitle>Family Members</DialogTitle>
+        <DialogTitle>Family Members Management</DialogTitle>
       </DialogHeader>
       
       <Card className="p-6">

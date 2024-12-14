@@ -30,12 +30,12 @@ export const LiquidAssetForm = ({
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Select owner" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-background border shadow-lg min-w-[200px]">
               {familyMembers.map((member) => (
                 <SelectItem 
                   key={member.name} 
                   value={member.name}
-                  className="cursor-pointer"
+                  className="cursor-pointer py-2 px-4 hover:bg-accent rounded-md"
                 >
                   {getDisplayName(member)}
                 </SelectItem>
