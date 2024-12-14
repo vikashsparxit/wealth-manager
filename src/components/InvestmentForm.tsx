@@ -8,16 +8,11 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { InvestmentTypeSelect } from "./investment/InvestmentTypeSelect";
+import { OwnerSelect } from "./investment/OwnerSelect";
 
 interface Props {
   onSubmit: (investment: Omit<Investment, "id">) => void;
@@ -66,7 +61,6 @@ export const InvestmentForm = ({ onSubmit, onCancel, investment }: Props) => {
         setInvestmentTypes(typesResponse.data as Array<{ name: InvestmentType }>);
         setFamilyMembers(membersResponse.data as Array<{ name: FamilyMember }>);
         
-        // Set default values if not editing
         if (!investment) {
           setFormData(prev => ({
             ...prev,
@@ -99,7 +93,7 @@ export const InvestmentForm = ({ onSubmit, onCancel, investment }: Props) => {
   const today = new Date().toISOString().split("T")[0];
 
   if (loading) {
-    return null; // or a loading spinner
+    return null;
   }
 
   return (
@@ -111,66 +105,28 @@ export const InvestmentForm = ({ onSubmit, onCancel, investment }: Props) => {
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Investment Type</label>
-            <Select
-              value={formData.type}
-              onValueChange={(value) =>
-                setFormData({ ...formData, type: value })
-              }
-            >
-              <SelectTrigger className="w-full bg-background">
-                <SelectValue placeholder="Select type" />
-              </SelectTrigger>
-              <SelectContent className="max-h-[300px] overflow-y-auto">
-                {investmentTypes.map(({ name }) => (
-                  <SelectItem 
-                    key={name} 
-                    value={name}
-                    className="cursor-pointer hover:bg-accent focus:bg-accent"
-                  >
-                    {name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          <InvestmentTypeSelect
+            value={formData.type as InvestmentType | ""}
+            types={investmentTypes}
+            onChange={(value) => setFormData({ ...formData, type: value })}
+          />
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Owner</label>
-            <Select
-              value={formData.owner}
-              onValueChange={(value) =>
-                setFormData({ ...formData, owner: value })
-              }
-            >
-              <SelectTrigger className="w-full bg-background">
-                <SelectValue placeholder="Select owner" />
-              </SelectTrigger>
-              <SelectContent className="max-h-[300px] overflow-y-auto">
-                {familyMembers.map(({ name }) => (
-                  <SelectItem 
-                    key={name} 
-                    value={name}
-                    className="cursor-pointer hover:bg-accent focus:bg-accent"
-                  >
-                    {name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          <OwnerSelect
+            value={formData.owner as FamilyMember | ""}
+            owners={familyMembers}
+            onChange={(value) => setFormData({ ...formData, owner: value })}
+          />
 
           <div className="space-y-2">
             <label className="text-sm font-medium">Invested Amount</label>
             <Input
               type="number"
               value={formData.investedAmount}
-              onChange={(e) =>
-                setFormData({ ...formData, investedAmount: e.target.value })
-              }
+              onChange={(e) => setFormData({ ...formData, investedAmount: e.target.value })}
               required
+              aria-describedby="invested-amount-description"
             />
+            <p id="invested-amount-description" className="sr-only">Enter the initial amount invested</p>
           </div>
 
           <div className="space-y-2">
@@ -178,11 +134,11 @@ export const InvestmentForm = ({ onSubmit, onCancel, investment }: Props) => {
             <Input
               type="number"
               value={formData.currentValue}
-              onChange={(e) =>
-                setFormData({ ...formData, currentValue: e.target.value })
-              }
+              onChange={(e) => setFormData({ ...formData, currentValue: e.target.value })}
               required
+              aria-describedby="current-value-description"
             />
+            <p id="current-value-description" className="sr-only">Enter the current value of the investment</p>
           </div>
 
           <div className="space-y-2">
@@ -190,23 +146,23 @@ export const InvestmentForm = ({ onSubmit, onCancel, investment }: Props) => {
             <Input
               type="date"
               value={formData.dateOfInvestment}
-              onChange={(e) =>
-                setFormData({ ...formData, dateOfInvestment: e.target.value })
-              }
+              onChange={(e) => setFormData({ ...formData, dateOfInvestment: e.target.value })}
               max={today}
               required
+              aria-describedby="date-description"
             />
+            <p id="date-description" className="sr-only">Select the date when the investment was made</p>
           </div>
 
           <div className="space-y-2">
             <label className="text-sm font-medium">Notes</label>
             <Textarea
               value={formData.notes}
-              onChange={(e) =>
-                setFormData({ ...formData, notes: e.target.value })
-              }
+              onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
               placeholder="Optional notes..."
+              aria-describedby="notes-description"
             />
+            <p id="notes-description" className="sr-only">Add any additional notes about the investment</p>
           </div>
 
           <div className="flex justify-end gap-4">
