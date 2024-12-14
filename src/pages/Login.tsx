@@ -5,16 +5,24 @@ import { Button } from "@/components/ui/button";
 import { LogIn } from "lucide-react";
 
 const Login = () => {
-  const { user, signInWithGoogle } = useAuth();
+  const { user, isLoading, signInWithGoogle } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log("Login component - Auth state:", { user });
+    console.log("Login component - Auth state:", { user, isLoading });
     if (user) {
       console.log("User is authenticated, redirecting to dashboard");
       navigate("/", { replace: true });
     }
   }, [user, navigate]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div>Loading...</div>
+      </div>
+    );
+  }
 
   const handleSignIn = async () => {
     try {
@@ -37,6 +45,7 @@ const Login = () => {
           className="w-full" 
           size="lg"
           onClick={handleSignIn}
+          disabled={isLoading}
         >
           <LogIn className="mr-2 h-4 w-4" />
           Sign in with Google

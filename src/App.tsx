@@ -12,22 +12,37 @@ const queryClient = new QueryClient();
 
 // Protected Route component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user } = useAuth();
-  console.log("ProtectedRoute - Auth state:", { user });
+  const { user, isLoading } = useAuth();
+  console.log("ProtectedRoute - Auth state:", { user, isLoading });
+
+  // Show loading state while checking auth
+  if (isLoading) {
+    console.log("Auth state is loading...");
+    return <div>Loading...</div>;
+  }
 
   if (!user) {
     console.log("User not authenticated, redirecting to login");
     return <Navigate to="/login" replace />;
   }
 
+  console.log("User is authenticated, rendering protected content");
   return <>{children}</>;
 };
 
 // Main App component
 const AppRoutes = () => {
+  const { user, isLoading } = useAuth();
+  console.log("AppRoutes - Auth state:", { user, isLoading });
+
   return (
     <Routes>
-      <Route path="/login" element={<Login />} />
+      <Route 
+        path="/login" 
+        element={
+          user ? <Navigate to="/" replace /> : <Login />
+        } 
+      />
       <Route
         path="/"
         element={
