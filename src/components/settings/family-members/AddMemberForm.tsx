@@ -6,7 +6,6 @@ import { AddMemberFormProps } from "./types";
 import { FamilyRelationship } from "@/types/investment";
 
 const relationshipOptions: FamilyRelationship[] = [
-  "Primary User",
   "Spouse",
   "Son",
   "Daughter",

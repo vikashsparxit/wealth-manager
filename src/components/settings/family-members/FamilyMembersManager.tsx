@@ -1,7 +1,8 @@
-import { DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { DialogContent } from "@/components/ui/dialog";
 import { Card } from "@/components/ui/card";
 import { AddMemberForm } from "./AddMemberForm";
 import { MembersList } from "./MembersList";
+import { FamilyMembersDialogTitle } from "./FamilyMembersDialogTitle";
 import { useFamilyMembersManager } from "./hooks/useFamilyMembersManager";
 import { Member } from "./types";
 
@@ -25,9 +26,7 @@ export const FamilyMembersManager = () => {
 
   return (
     <DialogContent className="sm:max-w-[600px]">
-      <DialogHeader>
-        <DialogTitle>Family Members Management</DialogTitle>
-      </DialogHeader>
+      <FamilyMembersDialogTitle />
       
       <Card className="p-6">
         <AddMemberForm
