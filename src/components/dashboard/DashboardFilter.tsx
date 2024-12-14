@@ -28,7 +28,11 @@ export const DashboardFilter = ({ selectedMember, onMemberChange }: DashboardFil
         return;
       }
 
-      setFamilyMembers(data || []);
+      // Ensure the data matches the FamilyMember type
+      const typedData = (data || []).map(item => ({
+        name: item.name as FamilyMember
+      }));
+      setFamilyMembers(typedData);
     };
 
     loadFamilyMembers();

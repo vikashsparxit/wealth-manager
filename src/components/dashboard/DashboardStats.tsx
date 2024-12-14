@@ -8,7 +8,7 @@ interface DashboardStatsProps {
   liquidAssets: LiquidAsset[];
   onLiquidAssetsUpdate: (amount: number, owner: FamilyMember) => void;
   filteredInvestments: any[];
-  selectedMember: "Family Combined" | FamilyMember;
+  selectedMember: "Wealth Combined" | FamilyMember;
 }
 
 export const DashboardStats = ({ 
@@ -22,7 +22,7 @@ export const DashboardStats = ({
 
   useEffect(() => {
     const calculateTotalLiquidAssets = () => {
-      if (selectedMember === "Family Combined") {
+      if (selectedMember === "Wealth Combined") {
         const total = liquidAssets.reduce((sum, asset) => sum + Number(asset.amount), 0);
         console.log("Total liquid assets for all members:", total);
         setTotalLiquidAssets(total);

@@ -37,9 +37,13 @@ export const LiquidAssetsDialog = ({ liquidAssets, onUpdate, selectedMember }: L
         return;
       }
 
-      setFamilyMembers(data || []);
-      if (data && data.length > 0) {
-        setOwner(data[0].name);
+      // Ensure the data matches the FamilyMember type
+      const typedData = (data || []).map(item => ({
+        name: item.name as FamilyMember
+      }));
+      setFamilyMembers(typedData);
+      if (typedData.length > 0) {
+        setOwner(typedData[0].name);
       }
     };
 
