@@ -14,6 +14,7 @@ export type Database = {
           created_at: string
           id: string
           name: string
+          relationship: string | null
           status: Database["public"]["Enums"]["investment_type_status"] | null
           updated_at: string
           user_id: string
@@ -22,6 +23,7 @@ export type Database = {
           created_at?: string
           id?: string
           name: string
+          relationship?: string | null
           status?: Database["public"]["Enums"]["investment_type_status"] | null
           updated_at?: string
           user_id: string
@@ -30,6 +32,7 @@ export type Database = {
           created_at?: string
           id?: string
           name?: string
+          relationship?: string | null
           status?: Database["public"]["Enums"]["investment_type_status"] | null
           updated_at?: string
           user_id?: string
