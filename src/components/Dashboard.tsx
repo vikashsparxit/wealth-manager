@@ -11,6 +11,7 @@ import { useDashboard } from "@/hooks/useDashboard";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
+import { useEffect } from "react";
 
 export const Dashboard = () => {
   const { toast } = useToast();
@@ -20,6 +21,7 @@ export const Dashboard = () => {
     summary,
     showForm,
     loading,
+    error,
     liquidAssets,
     selectedMember,
     hasData,
@@ -30,22 +32,25 @@ export const Dashboard = () => {
     handleLiquidAssetsUpdate,
   } = useDashboard();
 
-  console.log("Dashboard - Auth state:", { user });
-  console.log("Dashboard - Data state:", { hasData, investments: filteredInvestments });
+  useEffect(() => {
+    if (error) {
+      console.error("Dashboard error:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load dashboard data. Please try again.",
+        variant: "destructive",
+      });
+    }
+  }, [error, toast]);
 
-  const handleManageMembers = () => {
-    toast({
-      title: "Coming Soon",
-      description: "The ability to manage wealth members will be available soon.",
-    });
-  };
-
-  const handleManageTypes = () => {
-    toast({
-      title: "Coming Soon",
-      description: "The ability to manage investment types will be available soon.",
-    });
-  };
+  console.log("Dashboard - Auth state:", { user, loading });
+  console.log("Dashboard - Data state:", { 
+    hasData, 
+    investments: filteredInvestments,
+    liquidAssets,
+    loading,
+    error 
+  });
 
   if (!user) {
     console.log("Dashboard - User not authenticated, redirecting to login");
@@ -53,17 +58,39 @@ export const Dashboard = () => {
   }
 
   if (loading) {
+    console.log("Dashboard - Loading state active");
     return <DashboardLoading />;
   }
 
+  if (error) {
+    console.log("Dashboard - Error state:", error);
+    return (
+      <div className="container mx-auto py-8 text-center">
+        <h2 className="text-2xl font-bold text-destructive mb-4">Error Loading Dashboard</h2>
+        <p className="text-muted-foreground">Please refresh the page to try again.</p>
+      </div>
+    );
+  }
+
   if (!hasData) {
+    console.log("Dashboard - No data available");
     return (
       <div className="container mx-auto py-8">
         <DashboardHeader onAddInvestment={() => setShowForm(true)} />
         <EmptyDashboard 
           onAddInvestment={() => setShowForm(true)}
-          onManageMembers={handleManageMembers}
-          onManageTypes={handleManageTypes}
+          onManageMembers={() => {
+            toast({
+              title: "Coming Soon",
+              description: "The ability to manage wealth members will be available soon.",
+            });
+          }}
+          onManageTypes={() => {
+            toast({
+              title: "Coming Soon",
+              description: "The ability to manage investment types will be available soon.",
+            });
+          }}
         />
         {showForm && (
           <InvestmentForm
