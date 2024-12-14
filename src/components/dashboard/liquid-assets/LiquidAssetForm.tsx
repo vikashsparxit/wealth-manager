@@ -14,11 +14,18 @@ export const LiquidAssetForm = ({
   onSave,
 }: LiquidAssetFormProps) => {
   const getDisplayName = (member: { name: string; relationship?: string }) => {
-    if (member.name === "Myself") {
+    if (member.relationship === "Primary User") {
       return "Myself (Primary)";
     }
     return `${member.name}${member.relationship ? ` (${member.relationship})` : ''}`;
   };
+
+  // Sort family members to put Primary User first
+  const sortedMembers = [...familyMembers].sort((a, b) => {
+    if (a.relationship === "Primary User") return -1;
+    if (b.relationship === "Primary User") return 1;
+    return 0;
+  });
 
   return (
     <div className="grid gap-4 py-4">
@@ -32,7 +39,7 @@ export const LiquidAssetForm = ({
               <SelectValue placeholder="Select owner" />
             </SelectTrigger>
             <SelectContent className="bg-background border shadow-lg min-w-[200px]">
-              {familyMembers.map((member) => (
+              {sortedMembers.map((member) => (
                 <SelectItem 
                   key={member.name} 
                   value={member.name}
