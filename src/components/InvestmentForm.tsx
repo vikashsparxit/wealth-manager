@@ -52,7 +52,7 @@ export const InvestmentForm = ({ onSubmit, onCancel, investment }: Props) => {
             .select('name')
             .eq('user_id', user.id)
             .eq('status', 'active')
-            .order('name')
+            .order('created_at')  // Order by creation date
         ]);
 
         if (typesResponse.error) throw typesResponse.error;
@@ -65,7 +65,7 @@ export const InvestmentForm = ({ onSubmit, onCancel, investment }: Props) => {
           setFormData(prev => ({
             ...prev,
             type: typesResponse.data[0]?.name || "",
-            owner: "Myself" // Default to "Myself"
+            owner: membersResponse.data[0]?.name || "Myself" // Set to first member
           }));
         }
       } catch (error) {
