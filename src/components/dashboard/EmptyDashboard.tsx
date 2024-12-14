@@ -8,9 +8,11 @@ import { useState } from "react";
 
 interface EmptyDashboardProps {
   onAddInvestment: () => void;
+  onManageMembers: () => void;
+  onManageTypes: () => void;
 }
 
-export const EmptyDashboard = ({ onAddInvestment }: EmptyDashboardProps) => {
+export const EmptyDashboard = ({ onAddInvestment, onManageMembers, onManageTypes }: EmptyDashboardProps) => {
   const { settings } = useSettings();
   const [showMembersDialog, setShowMembersDialog] = useState(false);
   const [showTypesDialog, setShowTypesDialog] = useState(false);
@@ -26,12 +28,12 @@ export const EmptyDashboard = ({ onAddInvestment }: EmptyDashboardProps) => {
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Button variant="outline" className="space-x-2" onClick={() => setShowMembersDialog(true)}>
+        <Button variant="outline" className="space-x-2" onClick={onManageMembers}>
           <Users className="h-4 w-4" />
           <span>Manage Members</span>
         </Button>
         
-        <Button variant="outline" className="space-x-2" onClick={() => setShowTypesDialog(true)}>
+        <Button variant="outline" className="space-x-2" onClick={onManageTypes}>
           <List className="h-4 w-4" />
           <span>Manage Types</span>
         </Button>
