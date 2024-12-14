@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Investment, InvestmentType, FamilyMember } from "@/types/investment";
+import { Investment, InvestmentType, FamilyMember, FamilyRelationship } from "@/types/investment";
 import {
   Dialog,
   DialogContent,
@@ -17,14 +17,16 @@ import { NotesInput } from "./investment-form/NotesInput";
 import { FormActions } from "./investment-form/FormActions";
 import { InvestmentFormProps } from "./investment-form/types";
 
+interface FamilyMemberData {
+  name: FamilyMember;
+  relationship?: FamilyRelationship;
+}
+
 export const InvestmentForm = ({ onSubmit, onCancel, investment }: InvestmentFormProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [investmentTypes, setInvestmentTypes] = useState<Array<{ name: InvestmentType }>>([]);
-  const [familyMembers, setFamilyMembers] = useState<Array<{ 
-    name: FamilyMember;
-    relationship?: string;
-  }>>([]);
+  const [familyMembers, setFamilyMembers] = useState<FamilyMemberData[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [formData, setFormData] = useState({
@@ -63,21 +65,25 @@ export const InvestmentForm = ({ onSubmit, onCancel, investment }: InvestmentFor
         
         // Filter and validate family members
         const validMembers = membersResponse.data
-          .filter((member): member is { name: FamilyMember; relationship: string } => {
-            return ['Myself', 'My Wife', 'My Daughter'].includes(member.name);
+          .filter((member): member is { name: FamilyMember; relationship: FamilyRelationship } => {
+            return ['Myself', 'My Wife', 'My Daughter'].includes(member.name) && 
+                   ['Primary User', 'Spouse', 'Son', 'Daughter', 'Other'].includes(member.relationship || '');
           });
 
+        console.log("Valid family members after filtering:", validMembers);
         setInvestmentTypes(typesResponse.data as Array<{ name: InvestmentType }>);
         setFamilyMembers(validMembers);
         
         if (!investment) {
           // Set default values
           const primaryUser = validMembers.find(m => m.relationship === 'Primary User');
-          setFormData(prev => ({
-            ...prev,
-            type: typesResponse.data[0]?.name || "",
-            owner: primaryUser?.name || "Myself"
-          }));
+          if (primaryUser) {
+            setFormData(prev => ({
+              ...prev,
+              type: typesResponse.data[0]?.name || "",
+              owner: primaryUser.name
+            }));
+          }
         }
       } catch (error) {
         console.error('Error loading form data:', error);
@@ -128,7 +134,7 @@ export const InvestmentForm = ({ onSubmit, onCancel, investment }: InvestmentFor
           />
 
           <OwnerSelect
-            value={formData.owner as FamilyMember | ""}
+            value={formData.owner as FamilyMember}
             owners={familyMembers}
             onChange={(value) => setFormData({ ...formData, owner: value })}
           />
