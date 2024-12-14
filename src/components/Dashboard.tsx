@@ -2,16 +2,15 @@ import { useEffect, useState } from "react";
 import { Investment, WealthSummary, FamilyMember } from "@/types/investment";
 import { investmentService } from "@/services/investmentService";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { InvestmentForm } from "@/components/InvestmentForm";
 import { InvestmentList } from "@/components/InvestmentList";
 import { useToast } from "@/components/ui/use-toast";
-import { StatCard } from "./dashboard/StatCard";
 import { DashboardFilter } from "./dashboard/DashboardFilter";
-import { LiquidAssetsDialog } from "./dashboard/LiquidAssetsDialog";
-import { DashboardCharts } from "./dashboard/DashboardCharts";
+import { DashboardHeader } from "./dashboard/DashboardHeader";
+import { DashboardStats } from "./dashboard/DashboardStats";
 import { ROIInsights } from "./dashboard/ROIInsights";
 import { PortfolioDiversification } from "./dashboard/PortfolioDiversification";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Dashboard = () => {
   const [investments, setInvestments] = useState<Investment[]>([]);
@@ -29,6 +28,7 @@ export const Dashboard = () => {
 
   useEffect(() => {
     loadInvestments();
+    loadLiquidAssets();
   }, []);
 
   useEffect(() => {
@@ -38,6 +38,27 @@ export const Dashboard = () => {
     setFilteredInvestments(filtered);
     setSummary(investmentService.calculateSummary(filtered));
   }, [selectedMember, investments]);
+
+  const loadLiquidAssets = async () => {
+    try {
+      console.log("Loading liquid assets...");
+      const { data, error } = await supabase
+        .from("liquid_assets")
+        .select("amount")
+        .eq("owner", selectedMember === "Family Combined" ? "Myself" : selectedMember);
+
+      if (error) {
+        console.error("Error loading liquid assets:", error);
+        return;
+      }
+
+      const totalAmount = data?.reduce((sum, asset) => sum + Number(asset.amount), 0) || 0;
+      console.log("Total liquid assets loaded:", totalAmount);
+      setLiquidAssets(totalAmount);
+    } catch (error) {
+      console.error("Error in loadLiquidAssets:", error);
+    }
+  };
 
   const loadInvestments = async () => {
     try {
@@ -99,12 +120,37 @@ export const Dashboard = () => {
     }
   };
 
-  const handleLiquidAssetsUpdate = (amount: number, owner: FamilyMember) => {
-    setLiquidAssets(amount);
-    toast({
-      title: "Success",
-      description: "Liquid assets updated successfully.",
-    });
+  const handleLiquidAssetsUpdate = async (amount: number, owner: FamilyMember) => {
+    try {
+      const { data: existingData } = await supabase
+        .from("liquid_assets")
+        .select("id")
+        .eq("owner", owner);
+
+      if (existingData && existingData.length > 0) {
+        await supabase
+          .from("liquid_assets")
+          .update({ amount })
+          .eq("owner", owner);
+      } else {
+        await supabase
+          .from("liquid_assets")
+          .insert([{ owner, amount }]);
+      }
+
+      await loadLiquidAssets();
+      toast({
+        title: "Success",
+        description: "Liquid assets updated successfully.",
+      });
+    } catch (error) {
+      console.error("Error updating liquid assets:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update liquid assets. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   if (loading) {
@@ -117,67 +163,21 @@ export const Dashboard = () => {
     );
   }
 
-  const totalWealth = summary.currentValue + liquidAssets;
-  const lastMonthGrowth = 5083.95; // This would need to be calculated based on actual data
-  const annualizedReturn = 4.01; // This would need to be calculated based on actual data
-  const averageInvestment = filteredInvestments.length > 0 
-    ? summary.totalInvested / filteredInvestments.length 
-    : 0;
-
   return (
     <div className="container mx-auto py-8">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">Family Wealth Manager</h1>
-        <Button onClick={() => setShowForm(true)}>Add Investment</Button>
-      </div>
+      <DashboardHeader onAddInvestment={() => setShowForm(true)} />
 
       <DashboardFilter
         selectedMember={selectedMember}
         onMemberChange={setSelectedMember}
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <StatCard
-          title="Total Wealth"
-          value={`₹${totalWealth.toLocaleString()}`}
-          subtitle={`Liquid Assets: ₹${liquidAssets.toLocaleString()}`}
-          className="bg-accent/40"
-        >
-          <LiquidAssetsDialog
-            liquidAssets={liquidAssets}
-            onUpdate={handleLiquidAssetsUpdate}
-          />
-        </StatCard>
-
-        <StatCard
-          title="Total Invested"
-          value={`₹${summary.totalInvested.toLocaleString()}`}
-          subtitle={`Total Investments: ${filteredInvestments.length}`}
-        />
-
-        <StatCard
-          title="Current Value"
-          value={`₹${summary.currentValue.toLocaleString()}`}
-          subtitle={`Last Month Growth: ${lastMonthGrowth.toFixed(2)}%`}
-        />
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <StatCard
-          title="Overall Growth"
-          value={`${summary.growth.toFixed(2)}%`}
-        />
-
-        <StatCard
-          title="Annualized Return"
-          value={`${annualizedReturn.toFixed(2)}%`}
-        />
-
-        <StatCard
-          title="Average Investment"
-          value={`₹${averageInvestment.toLocaleString()}`}
-        />
-      </div>
+      <DashboardStats
+        summary={summary}
+        liquidAssets={liquidAssets}
+        onLiquidAssetsUpdate={handleLiquidAssetsUpdate}
+        filteredInvestments={filteredInvestments}
+      />
 
       <ROIInsights investments={filteredInvestments} />
       <PortfolioDiversification investments={filteredInvestments} />

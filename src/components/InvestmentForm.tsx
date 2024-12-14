@@ -31,7 +31,7 @@ const investmentTypes: InvestmentType[] = [
   "Startups",
 ];
 
-const familyMembers: FamilyMember[] = ["Myself", "My Wife", "My Daughter", "Family"];
+const familyMembers: FamilyMember[] = ["Myself", "My Wife", "My Daughter"];
 
 interface Props {
   onSubmit: (investment: Omit<Investment, "id">) => void;
@@ -60,6 +60,8 @@ export const InvestmentForm = ({ onSubmit, onCancel, investment }: Props) => {
       notes: formData.notes,
     });
   };
+
+  const today = new Date().toISOString().split("T")[0];
 
   return (
     <Dialog open onOpenChange={onCancel}>
@@ -152,6 +154,7 @@ export const InvestmentForm = ({ onSubmit, onCancel, investment }: Props) => {
               onChange={(e) =>
                 setFormData({ ...formData, dateOfInvestment: e.target.value })
               }
+              max={today}
               required
             />
           </div>

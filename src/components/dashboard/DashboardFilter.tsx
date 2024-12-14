@@ -7,7 +7,7 @@ interface DashboardFilterProps {
 }
 
 export const DashboardFilter = ({ selectedMember, onMemberChange }: DashboardFilterProps) => {
-  const familyMembers: FamilyMember[] = ["Myself", "My Wife", "My Daughter", "Family"];
+  const familyMembers: FamilyMember[] = ["Myself", "My Wife", "My Daughter"];
 
   return (
     <div className="flex items-center gap-2 mb-6">
