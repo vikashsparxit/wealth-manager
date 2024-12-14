@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/select";
 import { useSettings } from "@/hooks/useSettings";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
 const currencies = [
   { value: "INR", label: "Indian Rupee (₹)" },
@@ -27,6 +28,7 @@ export const Setup = () => {
   const { settings, initializeSettings } = useSettings();
   const [dashboardName, setDashboardName] = useState("");
   const [currency, setCurrency] = useState<CurrencyType>("INR");
+  const [fullName, setFullName] = useState(user?.user_metadata.full_name || user?.user_metadata.name || "");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -47,6 +49,14 @@ export const Setup = () => {
 
     setIsSubmitting(true);
     try {
+      // Update user's full name if changed
+      if (fullName !== user.user_metadata.full_name) {
+        await supabase
+          .from('profiles')
+          .update({ full_name: fullName })
+          .eq('id', user.id);
+      }
+
       await initializeSettings({
         dashboard_name: dashboardName,
         base_currency: currency
@@ -71,6 +81,21 @@ export const Setup = () => {
 
         <form onSubmit={handleSubmit} className="mt-8 space-y-6">
           <div className="space-y-4">
+            <div className="space-y-2">
+              <label htmlFor="fullName" className="text-sm font-medium">
+                Your Name
+              </label>
+              <Input
+                id="fullName"
+                type="text"
+                required
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                placeholder="Enter your name"
+                className="w-full"
+              />
+            </div>
+
             <div className="space-y-2">
               <label htmlFor="dashboardName" className="text-sm font-medium">
                 Dashboard Name
@@ -112,7 +137,7 @@ export const Setup = () => {
           <Button
             type="submit"
             className="w-full"
-            disabled={isSubmitting || !dashboardName}
+            disabled={isSubmitting || !dashboardName || !fullName}
           >
             {isSubmitting ? "Setting up..." : "Continue to Dashboard"}
           </Button>

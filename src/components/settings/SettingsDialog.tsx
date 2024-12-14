@@ -4,7 +4,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import {
@@ -14,7 +13,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Settings } from "lucide-react";
 import { useState } from "react";
 import { useSettings } from "@/hooks/useSettings";
 import { CurrencyType } from "@/types/investment";
@@ -34,9 +32,13 @@ const currencies = [
   { value: "SGD" as CurrencyType, label: "Singapore Dollar (S$)" },
 ] as const;
 
-export const SettingsDialog = () => {
+interface SettingsDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
   const { settings, updateSettings } = useSettings();
-  const [open, setOpen] = useState(false);
   const [dashboardName, setDashboardName] = useState(settings?.dashboard_name || "");
   const [currency, setCurrency] = useState<CurrencyType>(settings?.base_currency || "INR");
 
@@ -51,16 +53,11 @@ export const SettingsDialog = () => {
       dashboard_name: dashboardName,
       base_currency: currency
     });
-    setOpen(false);
+    onOpenChange(false);
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="icon">
-          <Settings className="h-4 w-4" />
-        </Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Dashboard Settings</DialogTitle>
