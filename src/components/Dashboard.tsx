@@ -7,8 +7,11 @@ import { PortfolioDiversification } from "./dashboard/PortfolioDiversification";
 import { DashboardLoading } from "./dashboard/DashboardLoading";
 import { DashboardInvestments } from "./dashboard/DashboardInvestments";
 import { useDashboard } from "@/hooks/useDashboard";
+import { useAuth } from "@/contexts/AuthContext";
+import { Navigate } from "react-router-dom";
 
 export const Dashboard = () => {
+  const { user } = useAuth();
   const {
     filteredInvestments,
     summary,
@@ -22,6 +25,11 @@ export const Dashboard = () => {
     handleUpdateInvestment,
     handleLiquidAssetsUpdate,
   } = useDashboard();
+
+  // Redirect to login if not authenticated
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
 
   if (loading) {
     return <DashboardLoading />;
