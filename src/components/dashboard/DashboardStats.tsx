@@ -24,14 +24,15 @@ export const DashboardStats = ({
   useEffect(() => {
     const fetchTotalLiquidAssets = async () => {
       try {
-        console.log("Fetching total liquid assets...");
-        let query = supabase.from("liquid_assets").select("amount");
-        
+        console.log("Fetching total liquid assets for:", selectedMember);
+        let { data, error } = await supabase
+          .from("liquid_assets")
+          .select("amount");
+
+        // Only filter by owner if not viewing combined family data
         if (selectedMember !== "Family Combined") {
-          query = query.eq("owner", selectedMember);
+          data = data?.filter(asset => asset.owner === selectedMember) || [];
         }
-        
-        const { data, error } = await query;
 
         if (error) {
           console.error("Error fetching liquid assets:", error);
@@ -68,6 +69,7 @@ export const DashboardStats = ({
           <LiquidAssetsDialog
             liquidAssets={totalLiquidAssets}
             onUpdate={onLiquidAssetsUpdate}
+            selectedMember={selectedMember}
           />
         </StatCard>
 

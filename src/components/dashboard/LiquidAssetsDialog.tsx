@@ -11,25 +11,31 @@ import { useToast } from "@/components/ui/use-toast";
 interface LiquidAssetsDialogProps {
   liquidAssets: number;
   onUpdate: (amount: number, owner: FamilyMember) => void;
+  selectedMember: string;
 }
 
-export const LiquidAssetsDialog = ({ liquidAssets, onUpdate }: LiquidAssetsDialogProps) => {
+export const LiquidAssetsDialog = ({ liquidAssets, onUpdate, selectedMember }: LiquidAssetsDialogProps) => {
   const [amount, setAmount] = useState(liquidAssets);
   const [owner, setOwner] = useState<FamilyMember>("Myself");
   const familyMembers: FamilyMember[] = ["Myself", "My Wife", "My Daughter"];
   const { toast } = useToast();
 
   useEffect(() => {
+    if (selectedMember !== "Family Combined") {
+      setOwner(selectedMember as FamilyMember);
+    }
     fetchLiquidAssets();
-  }, [owner]);
+  }, [selectedMember]);
 
   const fetchLiquidAssets = async () => {
     try {
-      console.log("Fetching liquid assets for owner:", owner);
+      const ownerToFetch = selectedMember !== "Family Combined" ? selectedMember : owner;
+      console.log("Fetching liquid assets for owner:", ownerToFetch);
+      
       const { data, error } = await supabase
         .from("liquid_assets")
         .select("amount")
-        .eq("owner", owner)
+        .eq("owner", ownerToFetch)
         .single();
 
       if (error && error.code !== 'PGRST116') {
@@ -41,7 +47,7 @@ export const LiquidAssetsDialog = ({ liquidAssets, onUpdate }: LiquidAssetsDialo
         console.log("Found liquid assets:", data);
         setAmount(data.amount);
       } else {
-        console.log("No liquid assets found for owner:", owner);
+        console.log("No liquid assets found for owner:", ownerToFetch);
         setAmount(0);
       }
     } catch (error) {
@@ -51,12 +57,13 @@ export const LiquidAssetsDialog = ({ liquidAssets, onUpdate }: LiquidAssetsDialo
 
   const handleSave = async () => {
     try {
-      console.log("Saving liquid assets for owner:", owner, "amount:", amount);
+      const ownerToUpdate = selectedMember !== "Family Combined" ? selectedMember : owner;
+      console.log("Saving liquid assets for owner:", ownerToUpdate, "amount:", amount);
       
       const { data: existingData, error: checkError } = await supabase
         .from("liquid_assets")
         .select("id")
-        .eq("owner", owner);
+        .eq("owner", ownerToUpdate);
 
       if (checkError) {
         throw checkError;
@@ -68,11 +75,11 @@ export const LiquidAssetsDialog = ({ liquidAssets, onUpdate }: LiquidAssetsDialo
         result = await supabase
           .from("liquid_assets")
           .update({ amount })
-          .eq("owner", owner);
+          .eq("owner", ownerToUpdate);
       } else {
         result = await supabase
           .from("liquid_assets")
-          .insert([{ owner, amount }]);
+          .insert([{ owner: ownerToUpdate, amount }]);
       }
 
       if (result.error) {
@@ -80,7 +87,7 @@ export const LiquidAssetsDialog = ({ liquidAssets, onUpdate }: LiquidAssetsDialo
       }
 
       console.log("Liquid assets saved successfully");
-      onUpdate(amount, owner);
+      onUpdate(amount, ownerToUpdate as FamilyMember);
       toast({
         title: "Success",
         description: "Liquid assets updated successfully",
@@ -108,28 +115,30 @@ export const LiquidAssetsDialog = ({ liquidAssets, onUpdate }: LiquidAssetsDialo
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
-            <Select 
-              value={owner} 
-              onValueChange={(value) => setOwner(value as FamilyMember)}
-            >
-              <SelectTrigger className="w-full bg-background">
-                <SelectValue placeholder="Select owner" />
-              </SelectTrigger>
-              <SelectContent className="bg-background border shadow-lg">
-                {familyMembers.map((member) => (
-                  <SelectItem 
-                    key={member} 
-                    value={member}
-                    className="cursor-pointer hover:bg-accent focus:bg-accent"
-                  >
-                    {member}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            {selectedMember === "Family Combined" && (
+              <Select 
+                value={owner} 
+                onValueChange={(value) => setOwner(value as FamilyMember)}
+              >
+                <SelectTrigger className="w-full bg-background">
+                  <SelectValue placeholder="Select owner" />
+                </SelectTrigger>
+                <SelectContent className="bg-background border shadow-lg">
+                  {familyMembers.map((member) => (
+                    <SelectItem 
+                      key={member} 
+                      value={member}
+                      className="cursor-pointer hover:bg-accent focus:bg-accent"
+                    >
+                      {member}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
             <div className="space-y-1">
               <label className="text-sm text-muted-foreground">
-                Current liquid assets for {owner}: ₹{amount.toLocaleString()}
+                Current liquid assets for {selectedMember !== "Family Combined" ? selectedMember : owner}: ₹{amount.toLocaleString()}
               </label>
               <Input
                 type="number"

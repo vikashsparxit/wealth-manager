@@ -43,13 +43,13 @@ export const Dashboard = () => {
   const loadLiquidAssets = async () => {
     try {
       console.log("Loading liquid assets...");
-      let query = supabase.from("liquid_assets").select("amount");
-      
-      if (selectedMember !== "Family Combined") {
-        query = query.eq("owner", selectedMember);
-      }
+      let { data, error } = await supabase
+        .from("liquid_assets")
+        .select("amount");
 
-      const { data, error } = await query;
+      if (selectedMember !== "Family Combined") {
+        data = data?.filter(asset => asset.owner === selectedMember) || [];
+      }
 
       if (error) {
         console.error("Error loading liquid assets:", error);
