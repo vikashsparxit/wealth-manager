@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Plus, Settings } from "lucide-react";
+import { Plus } from "lucide-react";
 import { AuthButton } from "@/components/auth/AuthButton";
 import { SettingsDialog } from "@/components/settings/SettingsDialog";
 import { useSettings } from "@/hooks/useSettings";
@@ -46,20 +46,35 @@ export const DashboardHeader = ({ onAddInvestment }: DashboardHeaderProps) => {
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56">
-            <DropdownMenuItem onClick={() => setShowProfileDialog(true)}>
+          <DropdownMenuContent align="end" className="w-56 p-2">
+            <DropdownMenuItem 
+              onClick={() => setShowProfileDialog(true)}
+              className="cursor-pointer py-2 px-4 hover:bg-accent rounded-md"
+            >
               Profile
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setShowSettingsDialog(true)}>
+            <DropdownMenuItem 
+              onClick={() => setShowSettingsDialog(true)}
+              className="cursor-pointer py-2 px-4 hover:bg-accent rounded-md"
+            >
               Settings
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setShowMembersDialog(true)}>
+            <DropdownMenuItem 
+              onClick={() => setShowMembersDialog(true)}
+              className="cursor-pointer py-2 px-4 hover:bg-accent rounded-md"
+            >
               Manage Members
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setShowTypesDialog(true)}>
+            <DropdownMenuItem 
+              onClick={() => setShowTypesDialog(true)}
+              className="cursor-pointer py-2 px-4 hover:bg-accent rounded-md"
+            >
               Manage Types
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={signOut}>
+            <DropdownMenuItem 
+              onClick={signOut}
+              className="cursor-pointer py-2 px-4 hover:bg-accent rounded-md text-destructive"
+            >
               Sign Out
             </DropdownMenuItem>
           </DropdownMenuContent>

@@ -1,5 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Investment } from "@/types/investment";
+import { ArrowUpIcon, ArrowDownIcon } from "lucide-react";
 import { LineChart, BarChart, Line, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
 interface ROIInsightsProps {
@@ -54,14 +55,28 @@ export const ROIInsights = ({ investments }: ROIInsightsProps) => {
             <Bar dataKey="roi" fill="#2563eb" name="ROI %" />
           </BarChart>
         </ResponsiveContainer>
-        <div className="mt-4 space-y-2">
-          <p className="text-sm">
-            Best performing: <span className="font-semibold">{bestPerforming?.type}</span> ({bestPerforming?.roi}%)
-          </p>
-          <p className="text-sm">
-            Worst performing: <span className="font-semibold">{worstPerforming?.type}</span> ({worstPerforming?.roi}%)
-          </p>
-        </div>
+        {roiData.length > 1 && (
+          <div className="mt-4 space-y-2">
+            {bestPerforming && (
+              <p className="text-sm flex items-center gap-2">
+                Best performing: <span className="font-semibold">{bestPerforming.type}</span>
+                <span className="text-success flex items-center">
+                  <ArrowUpIcon className="h-4 w-4" />
+                  {bestPerforming.roi}%
+                </span>
+              </p>
+            )}
+            {worstPerforming && worstPerforming.type !== bestPerforming?.type && (
+              <p className="text-sm flex items-center gap-2">
+                Worst performing: <span className="font-semibold">{worstPerforming.type}</span>
+                <span className="text-destructive flex items-center">
+                  <ArrowDownIcon className="h-4 w-4" />
+                  {worstPerforming.roi}%
+                </span>
+              </p>
+            )}
+          </div>
+        )}
       </Card>
 
       <Card className="p-6">
