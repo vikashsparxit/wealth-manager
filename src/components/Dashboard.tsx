@@ -7,6 +7,7 @@ import { PortfolioDiversification } from "./dashboard/PortfolioDiversification";
 import { DashboardLoading } from "./dashboard/DashboardLoading";
 import { DashboardInvestments } from "./dashboard/DashboardInvestments";
 import { EmptyDashboard } from "./dashboard/EmptyDashboard";
+import { Footer } from "./Footer";
 import { useDashboard } from "@/hooks/useDashboard";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
@@ -112,36 +113,41 @@ export const Dashboard = () => {
   }
 
   return (
-    <div className="container mx-auto py-8">
-      <DashboardHeader onAddInvestment={() => setShowForm(true)} />
+    <div className="min-h-screen flex flex-col">
+      <div className="flex-grow">
+        <div className="container mx-auto py-8">
+          <DashboardHeader onAddInvestment={() => setShowForm(true)} />
 
-      <DashboardFilter
-        selectedMember={selectedMember}
-        onMemberChange={(value) => setSelectedMember(value as typeof selectedMember)}
-      />
+          <DashboardFilter
+            selectedMember={selectedMember}
+            onMemberChange={(value) => setSelectedMember(value as typeof selectedMember)}
+          />
 
-      <DashboardStats
-        summary={summary}
-        liquidAssets={liquidAssets}
-        onLiquidAssetsUpdate={handleLiquidAssetsUpdate}
-        filteredInvestments={filteredInvestments}
-        selectedMember={selectedMember}
-      />
+          <DashboardStats
+            summary={summary}
+            liquidAssets={liquidAssets}
+            onLiquidAssetsUpdate={handleLiquidAssetsUpdate}
+            filteredInvestments={filteredInvestments}
+            selectedMember={selectedMember}
+          />
 
-      <ROIInsights investments={filteredInvestments} />
-      <PortfolioDiversification investments={filteredInvestments} />
+          <ROIInsights investments={filteredInvestments} />
+          <PortfolioDiversification investments={filteredInvestments} />
 
-      <DashboardInvestments 
-        investments={filteredInvestments}
-        onUpdate={handleUpdateInvestment}
-      />
+          <DashboardInvestments 
+            investments={filteredInvestments}
+            onUpdate={handleUpdateInvestment}
+          />
 
-      {showForm && (
-        <InvestmentForm
-          onSubmit={handleAddInvestment}
-          onCancel={() => setShowForm(false)}
-        />
-      )}
+          {showForm && (
+            <InvestmentForm
+              onSubmit={handleAddInvestment}
+              onCancel={() => setShowForm(false)}
+            />
+          )}
+        </div>
+      </div>
+      <Footer />
     </div>
   );
 };
