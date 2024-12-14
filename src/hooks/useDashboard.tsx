@@ -23,6 +23,7 @@ export const useDashboard = () => {
     updateLiquidAsset 
   } = useLiquidAssets();
 
+  // Consider loading complete only when both data sources are loaded
   const loading = investmentsLoading || liquidAssetsLoading;
   const error = investmentsError || liquidAssetsError;
 

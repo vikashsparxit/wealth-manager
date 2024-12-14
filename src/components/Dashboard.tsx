@@ -57,7 +57,8 @@ export const Dashboard = () => {
     return <Navigate to="/login" replace />;
   }
 
-  if (loading) {
+  // Only show loading state if we're actually loading data
+  if (loading && !error) {
     console.log("Dashboard - Loading state active");
     return <DashboardLoading />;
   }
@@ -72,7 +73,8 @@ export const Dashboard = () => {
     );
   }
 
-  if (!hasData) {
+  // Show empty state if we have no data after loading is complete
+  if (!hasData && !loading) {
     console.log("Dashboard - No data available");
     return (
       <div className="container mx-auto py-8">
