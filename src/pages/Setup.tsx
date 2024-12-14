@@ -14,25 +14,26 @@ import { useSettings } from "@/hooks/useSettings";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import { CurrencyType } from "@/types/investment";
 
 const currencies = [
-  { value: "INR", label: "Indian Rupee (₹)" },
-  { value: "USD", label: "US Dollar ($)" },
-  { value: "EUR", label: "Euro (€)" },
-  { value: "GBP", label: "British Pound (£)" },
-  { value: "JPY", label: "Japanese Yen (¥)" },
-  { value: "AUD", label: "Australian Dollar (A$)" },
-  { value: "CAD", label: "Canadian Dollar (C$)" },
-  { value: "CHF", label: "Swiss Franc (Fr)" },
-  { value: "CNY", label: "Chinese Yuan (¥)" },
-  { value: "HKD", label: "Hong Kong Dollar (HK$)" },
-  { value: "NZD", label: "New Zealand Dollar (NZ$)" },
-  { value: "SGD", label: "Singapore Dollar (S$)" },
-];
+  { value: "INR" as CurrencyType, label: "Indian Rupee (₹)" },
+  { value: "USD" as CurrencyType, label: "US Dollar ($)" },
+  { value: "EUR" as CurrencyType, label: "Euro (€)" },
+  { value: "GBP" as CurrencyType, label: "British Pound (£)" },
+  { value: "JPY" as CurrencyType, label: "Japanese Yen (¥)" },
+  { value: "AUD" as CurrencyType, label: "Australian Dollar (A$)" },
+  { value: "CAD" as CurrencyType, label: "Canadian Dollar (C$)" },
+  { value: "CHF" as CurrencyType, label: "Swiss Franc (Fr)" },
+  { value: "CNY" as CurrencyType, label: "Chinese Yuan (¥)" },
+  { value: "HKD" as CurrencyType, label: "Hong Kong Dollar (HK$)" },
+  { value: "NZD" as CurrencyType, label: "New Zealand Dollar (NZ$)" },
+  { value: "SGD" as CurrencyType, label: "Singapore Dollar (S$)" },
+] as const;
 
 export default function Setup() {
   const [dashboardName, setDashboardName] = useState("");
-  const [currency, setCurrency] = useState("INR");
+  const [currency, setCurrency] = useState<CurrencyType>("INR");
   const [fullName, setFullName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { initializeSettings } = useSettings();
@@ -130,7 +131,7 @@ export default function Setup() {
             >
               Base Currency
             </label>
-            <Select value={currency} onValueChange={setCurrency}>
+            <Select value={currency} onValueChange={(value: CurrencyType) => setCurrency(value)}>
               <SelectTrigger id="currency">
                 <SelectValue placeholder="Select currency" />
               </SelectTrigger>
