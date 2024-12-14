@@ -26,7 +26,7 @@ export const DashboardFilter = ({ selectedMember, onMemberChange }: DashboardFil
         .select('name, relationship')
         .eq('user_id', user.id)
         .eq('status', 'active')
-        .order('relationship', { ascending: true }); // Primary User will come first
+        .order('relationship', { ascending: true });
 
       if (error) {
         console.error('Error loading family members:', error);
@@ -38,13 +38,7 @@ export const DashboardFilter = ({ selectedMember, onMemberChange }: DashboardFil
       // Ensure proper typing and sort primary user first
       const typedData = (data || [])
         .filter((item): item is { name: FamilyMember; relationship: FamilyRelationship } => {
-          // Runtime type check to ensure name is a valid FamilyMember
           return ['Myself', 'My Wife', 'My Daughter'].includes(item.name);
-        })
-        .sort((a, b) => {
-          if (a.relationship === 'Primary User') return -1;
-          if (b.relationship === 'Primary User') return 1;
-          return 0;
         });
 
       console.log("Processed family members:", typedData);
@@ -61,7 +55,8 @@ export const DashboardFilter = ({ selectedMember, onMemberChange }: DashboardFil
     return member.name;
   };
 
-  if (familyMembers.length <= 1) {
+  // Always show if there are any family members
+  if (familyMembers.length === 0) {
     return null;
   }
 
@@ -69,7 +64,7 @@ export const DashboardFilter = ({ selectedMember, onMemberChange }: DashboardFil
     <div className="flex items-center gap-2 mb-6">
       <span className="text-sm font-medium">Dashboard For:</span>
       <Select value={selectedMember} onValueChange={onMemberChange}>
-        <SelectTrigger className="w-[180px] bg-background">
+        <SelectTrigger className="w-[180px] bg-background border">
           <SelectValue placeholder="Select view" />
         </SelectTrigger>
         <SelectContent className="bg-background border shadow-lg">

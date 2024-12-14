@@ -11,15 +11,15 @@ interface Props {
   value: FamilyMember | "";
   owners: Array<{ 
     name: FamilyMember; 
-    relationship?: FamilyRelationship;
+    relationship?: string;
   }>;
   onChange: (value: FamilyMember) => void;
 }
 
 export const OwnerSelect = ({ value, owners, onChange }: Props) => {
-  const getDisplayName = (member: { name: FamilyMember; relationship?: FamilyRelationship }) => {
+  const getDisplayName = (member: { name: FamilyMember; relationship?: string }) => {
     if (member.relationship === 'Primary User') {
-      return `Myself (Primary)`;
+      return `${member.name} (Primary)`;
     }
     return member.name;
   };
@@ -31,6 +31,8 @@ export const OwnerSelect = ({ value, owners, onChange }: Props) => {
     return 0;
   });
 
+  console.log("OwnerSelect - Available owners:", sortedOwners);
+
   return (
     <div className="space-y-2">
       <label className="text-sm font-medium">Member</label>
@@ -38,10 +40,13 @@ export const OwnerSelect = ({ value, owners, onChange }: Props) => {
         value={value}
         onValueChange={onChange}
       >
-        <SelectTrigger className="w-full bg-background" aria-describedby="owner-description">
+        <SelectTrigger 
+          className="w-full bg-background border" 
+          aria-describedby="owner-description"
+        >
           <SelectValue placeholder="Select member" />
         </SelectTrigger>
-        <SelectContent className="max-h-[300px] overflow-y-auto bg-background">
+        <SelectContent className="bg-background border shadow-lg">
           {sortedOwners.map(({ name, relationship }) => (
             <SelectItem 
               key={name} 
