@@ -24,21 +24,24 @@ export const LiquidAssetsDialog = ({ liquidAssets, onUpdate }: LiquidAssetsDialo
 
   const fetchLiquidAssets = async () => {
     try {
+      console.log("Fetching liquid assets for owner:", owner);
       const { data, error } = await supabase
         .from("liquid_assets")
         .select("owner, amount")
-        .eq("owner", owner)
-        .single();
+        .eq("owner", owner);
 
       if (error) {
         console.error("Error fetching liquid assets:", error);
         return;
       }
 
-      if (data) {
-        setAmount(data.amount);
-      } else {
+      // If no data exists yet, set amount to 0
+      if (!data || data.length === 0) {
+        console.log("No liquid assets found for owner:", owner);
         setAmount(0);
+      } else {
+        console.log("Found liquid assets:", data[0]);
+        setAmount(data[0].amount);
       }
     } catch (error) {
       console.error("Error fetching liquid assets:", error);
