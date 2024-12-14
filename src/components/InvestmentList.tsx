@@ -21,12 +21,6 @@ export const InvestmentList = ({ investments, onUpdate }: Props) => {
     null
   );
 
-  const getGrowthColor = (growth: number) => {
-    if (growth > 0) return "text-success font-medium";
-    if (growth < 0) return "text-destructive font-medium";
-    return "text-muted-foreground";
-  };
-
   return (
     <>
       <Table>
@@ -54,7 +48,11 @@ export const InvestmentList = ({ investments, onUpdate }: Props) => {
                 <TableCell>{investment.owner}</TableCell>
                 <TableCell>₹{investment.investedAmount.toLocaleString()}</TableCell>
                 <TableCell>₹{investment.currentValue.toLocaleString()}</TableCell>
-                <TableCell className={getGrowthColor(growth)}>
+                <TableCell
+                  className={
+                    growth >= 0 ? "text-success" : "text-destructive"
+                  }
+                >
                   {growth.toFixed(2)}%
                 </TableCell>
                 <TableCell>

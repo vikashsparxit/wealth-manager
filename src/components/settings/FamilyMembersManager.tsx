@@ -1,46 +1,29 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
+import { UserPlus, UserMinus, Check, X } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { MemberWithInvestments } from "@/types/member";
-import { AddMemberForm } from "./members/AddMemberForm";
-import { MemberListItem } from "./members/MemberListItem";
 
 export const FamilyMembersManager = () => {
   const [newMember, setNewMember] = useState("");
-  const [members, setMembers] = useState<MemberWithInvestments[]>([]);
+  const [members, setMembers] = useState<Array<{ id: string; name: string; status: string }>>([]);
   const [loading, setLoading] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [editValue, setEditValue] = useState("");
   const { toast } = useToast();
   const { user } = useAuth();
 
   const loadMembers = async () => {
     try {
       setLoading(true);
-      if (!user) return;
-
-      const { data: membersWithCounts, error } = await supabase
-        .from('family_members')
-        .select(`
-          id,
-          name,
-          status,
-          investments:investments(count)
-        `)
-        .eq('user_id', user.id)
-        .order('created_at');
+      const { data, error } = await supabase
+        .from("family_members")
+        .select("*")
+        .eq("user_id", user?.id);
 
       if (error) throw error;
-
-      const formattedMembers = membersWithCounts.map(member => ({
-        ...member,
-        investment_count: member.investments?.[0]?.count || 0
-      }));
-
-      console.log("Loaded members with counts:", formattedMembers);
-      setMembers(formattedMembers);
+      setMembers(data || []);
     } catch (error) {
       console.error("Error loading family members:", error);
       toast({
@@ -52,12 +35,6 @@ export const FamilyMembersManager = () => {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    if (user) {
-      loadMembers();
-    }
-  }, [user]);
 
   const addMember = async () => {
     if (!newMember.trim() || !user?.id) return;
@@ -89,55 +66,15 @@ export const FamilyMembersManager = () => {
     }
   };
 
-  const updateMember = async (id: string, newName: string) => {
+  const toggleMemberStatus = async (id: string, currentStatus: string) => {
     try {
       setLoading(true);
-      const { error } = await supabase
-        .from("family_members")
-        .update({ name: newName.trim() })
-        .eq("id", id)
-        .eq("user_id", user?.id);
-
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "Family member updated successfully",
-      });
-      
-      setEditingId(null);
-      await loadMembers();
-    } catch (error) {
-      console.error("Error updating family member:", error);
-      toast({
-        title: "Error",
-        description: "Failed to update family member",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const toggleMemberStatus = async (member: MemberWithInvestments) => {
-    if (member.investment_count > 0 && member.status === 'active') {
-      toast({
-        title: "Cannot Deactivate",
-        description: "This member has active investments. Please remove or reassign them first.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    try {
-      setLoading(true);
-      const newStatus = member.status === "active" ? "inactive" : "active";
+      const newStatus = currentStatus === "active" ? "inactive" : "active";
       
       const { error } = await supabase
         .from("family_members")
         .update({ status: newStatus })
-        .eq("id", member.id)
-        .eq("user_id", user?.id);
+        .eq("id", id);
 
       if (error) throw error;
 
@@ -161,30 +98,49 @@ export const FamilyMembersManager = () => {
 
   return (
     <Card className="p-6">
-      <AddMemberForm
-        newMember={newMember}
-        loading={loading}
-        onNewMemberChange={setNewMember}
-        onAddMember={addMember}
-      />
+      <h3 className="text-lg font-semibold mb-4">Manage Family Members</h3>
+      
+      <div className="flex gap-2 mb-4">
+        <Input
+          placeholder="Enter member name"
+          value={newMember}
+          onChange={(e) => setNewMember(e.target.value)}
+          className="max-w-xs"
+        />
+        <Button onClick={addMember} disabled={loading || !newMember.trim()}>
+          <UserPlus className="h-4 w-4 mr-2" />
+          Add Member
+        </Button>
+      </div>
 
       <div className="space-y-2">
         {members.map((member) => (
-          <MemberListItem
+          <div
             key={member.id}
-            member={member}
-            editingId={editingId}
-            editValue={editValue}
-            loading={loading}
-            onEdit={(member) => {
-              setEditingId(member.id);
-              setEditValue(member.name);
-            }}
-            onUpdate={updateMember}
-            onCancelEdit={() => setEditingId(null)}
-            onEditValueChange={setEditValue}
-            onToggleStatus={toggleMemberStatus}
-          />
+            className="flex items-center justify-between p-2 bg-background rounded-lg border"
+          >
+            <span>{member.name}</span>
+            <div className="flex gap-2">
+              <Button
+                variant={member.status === "active" ? "destructive" : "default"}
+                size="sm"
+                onClick={() => toggleMemberStatus(member.id, member.status)}
+                disabled={loading}
+              >
+                {member.status === "active" ? (
+                  <>
+                    <UserMinus className="h-4 w-4 mr-2" />
+                    Deactivate
+                  </>
+                ) : (
+                  <>
+                    <Check className="h-4 w-4 mr-2" />
+                    Activate
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
         ))}
       </div>
     </Card>
