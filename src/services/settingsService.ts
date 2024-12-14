@@ -1,9 +1,13 @@
 import { supabase } from "@/integrations/supabase/client";
+import { CurrencyType } from "@/types/investment";
 
 export interface UserSettings {
   id: string;
   dashboard_name: string;
-  base_currency: 'INR' | 'USD' | 'EUR' | 'GBP';
+  base_currency: CurrencyType;
+  user_id: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export const settingsService = {

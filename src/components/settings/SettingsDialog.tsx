@@ -20,18 +20,18 @@ import { useSettings } from "@/hooks/useSettings";
 import { CurrencyType } from "@/types/investment";
 
 const currencies = [
-  { value: "INR", label: "Indian Rupee (₹)" },
-  { value: "USD", label: "US Dollar ($)" },
-  { value: "EUR", label: "Euro (€)" },
-  { value: "GBP", label: "British Pound (£)" },
-  { value: "JPY", label: "Japanese Yen (¥)" },
-  { value: "AUD", label: "Australian Dollar (A$)" },
-  { value: "CAD", label: "Canadian Dollar (C$)" },
-  { value: "CHF", label: "Swiss Franc (Fr)" },
-  { value: "CNY", label: "Chinese Yuan (¥)" },
-  { value: "HKD", label: "Hong Kong Dollar (HK$)" },
-  { value: "NZD", label: "New Zealand Dollar (NZ$)" },
-  { value: "SGD", label: "Singapore Dollar (S$)" },
+  { value: "INR" as CurrencyType, label: "Indian Rupee (₹)" },
+  { value: "USD" as CurrencyType, label: "US Dollar ($)" },
+  { value: "EUR" as CurrencyType, label: "Euro (€)" },
+  { value: "GBP" as CurrencyType, label: "British Pound (£)" },
+  { value: "JPY" as CurrencyType, label: "Japanese Yen (¥)" },
+  { value: "AUD" as CurrencyType, label: "Australian Dollar (A$)" },
+  { value: "CAD" as CurrencyType, label: "Canadian Dollar (C$)" },
+  { value: "CHF" as CurrencyType, label: "Swiss Franc (Fr)" },
+  { value: "CNY" as CurrencyType, label: "Chinese Yuan (¥)" },
+  { value: "HKD" as CurrencyType, label: "Hong Kong Dollar (HK$)" },
+  { value: "NZD" as CurrencyType, label: "New Zealand Dollar (NZ$)" },
+  { value: "SGD" as CurrencyType, label: "Singapore Dollar (S$)" },
 ] as const;
 
 export const SettingsDialog = () => {

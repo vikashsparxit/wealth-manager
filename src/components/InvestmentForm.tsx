@@ -27,7 +27,7 @@ interface Props {
 
 export const InvestmentForm = ({ onSubmit, onCancel, investment }: Props) => {
   const { user } = useAuth();
-  const [investmentTypes, setInvestmentTypes] = useState<Array<{ name: string }>>([]);
+  const [investmentTypes, setInvestmentTypes] = useState<Array<{ name: InvestmentType }>>([]);
   const [familyMembers, setFamilyMembers] = useState<Array<{ name: FamilyMember }>>([]);
   const [loading, setLoading] = useState(true);
 
@@ -63,8 +63,8 @@ export const InvestmentForm = ({ onSubmit, onCancel, investment }: Props) => {
         if (typesResponse.error) throw typesResponse.error;
         if (membersResponse.error) throw membersResponse.error;
 
-        setInvestmentTypes(typesResponse.data);
-        setFamilyMembers(membersResponse.data);
+        setInvestmentTypes(typesResponse.data as Array<{ name: InvestmentType }>);
+        setFamilyMembers(membersResponse.data as Array<{ name: FamilyMember }>);
         
         // Set default values if not editing
         if (!investment) {
