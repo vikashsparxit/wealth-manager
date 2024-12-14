@@ -15,11 +15,16 @@ interface LiquidAssetsDialogProps {
   selectedMember: "Wealth Combined" | FamilyMember;
 }
 
+interface FamilyMemberData {
+  name: FamilyMember;
+  relationship?: string;
+}
+
 export const LiquidAssetsDialog = ({ liquidAssets, onUpdate, selectedMember }: LiquidAssetsDialogProps) => {
   const [open, setOpen] = useState(false);
   const [amount, setAmount] = useState("0");
   const [owner, setOwner] = useState<FamilyMember>("Myself");
-  const [familyMembers, setFamilyMembers] = useState<Array<{ name: FamilyMember; relationship?: string }>>([]);
+  const [familyMembers, setFamilyMembers] = useState<FamilyMemberData[]>([]);
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -39,7 +44,8 @@ export const LiquidAssetsDialog = ({ liquidAssets, onUpdate, selectedMember }: L
         return;
       }
 
-      setFamilyMembers(data as Array<{ name: FamilyMember; relationship?: string }>);
+      console.log("Loaded family members for liquid assets:", data);
+      setFamilyMembers(data as FamilyMemberData[]);
     };
 
     if (open) {
@@ -81,11 +87,17 @@ export const LiquidAssetsDialog = ({ liquidAssets, onUpdate, selectedMember }: L
   const handleOpenChange = (newOpen: boolean) => {
     setOpen(newOpen);
     if (!newOpen) {
-      // Add a small delay before enabling interactions
       setTimeout(() => {
         document.body.style.pointerEvents = 'auto';
       }, 100);
     }
+  };
+
+  const getDisplayName = (member: FamilyMemberData) => {
+    if (member.name === "Myself") {
+      return "Myself (Primary)";
+    }
+    return `${member.name}${member.relationship ? ` (${member.relationship})` : ''}`;
   };
 
   return (
@@ -120,7 +132,7 @@ export const LiquidAssetsDialog = ({ liquidAssets, onUpdate, selectedMember }: L
                       value={member.name}
                       className="cursor-pointer"
                     >
-                      {member.name} {member.relationship ? `(${member.relationship})` : ''}
+                      {getDisplayName(member)}
                     </SelectItem>
                   ))}
                 </SelectContent>

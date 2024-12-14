@@ -12,7 +12,7 @@ import {
 import { useSettings } from "@/hooks/useSettings";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 
 const currencies = [
   { value: "INR", label: "Indian Rupee (₹)" },
@@ -60,24 +60,24 @@ export const Setup = () => {
 
     setIsSubmitting(true);
     try {
-      // Update user's full name
+      // Update user's full name in profiles
       await supabase
         .from('profiles')
         .update({ full_name: fullName.trim() })
         .eq('id', user.id);
 
-      // Update the primary family member's name
+      // Update the primary family member's name and relationship
       await supabase
         .from('family_members')
         .update({ 
-          name: fullName.trim(),
+          name: 'Myself',
           relationship: 'Primary User'
         })
         .eq('user_id', user.id)
         .eq('name', 'Myself');
 
       await initializeSettings({
-        dashboard_name: dashboardName,
+        dashboard_name: dashboardName || "My Wealth Dashboard",
         base_currency: currency
       });
       
@@ -131,7 +131,6 @@ export const Setup = () => {
               <Input
                 id="dashboardName"
                 type="text"
-                required
                 value={dashboardName}
                 onChange={(e) => setDashboardName(e.target.value)}
                 placeholder="My Wealth Dashboard"
@@ -165,7 +164,7 @@ export const Setup = () => {
           <Button
             type="submit"
             className="w-full"
-            disabled={isSubmitting || !dashboardName || !fullName}
+            disabled={isSubmitting || !fullName}
           >
             {isSubmitting ? "Setting up..." : "Continue to Dashboard"}
           </Button>
