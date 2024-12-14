@@ -85,7 +85,7 @@ export const SettingsDialog = () => {
               <SelectTrigger id="currency" className="w-full bg-background">
                 <SelectValue placeholder="Select currency" />
               </SelectTrigger>
-              <SelectContent className="max-h-[300px] overflow-y-auto">
+              <SelectContent className="max-h-[300px] overflow-y-auto bg-background border shadow-lg">
                 {currencies.map((curr) => (
                   <SelectItem 
                     key={curr.value} 

@@ -28,7 +28,7 @@ export const InvestmentForm = ({ onSubmit, onCancel, investment }: Props) => {
 
   const [formData, setFormData] = useState({
     type: investment?.type || "",
-    owner: investment?.owner || "",
+    owner: investment?.owner || "Myself", // Default to "Myself"
     investedAmount: investment?.investedAmount?.toString() || "",
     currentValue: investment?.currentValue?.toString() || "",
     dateOfInvestment: investment?.dateOfInvestment || new Date().toISOString().split("T")[0],
@@ -65,7 +65,7 @@ export const InvestmentForm = ({ onSubmit, onCancel, investment }: Props) => {
           setFormData(prev => ({
             ...prev,
             type: typesResponse.data[0]?.name || "",
-            owner: membersResponse.data[0]?.name || ""
+            owner: "Myself" // Default to "Myself"
           }));
         }
       } catch (error) {
@@ -111,11 +111,13 @@ export const InvestmentForm = ({ onSubmit, onCancel, investment }: Props) => {
             onChange={(value) => setFormData({ ...formData, type: value })}
           />
 
-          <OwnerSelect
-            value={formData.owner as FamilyMember | ""}
-            owners={familyMembers}
-            onChange={(value) => setFormData({ ...formData, owner: value })}
-          />
+          {familyMembers.length > 1 && (
+            <OwnerSelect
+              value={formData.owner as FamilyMember | ""}
+              owners={familyMembers}
+              onChange={(value) => setFormData({ ...formData, owner: value })}
+            />
+          )}
 
           <div className="space-y-2">
             <label className="text-sm font-medium">Invested Amount</label>

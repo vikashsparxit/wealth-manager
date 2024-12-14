@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { Plus, Minus, Check, X } from "lucide-react";
+import { Plus, Minus, Check, X, Edit2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -11,8 +11,16 @@ export const InvestmentTypesManager = () => {
   const [newType, setNewType] = useState("");
   const [types, setTypes] = useState<Array<{ id: string; name: string; status: string }>>([]);
   const [loading, setLoading] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editValue, setEditValue] = useState("");
   const { toast } = useToast();
   const { user } = useAuth();
+
+  useEffect(() => {
+    if (user) {
+      loadTypes();
+    }
+  }, [user]);
 
   const loadTypes = async () => {
     try {
@@ -20,7 +28,8 @@ export const InvestmentTypesManager = () => {
       const { data, error } = await supabase
         .from("investment_types")
         .select("*")
-        .eq("user_id", user?.id);
+        .eq("user_id", user?.id)
+        .order('name');
 
       if (error) throw error;
       setTypes(data || []);
@@ -66,6 +75,36 @@ export const InvestmentTypesManager = () => {
     }
   };
 
+  const updateType = async (id: string, newName: string) => {
+    try {
+      setLoading(true);
+      const { error } = await supabase
+        .from("investment_types")
+        .update({ name: newName.trim() })
+        .eq("id", id)
+        .eq("user_id", user?.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Investment type updated successfully",
+      });
+      
+      setEditingId(null);
+      await loadTypes();
+    } catch (error) {
+      console.error("Error updating investment type:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update investment type",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const toggleTypeStatus = async (id: string, currentStatus: string) => {
     try {
       setLoading(true);
@@ -74,7 +113,8 @@ export const InvestmentTypesManager = () => {
       const { error } = await supabase
         .from("investment_types")
         .update({ status: newStatus })
-        .eq("id", id);
+        .eq("id", id)
+        .eq("user_id", user?.id);
 
       if (error) throw error;
 
@@ -96,10 +136,13 @@ export const InvestmentTypesManager = () => {
     }
   };
 
+  const startEditing = (type: { id: string; name: string }) => {
+    setEditingId(type.id);
+    setEditValue(type.name);
+  };
+
   return (
     <Card className="p-6">
-      <h3 className="text-lg font-semibold mb-4">Manage Investment Types</h3>
-      
       <div className="flex gap-2 mb-4">
         <Input
           placeholder="Enter investment type"
@@ -119,27 +162,64 @@ export const InvestmentTypesManager = () => {
             key={type.id}
             className="flex items-center justify-between p-2 bg-background rounded-lg border"
           >
-            <span>{type.name}</span>
-            <div className="flex gap-2">
-              <Button
-                variant={type.status === "active" ? "destructive" : "default"}
-                size="sm"
-                onClick={() => toggleTypeStatus(type.id, type.status)}
-                disabled={loading}
-              >
-                {type.status === "active" ? (
-                  <>
-                    <Minus className="h-4 w-4 mr-2" />
-                    Deactivate
-                  </>
-                ) : (
-                  <>
-                    <Check className="h-4 w-4 mr-2" />
-                    Activate
-                  </>
-                )}
-              </Button>
-            </div>
+            {editingId === type.id ? (
+              <div className="flex items-center gap-2 flex-1 mr-2">
+                <Input
+                  value={editValue}
+                  onChange={(e) => setEditValue(e.target.value)}
+                  className="flex-1"
+                  autoFocus
+                />
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => updateType(type.id, editValue)}
+                  disabled={!editValue.trim() || editValue === type.name}
+                >
+                  <Check className="h-4 w-4" />
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setEditingId(null)}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            ) : (
+              <>
+                <span className="flex-1 cursor-pointer" onClick={() => startEditing(type)}>
+                  {type.name}
+                </span>
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => startEditing(type)}
+                  >
+                    <Edit2 className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant={type.status === "active" ? "destructive" : "default"}
+                    size="sm"
+                    onClick={() => toggleTypeStatus(type.id, type.status)}
+                    disabled={loading}
+                  >
+                    {type.status === "active" ? (
+                      <>
+                        <Minus className="h-4 w-4 mr-2" />
+                        Deactivate
+                      </>
+                    ) : (
+                      <>
+                        <Check className="h-4 w-4 mr-2" />
+                        Activate
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </>
+            )}
           </div>
         ))}
       </div>
