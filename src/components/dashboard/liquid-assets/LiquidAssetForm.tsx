@@ -35,7 +35,7 @@ export const LiquidAssetForm = ({
             value={owner} 
             onValueChange={(value: FamilyMember) => onOwnerChange(value)}
           >
-            <SelectTrigger className="w-full">
+            <SelectTrigger className="w-full bg-background border">
               <SelectValue placeholder="Select owner" />
             </SelectTrigger>
             <SelectContent className="bg-background border shadow-lg min-w-[200px]">
