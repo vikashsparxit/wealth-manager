@@ -43,7 +43,8 @@ export const useLiquidAssets = () => {
       if (!user) {
         throw new Error("User must be logged in to update liquid assets");
       }
-      console.log("Updating liquid asset:", { amount, owner });
+      console.log("Updating liquid asset:", { amount, owner, user_id: user.id });
+      
       const { data: existingData, error: checkError } = await supabase
         .from("liquid_assets")
         .select("*")
@@ -52,23 +53,33 @@ export const useLiquidAssets = () => {
         .single();
 
       if (checkError && checkError.code !== 'PGRST116') {
+        console.error("Error checking existing liquid asset:", checkError);
         throw checkError;
       }
 
       let result;
       if (existingData) {
+        console.log("Updating existing liquid asset");
         result = await supabase
           .from("liquid_assets")
-          .update({ amount })
+          .update({ amount, updated_at: new Date().toISOString() })
           .eq("owner", owner)
           .eq("user_id", user.id);
       } else {
+        console.log("Creating new liquid asset");
         result = await supabase
           .from("liquid_assets")
-          .insert([{ owner, amount, user_id: user.id }]);
+          .insert([{ 
+            owner, 
+            amount, 
+            user_id: user.id,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          }]);
       }
 
       if (result.error) {
+        console.error("Error in liquid asset operation:", result.error);
         throw result.error;
       }
 

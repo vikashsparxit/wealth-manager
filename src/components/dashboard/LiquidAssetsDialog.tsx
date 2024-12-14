@@ -16,6 +16,7 @@ interface LiquidAssetsDialogProps {
 }
 
 export const LiquidAssetsDialog = ({ liquidAssets, onUpdate, selectedMember }: LiquidAssetsDialogProps) => {
+  const [open, setOpen] = useState(false);
   const [amount, setAmount] = useState(0);
   const [owner, setOwner] = useState<FamilyMember>("Myself");
   const [familyMembers, setFamilyMembers] = useState<Array<{ name: FamilyMember }>>([]);
@@ -47,17 +48,19 @@ export const LiquidAssetsDialog = ({ liquidAssets, onUpdate, selectedMember }: L
       }
     };
 
-    loadFamilyMembers();
-  }, [user]);
+    if (open) {
+      loadFamilyMembers();
+    }
+  }, [user, open]);
 
   useEffect(() => {
     if (selectedMember !== "Wealth Combined") {
       setOwner(selectedMember);
       const asset = liquidAssets.find(a => a.owner === selectedMember);
-      setAmount(asset ? asset.amount : 0);
+      setAmount(asset ? Number(asset.amount) : 0);
     } else {
       const asset = liquidAssets.find(a => a.owner === owner);
-      setAmount(asset ? asset.amount : 0);
+      setAmount(asset ? Number(asset.amount) : 0);
     }
   }, [selectedMember, owner, liquidAssets]);
 
@@ -65,7 +68,8 @@ export const LiquidAssetsDialog = ({ liquidAssets, onUpdate, selectedMember }: L
     try {
       const ownerToUpdate = selectedMember !== "Wealth Combined" ? selectedMember : owner;
       console.log("Saving liquid assets for owner:", ownerToUpdate, "amount:", amount);
-      await onUpdate(amount, ownerToUpdate as FamilyMember);
+      await onUpdate(Number(amount), ownerToUpdate as FamilyMember);
+      setOpen(false);
     } catch (error) {
       console.error("Error saving liquid assets:", error);
       toast({
@@ -77,13 +81,13 @@ export const LiquidAssetsDialog = ({ liquidAssets, onUpdate, selectedMember }: L
   };
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="ghost" size="icon">
           <Edit2 className="h-4 w-4" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="bg-background">
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Update Liquid Assets</DialogTitle>
         </DialogHeader>
@@ -92,17 +96,21 @@ export const LiquidAssetsDialog = ({ liquidAssets, onUpdate, selectedMember }: L
             {selectedMember === "Wealth Combined" && familyMembers.length > 0 && (
               <Select 
                 value={owner} 
-                onValueChange={(value: FamilyMember) => setOwner(value)}
+                onValueChange={(value: FamilyMember) => {
+                  setOwner(value);
+                  const asset = liquidAssets.find(a => a.owner === value);
+                  setAmount(asset ? Number(asset.amount) : 0);
+                }}
               >
-                <SelectTrigger className="w-full bg-background">
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select owner" />
                 </SelectTrigger>
-                <SelectContent className="bg-background border shadow-lg">
+                <SelectContent>
                   {familyMembers.map((member) => (
                     <SelectItem 
                       key={member.name} 
                       value={member.name}
-                      className="cursor-pointer hover:bg-accent focus:bg-accent"
+                      className="cursor-pointer"
                     >
                       {member.name}
                     </SelectItem>
@@ -119,7 +127,6 @@ export const LiquidAssetsDialog = ({ liquidAssets, onUpdate, selectedMember }: L
                 value={amount}
                 onChange={(e) => setAmount(Number(e.target.value))}
                 placeholder="Enter liquid assets amount"
-                className="bg-background"
               />
             </div>
             <Button onClick={handleSave}>Save</Button>
