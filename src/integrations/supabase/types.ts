@@ -14,7 +14,9 @@ export type Database = {
           created_at: string
           id: string
           name: string
-          relationship: string | null
+          relationship:
+            | Database["public"]["Enums"]["family_relationship"]
+            | null
           status: Database["public"]["Enums"]["investment_type_status"] | null
           updated_at: string
           user_id: string
@@ -23,7 +25,9 @@ export type Database = {
           created_at?: string
           id?: string
           name: string
-          relationship?: string | null
+          relationship?:
+            | Database["public"]["Enums"]["family_relationship"]
+            | null
           status?: Database["public"]["Enums"]["investment_type_status"] | null
           updated_at?: string
           user_id: string
@@ -32,7 +36,9 @@ export type Database = {
           created_at?: string
           id?: string
           name?: string
-          relationship?: string | null
+          relationship?:
+            | Database["public"]["Enums"]["family_relationship"]
+            | null
           status?: Database["public"]["Enums"]["investment_type_status"] | null
           updated_at?: string
           user_id?: string
@@ -208,6 +214,12 @@ export type Database = {
         | "NZD"
         | "SGD"
       family_member: "Myself" | "My Wife" | "My Daughter" | "Family"
+      family_relationship:
+        | "Primary User"
+        | "Spouse"
+        | "Son"
+        | "Daughter"
+        | "Other"
       investment_type:
         | "Real Estate"
         | "Gold"

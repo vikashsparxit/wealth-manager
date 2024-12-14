@@ -1,5 +1,7 @@
 export type FamilyMember = "Myself" | "My Wife" | "My Daughter";
 
+export type FamilyRelationship = "Primary User" | "Spouse" | "Son" | "Daughter" | "Other";
+
 export type InvestmentType =
   | "Real Estate"
   | "Gold"

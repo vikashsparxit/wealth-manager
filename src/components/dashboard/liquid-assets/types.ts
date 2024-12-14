@@ -1,8 +1,8 @@
-import { FamilyMember, LiquidAsset } from "@/types/investment";
+import { FamilyMember, LiquidAsset, FamilyRelationship } from "@/types/investment";
 
 export interface FamilyMemberData {
   name: FamilyMember;
-  relationship?: string;
+  relationship?: FamilyRelationship;
 }
 
 export interface LiquidAssetsDialogProps {
