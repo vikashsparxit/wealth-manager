@@ -46,7 +46,7 @@ export const investmentService = {
 
       if (error) throw error;
       console.log("Fetched investments:", data);
-      return (data || []).map(mapDatabaseToInvestment);
+      return (data as DatabaseInvestment[]).map(mapDatabaseToInvestment);
     } catch (error) {
       console.error("Error fetching investments:", error);
       throw error;
@@ -66,7 +66,7 @@ export const investmentService = {
 
       if (error) throw error;
       console.log("Successfully added investment:", data);
-      return mapDatabaseToInvestment(data);
+      return mapDatabaseToInvestment(data as DatabaseInvestment);
     } catch (error) {
       console.error("Error adding investment:", error);
       throw error;
@@ -88,7 +88,7 @@ export const investmentService = {
 
       if (error) throw error;
       console.log("Successfully updated investment:", data);
-      return mapDatabaseToInvestment(data);
+      return mapDatabaseToInvestment(data as DatabaseInvestment);
     } catch (error) {
       console.error("Error updating investment:", error);
       throw error;
