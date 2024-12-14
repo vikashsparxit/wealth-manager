@@ -45,6 +45,20 @@ export const useLiquidAssets = () => {
       }
       console.log("Updating liquid asset:", { amount, owner, user_id: user.id });
       
+      // First check if the owner exists in family_members
+      const { data: familyMember, error: familyError } = await supabase
+        .from("family_members")
+        .select("name")
+        .eq("user_id", user.id)
+        .eq("name", owner)
+        .eq("status", "active")
+        .single();
+
+      if (familyError || !familyMember) {
+        console.error("Family member not found or inactive:", familyError);
+        throw new Error("Invalid family member");
+      }
+
       const { data: existingData, error: checkError } = await supabase
         .from("liquid_assets")
         .select("*")

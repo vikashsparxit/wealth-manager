@@ -14,6 +14,7 @@ export const useLiquidAssetsDialog = (
   const [amount, setAmount] = useState("0");
   const [owner, setOwner] = useState<FamilyMember>("Myself");
   const [familyMembers, setFamilyMembers] = useState<FamilyMemberData[]>([]);
+  const [primaryMember, setPrimaryMember] = useState<FamilyMemberData | null>(null);
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -34,6 +35,14 @@ export const useLiquidAssetsDialog = (
       }
 
       console.log("Loaded family members for liquid assets:", data);
+      
+      // Find primary member and set it as default
+      const primary = data.find(member => member.relationship === 'Primary User');
+      if (primary) {
+        setPrimaryMember(primary);
+        setOwner(primary.name as FamilyMember);
+      }
+      
       setFamilyMembers(data as FamilyMemberData[]);
     };
 
@@ -47,11 +56,13 @@ export const useLiquidAssetsDialog = (
       setOwner(selectedMember);
       const asset = liquidAssets.find(a => a.owner === selectedMember);
       setAmount(asset ? asset.amount.toString() : "0");
-    } else {
-      const asset = liquidAssets.find(a => a.owner === owner);
+    } else if (primaryMember) {
+      // Set primary member as default when in combined view
+      setOwner(primaryMember.name as FamilyMember);
+      const asset = liquidAssets.find(a => a.owner === primaryMember.name);
       setAmount(asset ? asset.amount.toString() : "0");
     }
-  }, [selectedMember, owner, liquidAssets]);
+  }, [selectedMember, owner, liquidAssets, primaryMember]);
 
   const handleSave = async () => {
     try {
@@ -61,6 +72,7 @@ export const useLiquidAssetsDialog = (
       }
 
       const ownerToUpdate = selectedMember !== "Wealth Combined" ? selectedMember : owner;
+      console.log("Updating liquid assets for owner:", ownerToUpdate, "amount:", numAmount);
       await onUpdate(numAmount, ownerToUpdate as FamilyMember);
       setOpen(false);
     } catch (error) {
