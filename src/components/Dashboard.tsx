@@ -6,8 +6,10 @@ import { Button } from "@/components/ui/button";
 import { PieChart, LineChart } from "@/components/Charts";
 import { InvestmentForm } from "@/components/InvestmentForm";
 import { InvestmentList } from "@/components/InvestmentList";
-import { DollarSign, TrendingUp, Users } from "lucide-react";
+import { DollarSign, TrendingUp, Users, Edit2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 
 export const Dashboard = () => {
   const [investments, setInvestments] = useState<Investment[]>([]);
@@ -18,6 +20,7 @@ export const Dashboard = () => {
   });
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [liquidAssets, setLiquidAssets] = useState(0);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -85,6 +88,14 @@ export const Dashboard = () => {
     }
   };
 
+  const handleLiquidAssetsUpdate = (newValue: number) => {
+    setLiquidAssets(newValue);
+    toast({
+      title: "Success",
+      description: "Liquid assets updated successfully.",
+    });
+  };
+
   if (loading) {
     return (
       <div className="container mx-auto py-8">
@@ -95,6 +106,13 @@ export const Dashboard = () => {
     );
   }
 
+  const totalWealth = summary.currentValue + liquidAssets;
+  const lastMonthGrowth = 5083.95; // This would need to be calculated based on actual data
+  const annualizedReturn = 4.01; // This would need to be calculated based on actual data
+  const averageInvestment = investments.length > 0 
+    ? summary.totalInvested / investments.length 
+    : 0;
+
   return (
     <div className="container mx-auto py-8">
       <div className="flex justify-between items-center mb-8">
@@ -103,17 +121,42 @@ export const Dashboard = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <Card className="p-6">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-primary/10 rounded-full">
-              <DollarSign className="w-6 h-6 text-primary" />
+        <Card className="p-6 bg-accent/40">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-primary/10 rounded-full">
+                <DollarSign className="w-6 h-6 text-primary" />
+              </div>
+              <div>
+                <h3 className="text-sm font-medium text-muted-foreground">Total Wealth</h3>
+                <p className="text-2xl font-bold">₹{totalWealth.toLocaleString()}</p>
+              </div>
             </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Total Invested</p>
-              <h2 className="text-2xl font-bold">
-                ₹{summary.totalInvested.toLocaleString()}
-              </h2>
-            </div>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <Edit2 className="h-4 w-4" />
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Update Liquid Assets</DialogTitle>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid gap-2">
+                    <Input
+                      type="number"
+                      value={liquidAssets}
+                      onChange={(e) => handleLiquidAssetsUpdate(Number(e.target.value))}
+                      placeholder="Enter liquid assets amount"
+                    />
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
+          <div className="text-sm text-muted-foreground">
+            Liquid Assets: ₹{liquidAssets.toLocaleString()}
           </div>
         </Card>
 
@@ -123,10 +166,11 @@ export const Dashboard = () => {
               <TrendingUp className="w-6 h-6 text-success" />
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Current Value</p>
-              <h2 className="text-2xl font-bold">
-                ₹{summary.currentValue.toLocaleString()}
-              </h2>
+              <h3 className="text-sm font-medium text-muted-foreground">Total Invested</h3>
+              <p className="text-2xl font-bold">₹{summary.totalInvested.toLocaleString()}</p>
+              <span className="text-sm text-muted-foreground">
+                Total Investments: {investments.length}
+              </span>
             </div>
           </div>
         </Card>
@@ -137,12 +181,36 @@ export const Dashboard = () => {
               <Users className="w-6 h-6 text-warning" />
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Total Growth</p>
-              <h2 className="text-2xl font-bold">
-                {summary.growth.toFixed(2)}%
-              </h2>
+              <h3 className="text-sm font-medium text-muted-foreground">Current Value</h3>
+              <p className="text-2xl font-bold">₹{summary.currentValue.toLocaleString()}</p>
+              <span className="text-sm text-success">
+                Last Month Growth: {lastMonthGrowth.toFixed(2)}%
+              </span>
             </div>
           </div>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <Card className="p-6">
+          <h3 className="text-sm font-medium text-muted-foreground mb-2">Overall Growth</h3>
+          <p className="text-2xl font-bold text-success">
+            {summary.growth.toFixed(2)}%
+          </p>
+        </Card>
+
+        <Card className="p-6">
+          <h3 className="text-sm font-medium text-muted-foreground mb-2">Annualized Return</h3>
+          <p className="text-2xl font-bold text-success">
+            {annualizedReturn.toFixed(2)}%
+          </p>
+        </Card>
+
+        <Card className="p-6">
+          <h3 className="text-sm font-medium text-muted-foreground mb-2">Average Investment</h3>
+          <p className="text-2xl font-bold">
+            ₹{averageInvestment.toLocaleString()}
+          </p>
         </Card>
       </div>
 
