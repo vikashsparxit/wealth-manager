@@ -39,14 +39,14 @@ export const investmentService = {
 
   add: async (investment: Omit<Investment, "id">, userId: string): Promise<Investment> => {
     try {
+      const dbInvestment = {
+        ...mapInvestmentToDatabase(investment),
+        user_id: userId,
+      };
+
       const { data, error } = await supabase
         .from("investments")
-        .insert([
-          {
-            ...mapInvestmentToDatabase(investment),
-            user_id: userId,
-          },
-        ])
+        .insert([dbInvestment])
         .select()
         .single();
 
@@ -60,9 +60,11 @@ export const investmentService = {
 
   update: async (investment: Investment, userId: string): Promise<Investment> => {
     try {
+      const dbInvestment = mapInvestmentToDatabase(investment);
+
       const { data, error } = await supabase
         .from("investments")
-        .update(mapInvestmentToDatabase(investment))
+        .update(dbInvestment)
         .eq("id", investment.id)
         .eq("user_id", userId)
         .select()
