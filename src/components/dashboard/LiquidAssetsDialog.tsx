@@ -6,21 +6,48 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { FamilyMember, LiquidAsset } from "@/types/investment";
 import { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface LiquidAssetsDialogProps {
   liquidAssets: LiquidAsset[];
   onUpdate: (amount: number, owner: FamilyMember) => void;
-  selectedMember: "Family Combined" | FamilyMember;
+  selectedMember: "Wealth Combined" | FamilyMember;
 }
 
 export const LiquidAssetsDialog = ({ liquidAssets, onUpdate, selectedMember }: LiquidAssetsDialogProps) => {
   const [amount, setAmount] = useState(0);
   const [owner, setOwner] = useState<FamilyMember>("Myself");
-  const familyMembers: FamilyMember[] = ["Myself", "My Wife", "My Daughter"];
+  const [familyMembers, setFamilyMembers] = useState<Array<{ name: FamilyMember }>>([]);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   useEffect(() => {
-    if (selectedMember !== "Family Combined") {
+    const loadFamilyMembers = async () => {
+      if (!user) return;
+      
+      const { data, error } = await supabase
+        .from('family_members')
+        .select('name')
+        .eq('user_id', user.id)
+        .eq('status', 'active');
+
+      if (error) {
+        console.error('Error loading family members:', error);
+        return;
+      }
+
+      setFamilyMembers(data || []);
+      if (data && data.length > 0) {
+        setOwner(data[0].name);
+      }
+    };
+
+    loadFamilyMembers();
+  }, [user]);
+
+  useEffect(() => {
+    if (selectedMember !== "Wealth Combined") {
       setOwner(selectedMember);
       const asset = liquidAssets.find(a => a.owner === selectedMember);
       setAmount(asset ? asset.amount : 0);
@@ -32,7 +59,7 @@ export const LiquidAssetsDialog = ({ liquidAssets, onUpdate, selectedMember }: L
 
   const handleSave = async () => {
     try {
-      const ownerToUpdate = selectedMember !== "Family Combined" ? selectedMember : owner;
+      const ownerToUpdate = selectedMember !== "Wealth Combined" ? selectedMember : owner;
       console.log("Saving liquid assets for owner:", ownerToUpdate, "amount:", amount);
       await onUpdate(amount, ownerToUpdate as FamilyMember);
     } catch (error) {
@@ -58,7 +85,7 @@ export const LiquidAssetsDialog = ({ liquidAssets, onUpdate, selectedMember }: L
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
-            {selectedMember === "Family Combined" && (
+            {selectedMember === "Wealth Combined" && familyMembers.length > 0 && (
               <Select 
                 value={owner} 
                 onValueChange={(value: FamilyMember) => setOwner(value)}
@@ -69,11 +96,11 @@ export const LiquidAssetsDialog = ({ liquidAssets, onUpdate, selectedMember }: L
                 <SelectContent className="bg-background border shadow-lg">
                   {familyMembers.map((member) => (
                     <SelectItem 
-                      key={member} 
-                      value={member}
+                      key={member.name} 
+                      value={member.name}
                       className="cursor-pointer hover:bg-accent focus:bg-accent"
                     >
-                      {member}
+                      {member.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -81,7 +108,7 @@ export const LiquidAssetsDialog = ({ liquidAssets, onUpdate, selectedMember }: L
             )}
             <div className="space-y-1">
               <label className="text-sm text-muted-foreground">
-                Current liquid assets for {selectedMember !== "Family Combined" ? selectedMember : owner}
+                Current liquid assets for {selectedMember !== "Wealth Combined" ? selectedMember : owner}
               </label>
               <Input
                 type="number"

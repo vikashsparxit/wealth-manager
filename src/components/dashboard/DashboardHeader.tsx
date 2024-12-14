@@ -13,6 +13,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useState } from "react";
 import { ProfileDialog } from "@/components/profile/ProfileDialog";
+import { FamilyMembersManager } from "@/components/settings/FamilyMembersManager";
+import { InvestmentTypesManager } from "@/components/settings/InvestmentTypesManager";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 interface DashboardHeaderProps {
   onAddInvestment: () => void;
@@ -20,9 +23,11 @@ interface DashboardHeaderProps {
 
 export const DashboardHeader = ({ onAddInvestment }: DashboardHeaderProps) => {
   const { settings } = useSettings();
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const [showProfileDialog, setShowProfileDialog] = useState(false);
   const [showSettingsDialog, setShowSettingsDialog] = useState(false);
+  const [showMembersDialog, setShowMembersDialog] = useState(false);
+  const [showTypesDialog, setShowTypesDialog] = useState(false);
   
   const dashboardName = settings?.dashboard_name ? `${settings.dashboard_name} Dashboard` : "My Wealth Dashboard";
 
@@ -41,12 +46,21 @@ export const DashboardHeader = ({ onAddInvestment }: DashboardHeaderProps) => {
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
+          <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuItem onClick={() => setShowProfileDialog(true)}>
               Profile
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => setShowSettingsDialog(true)}>
               Settings
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setShowMembersDialog(true)}>
+              Manage Members
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setShowTypesDialog(true)}>
+              Manage Types
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={signOut}>
+              Sign Out
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -66,6 +80,24 @@ export const DashboardHeader = ({ onAddInvestment }: DashboardHeaderProps) => {
         open={showSettingsDialog} 
         onOpenChange={setShowSettingsDialog} 
       />
+
+      <Dialog open={showMembersDialog} onOpenChange={setShowMembersDialog}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Family Members</DialogTitle>
+          </DialogHeader>
+          <FamilyMembersManager />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showTypesDialog} onOpenChange={setShowTypesDialog}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Investment Types</DialogTitle>
+          </DialogHeader>
+          <InvestmentTypesManager />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
