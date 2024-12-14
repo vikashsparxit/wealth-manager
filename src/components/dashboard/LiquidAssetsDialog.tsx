@@ -4,7 +4,8 @@ import { Input } from "@/components/ui/input";
 import { Edit2 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FamilyMember } from "@/types/investment";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface LiquidAssetsDialogProps {
   liquidAssets: number;
@@ -14,7 +15,35 @@ interface LiquidAssetsDialogProps {
 export const LiquidAssetsDialog = ({ liquidAssets, onUpdate }: LiquidAssetsDialogProps) => {
   const [amount, setAmount] = useState(liquidAssets);
   const [owner, setOwner] = useState<FamilyMember>("Myself");
-  const familyMembers: FamilyMember[] = ["Myself", "My Wife", "My Daughter", "Family"];
+  const [currentAssets, setCurrentAssets] = useState<{[key: string]: number}>({});
+  const familyMembers: FamilyMember[] = ["Myself", "My Wife", "My Daughter"];
+
+  useEffect(() => {
+    fetchLiquidAssets();
+  }, [owner]);
+
+  const fetchLiquidAssets = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("liquid_assets")
+        .select("owner, amount")
+        .eq("owner", owner)
+        .single();
+
+      if (error) {
+        console.error("Error fetching liquid assets:", error);
+        return;
+      }
+
+      if (data) {
+        setAmount(data.amount);
+      } else {
+        setAmount(0);
+      }
+    } catch (error) {
+      console.error("Error fetching liquid assets:", error);
+    }
+  };
 
   return (
     <Dialog>
@@ -23,30 +52,43 @@ export const LiquidAssetsDialog = ({ liquidAssets, onUpdate }: LiquidAssetsDialo
           <Edit2 className="h-4 w-4" />
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="bg-background">
         <DialogHeader>
           <DialogTitle>Update Liquid Assets</DialogTitle>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
-            <Input
-              type="number"
-              value={amount}
-              onChange={(e) => setAmount(Number(e.target.value))}
-              placeholder="Enter liquid assets amount"
-            />
-            <Select value={owner} onValueChange={(value) => setOwner(value as FamilyMember)}>
-              <SelectTrigger>
+            <Select 
+              value={owner} 
+              onValueChange={(value) => setOwner(value as FamilyMember)}
+            >
+              <SelectTrigger className="w-full bg-background">
                 <SelectValue placeholder="Select owner" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-background border shadow-lg">
                 {familyMembers.map((member) => (
-                  <SelectItem key={member} value={member}>
+                  <SelectItem 
+                    key={member} 
+                    value={member}
+                    className="cursor-pointer hover:bg-accent focus:bg-accent"
+                  >
                     {member}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
+            <div className="space-y-1">
+              <label className="text-sm text-muted-foreground">
+                Current liquid assets for {owner}: ₹{amount.toLocaleString()}
+              </label>
+              <Input
+                type="number"
+                value={amount}
+                onChange={(e) => setAmount(Number(e.target.value))}
+                placeholder="Enter liquid assets amount"
+                className="bg-background"
+              />
+            </div>
             <Button onClick={() => onUpdate(amount, owner)}>Save</Button>
           </div>
         </div>
