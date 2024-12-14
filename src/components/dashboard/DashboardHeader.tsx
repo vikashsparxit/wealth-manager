@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useState } from "react";
 import { ProfileDialog } from "@/components/profile/ProfileDialog";
-import { FamilyMembersManager } from "@/components/settings/FamilyMembersManager";
+import { FamilyMembersManager } from "@/components/settings/family-members/FamilyMembersManager";
 import { InvestmentTypesManager } from "@/components/settings/InvestmentTypesManager";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 
