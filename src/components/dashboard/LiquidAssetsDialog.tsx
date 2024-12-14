@@ -30,14 +30,14 @@ export const LiquidAssetsDialog = ({ liquidAssets, onUpdate, selectedMember }: L
         .from('family_members')
         .select('name')
         .eq('user_id', user.id)
-        .eq('status', 'active');
+        .eq('status', 'active')
+        .order('created_at');
 
       if (error) {
         console.error('Error loading family members:', error);
         return;
       }
 
-      // Ensure the data matches the FamilyMember type
       const typedData = (data || []).map(item => ({
         name: item.name as FamilyMember
       }));

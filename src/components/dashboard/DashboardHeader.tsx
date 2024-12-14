@@ -46,7 +46,7 @@ export const DashboardHeader = ({ onAddInvestment }: DashboardHeaderProps) => {
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56 p-2">
+          <DropdownMenuContent align="end" className="w-56 p-2 bg-background border shadow-lg">
             <DropdownMenuItem 
               onClick={() => setShowProfileDialog(true)}
               className="cursor-pointer py-2 px-4 hover:bg-accent rounded-md"

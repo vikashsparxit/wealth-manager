@@ -16,15 +16,15 @@ interface Props {
 export const OwnerSelect = ({ value, owners, onChange }: Props) => {
   return (
     <div className="space-y-2">
-      <label className="text-sm font-medium">Owner</label>
+      <label className="text-sm font-medium">Member</label>
       <Select
         value={value}
         onValueChange={onChange}
       >
         <SelectTrigger className="w-full bg-background" aria-describedby="owner-description">
-          <SelectValue placeholder="Select owner" />
+          <SelectValue placeholder="Select member" />
         </SelectTrigger>
-        <SelectContent className="max-h-[300px] overflow-y-auto">
+        <SelectContent className="max-h-[300px] overflow-y-auto bg-background">
           {owners.map(({ name }) => (
             <SelectItem 
               key={name} 
@@ -36,7 +36,7 @@ export const OwnerSelect = ({ value, owners, onChange }: Props) => {
           ))}
         </SelectContent>
       </Select>
-      <p id="owner-description" className="sr-only">Select the owner of this investment from the list of family members</p>
+      <p id="owner-description" className="sr-only">Select the member for this investment from the list of family members</p>
     </div>
   );
 };
