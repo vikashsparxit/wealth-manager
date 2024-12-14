@@ -19,7 +19,7 @@ export const LiquidAssetsDialog = ({ liquidAssets, onUpdate, selectedMember }: L
   const [open, setOpen] = useState(false);
   const [amount, setAmount] = useState("0");
   const [owner, setOwner] = useState<FamilyMember>("Myself");
-  const [familyMembers, setFamilyMembers] = useState<Array<{ name: FamilyMember }>>([]);
+  const [familyMembers, setFamilyMembers] = useState<Array<{ name: FamilyMember; relationship?: string }>>([]);
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -29,7 +29,7 @@ export const LiquidAssetsDialog = ({ liquidAssets, onUpdate, selectedMember }: L
       
       const { data, error } = await supabase
         .from('family_members')
-        .select('name')
+        .select('name, relationship')
         .eq('user_id', user.id)
         .eq('status', 'active')
         .order('created_at');
@@ -39,7 +39,7 @@ export const LiquidAssetsDialog = ({ liquidAssets, onUpdate, selectedMember }: L
         return;
       }
 
-      setFamilyMembers(data as Array<{ name: FamilyMember }>);
+      setFamilyMembers(data as Array<{ name: FamilyMember; relationship?: string }>);
     };
 
     if (open) {
@@ -120,7 +120,7 @@ export const LiquidAssetsDialog = ({ liquidAssets, onUpdate, selectedMember }: L
                       value={member.name}
                       className="cursor-pointer"
                     >
-                      {member.name}
+                      {member.name} {member.relationship ? `(${member.relationship})` : ''}
                     </SelectItem>
                   ))}
                 </SelectContent>

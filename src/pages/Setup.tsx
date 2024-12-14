@@ -47,23 +47,46 @@ export const Setup = () => {
     e.preventDefault();
     if (!user) return;
 
+    if (!fullName.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter your name to continue",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     try {
-      // Update user's full name if changed
-      if (fullName !== user.user_metadata.full_name) {
-        await supabase
-          .from('profiles')
-          .update({ full_name: fullName })
-          .eq('id', user.id);
-      }
+      // Update user's full name
+      await supabase
+        .from('profiles')
+        .update({ full_name: fullName.trim() })
+        .eq('id', user.id);
+
+      // Update the primary family member's name
+      await supabase
+        .from('family_members')
+        .update({ 
+          name: fullName.trim(),
+          relationship: 'Primary User'
+        })
+        .eq('user_id', user.id)
+        .eq('name', 'Myself');
 
       await initializeSettings({
         dashboard_name: dashboardName,
         base_currency: currency
       });
+      
       navigate("/");
     } catch (error) {
       console.error("Error saving settings:", error);
+      toast({
+        title: "Error",
+        description: "Failed to save settings. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -83,7 +106,7 @@ export const Setup = () => {
           <div className="space-y-4">
             <div className="space-y-2">
               <label htmlFor="fullName" className="text-sm font-medium">
-                Your Name
+                Your Name <span className="text-red-500">*</span>
               </label>
               <Input
                 id="fullName"
@@ -94,6 +117,9 @@ export const Setup = () => {
                 placeholder="Enter your name"
                 className="w-full"
               />
+              <p className="text-sm text-muted-foreground">
+                This name will be used to identify you as the primary user
+              </p>
             </div>
 
             <div className="space-y-2">
