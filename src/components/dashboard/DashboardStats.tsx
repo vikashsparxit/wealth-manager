@@ -75,6 +75,9 @@ export const DashboardStats = ({
     setMemberSummaries(summaries);
   }, [liquidAssets, filteredInvestments]);
 
+  // Calculate total wealth (current value + liquid assets)
+  const totalWealth = summary.currentValue + totalLiquidAssets;
+
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
