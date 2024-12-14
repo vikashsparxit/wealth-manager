@@ -1,18 +1,19 @@
 import { useEffect, useState } from "react";
-import { Investment, WealthSummary } from "@/types/investment";
+import { Investment, WealthSummary, FamilyMember } from "@/types/investment";
 import { investmentService } from "@/services/investmentService";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { PieChart, LineChart } from "@/components/Charts";
 import { InvestmentForm } from "@/components/InvestmentForm";
 import { InvestmentList } from "@/components/InvestmentList";
-import { DollarSign, TrendingUp, Users, Edit2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
+import { StatCard } from "./dashboard/StatCard";
+import { DashboardFilter } from "./dashboard/DashboardFilter";
+import { LiquidAssetsDialog } from "./dashboard/LiquidAssetsDialog";
+import { DashboardCharts } from "./dashboard/DashboardCharts";
 
 export const Dashboard = () => {
   const [investments, setInvestments] = useState<Investment[]>([]);
+  const [filteredInvestments, setFilteredInvestments] = useState<Investment[]>([]);
   const [summary, setSummary] = useState<WealthSummary>({
     totalInvested: 0,
     currentValue: 0,
@@ -21,17 +22,27 @@ export const Dashboard = () => {
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
   const [liquidAssets, setLiquidAssets] = useState(0);
+  const [selectedMember, setSelectedMember] = useState("Family Combined");
   const { toast } = useToast();
 
   useEffect(() => {
     loadInvestments();
   }, []);
 
+  useEffect(() => {
+    const filtered = selectedMember === "Family Combined"
+      ? investments
+      : investments.filter(inv => inv.owner === selectedMember);
+    setFilteredInvestments(filtered);
+    setSummary(investmentService.calculateSummary(filtered));
+  }, [selectedMember, investments]);
+
   const loadInvestments = async () => {
     try {
       setLoading(true);
       const loadedInvestments = await investmentService.getAll();
       setInvestments(loadedInvestments);
+      setFilteredInvestments(loadedInvestments);
       setSummary(investmentService.calculateSummary(loadedInvestments));
     } catch (error) {
       console.error("Error loading investments:", error);
@@ -50,7 +61,6 @@ export const Dashboard = () => {
       const newInvestment = await investmentService.add(investment);
       const updatedInvestments = [...investments, newInvestment];
       setInvestments(updatedInvestments);
-      setSummary(investmentService.calculateSummary(updatedInvestments));
       setShowForm(false);
       toast({
         title: "Success",
@@ -73,7 +83,6 @@ export const Dashboard = () => {
         i.id === investment.id ? investment : i
       );
       setInvestments(updatedInvestments);
-      setSummary(investmentService.calculateSummary(updatedInvestments));
       toast({
         title: "Success",
         description: "Investment updated successfully.",
@@ -88,8 +97,8 @@ export const Dashboard = () => {
     }
   };
 
-  const handleLiquidAssetsUpdate = (newValue: number) => {
-    setLiquidAssets(newValue);
+  const handleLiquidAssetsUpdate = (amount: number, owner: FamilyMember) => {
+    setLiquidAssets(amount);
     toast({
       title: "Success",
       description: "Liquid assets updated successfully.",
@@ -109,8 +118,8 @@ export const Dashboard = () => {
   const totalWealth = summary.currentValue + liquidAssets;
   const lastMonthGrowth = 5083.95; // This would need to be calculated based on actual data
   const annualizedReturn = 4.01; // This would need to be calculated based on actual data
-  const averageInvestment = investments.length > 0 
-    ? summary.totalInvested / investments.length 
+  const averageInvestment = filteredInvestments.length > 0 
+    ? summary.totalInvested / filteredInvestments.length 
     : 0;
 
   return (
@@ -120,116 +129,60 @@ export const Dashboard = () => {
         <Button onClick={() => setShowForm(true)}>Add Investment</Button>
       </div>
 
+      <DashboardFilter
+        selectedMember={selectedMember}
+        onMemberChange={setSelectedMember}
+      />
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <Card className="p-6 bg-accent/40">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-primary/10 rounded-full">
-                <DollarSign className="w-6 h-6 text-primary" />
-              </div>
-              <div>
-                <h3 className="text-sm font-medium text-muted-foreground">Total Wealth</h3>
-                <p className="text-2xl font-bold">₹{totalWealth.toLocaleString()}</p>
-              </div>
-            </div>
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <Edit2 className="h-4 w-4" />
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Update Liquid Assets</DialogTitle>
-                </DialogHeader>
-                <div className="grid gap-4 py-4">
-                  <div className="grid gap-2">
-                    <Input
-                      type="number"
-                      value={liquidAssets}
-                      onChange={(e) => handleLiquidAssetsUpdate(Number(e.target.value))}
-                      placeholder="Enter liquid assets amount"
-                    />
-                  </div>
-                </div>
-              </DialogContent>
-            </Dialog>
-          </div>
-          <div className="text-sm text-muted-foreground">
-            Liquid Assets: ₹{liquidAssets.toLocaleString()}
-          </div>
-        </Card>
+        <StatCard
+          title="Total Wealth"
+          value={`₹${totalWealth.toLocaleString()}`}
+          subtitle={`Liquid Assets: ₹${liquidAssets.toLocaleString()}`}
+          className="bg-accent/40"
+        >
+          <LiquidAssetsDialog
+            liquidAssets={liquidAssets}
+            onUpdate={handleLiquidAssetsUpdate}
+          />
+        </StatCard>
 
-        <Card className="p-6">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-success/10 rounded-full">
-              <TrendingUp className="w-6 h-6 text-success" />
-            </div>
-            <div>
-              <h3 className="text-sm font-medium text-muted-foreground">Total Invested</h3>
-              <p className="text-2xl font-bold">₹{summary.totalInvested.toLocaleString()}</p>
-              <span className="text-sm text-muted-foreground">
-                Total Investments: {investments.length}
-              </span>
-            </div>
-          </div>
-        </Card>
+        <StatCard
+          title="Total Invested"
+          value={`₹${summary.totalInvested.toLocaleString()}`}
+          subtitle={`Total Investments: ${filteredInvestments.length}`}
+        />
 
-        <Card className="p-6">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-warning/10 rounded-full">
-              <Users className="w-6 h-6 text-warning" />
-            </div>
-            <div>
-              <h3 className="text-sm font-medium text-muted-foreground">Current Value</h3>
-              <p className="text-2xl font-bold">₹{summary.currentValue.toLocaleString()}</p>
-              <span className="text-sm text-success">
-                Last Month Growth: {lastMonthGrowth.toFixed(2)}%
-              </span>
-            </div>
-          </div>
-        </Card>
+        <StatCard
+          title="Current Value"
+          value={`₹${summary.currentValue.toLocaleString()}`}
+          subtitle={`Last Month Growth: ${lastMonthGrowth.toFixed(2)}%`}
+        />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <Card className="p-6">
-          <h3 className="text-sm font-medium text-muted-foreground mb-2">Overall Growth</h3>
-          <p className="text-2xl font-bold text-success">
-            {summary.growth.toFixed(2)}%
-          </p>
-        </Card>
+        <StatCard
+          title="Overall Growth"
+          value={`${summary.growth.toFixed(2)}%`}
+        />
 
-        <Card className="p-6">
-          <h3 className="text-sm font-medium text-muted-foreground mb-2">Annualized Return</h3>
-          <p className="text-2xl font-bold text-success">
-            {annualizedReturn.toFixed(2)}%
-          </p>
-        </Card>
+        <StatCard
+          title="Annualized Return"
+          value={`${annualizedReturn.toFixed(2)}%`}
+        />
 
-        <Card className="p-6">
-          <h3 className="text-sm font-medium text-muted-foreground mb-2">Average Investment</h3>
-          <p className="text-2xl font-bold">
-            ₹{averageInvestment.toLocaleString()}
-          </p>
-        </Card>
+        <StatCard
+          title="Average Investment"
+          value={`₹${averageInvestment.toLocaleString()}`}
+        />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold mb-4">Portfolio Growth</h3>
-          <LineChart investments={investments} />
-        </Card>
-
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold mb-4">Asset Allocation</h3>
-          <PieChart investments={investments} />
-        </Card>
-      </div>
+      <DashboardCharts investments={filteredInvestments} />
 
       <Card className="p-6">
         <h3 className="text-lg font-semibold mb-4">Investments</h3>
         <InvestmentList
-          investments={investments}
+          investments={filteredInvestments}
           onUpdate={handleUpdateInvestment}
         />
       </Card>
