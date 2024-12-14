@@ -44,8 +44,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             .single();
 
           if (!profile?.full_name) {
+            console.log("User needs to complete setup");
             navigate("/setup");
           } else {
+            console.log("User setup complete, redirecting to dashboard");
             navigate("/");
           }
         } else if (event === "SIGNED_OUT") {
@@ -66,6 +68,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         provider: "google",
         options: {
           redirectTo: `${window.location.origin}/auth/callback`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
         },
       });
 
