@@ -26,11 +26,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log("Setting up auth state listener");
+    console.log("AuthContext - Setting up initial session check");
     
+    // Check for existing session
+    supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
+      console.log("AuthContext - Initial session check:", currentSession?.user?.id);
+      setSession(currentSession);
+      setUser(currentSession?.user ?? null);
+      setIsLoading(false);
+    });
+
+    // Set up auth state listener
+    console.log("AuthContext - Setting up auth state listener");
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, currentSession) => {
-        console.log("Auth state changed:", event);
+        console.log("AuthContext - Auth state changed:", event, currentSession?.user?.id);
         setSession(currentSession);
         setUser(currentSession?.user ?? null);
         setIsLoading(false);
@@ -44,13 +54,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             .single();
 
           if (!profile?.full_name) {
-            console.log("User needs to complete setup");
+            console.log("AuthContext - User needs to complete setup");
             navigate("/setup");
           } else {
-            console.log("User setup complete, redirecting to dashboard");
+            console.log("AuthContext - User setup complete, redirecting to dashboard");
             navigate("/");
           }
         } else if (event === "SIGNED_OUT") {
+          console.log("AuthContext - User signed out, redirecting to login");
           navigate("/login");
         }
       }
@@ -63,7 +74,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signInWithGoogle = async () => {
     try {
-      console.log("Initiating Google sign-in");
+      console.log("AuthContext - Initiating Google sign-in");
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
@@ -77,18 +88,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       if (error) throw error;
     } catch (error) {
-      console.error("Error signing in with Google:", error);
+      console.error("AuthContext - Error signing in with Google:", error);
       throw error;
     }
   };
 
   const signOut = async () => {
     try {
-      console.log("Signing out");
+      console.log("AuthContext - Signing out");
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
     } catch (error) {
-      console.error("Error signing out:", error);
+      console.error("AuthContext - Error signing out:", error);
       throw error;
     }
   };

@@ -15,12 +15,12 @@ import { useEffect } from "react";
 
 export const Dashboard = () => {
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const {
     filteredInvestments,
     summary,
     showForm,
-    loading,
+    loading: dataLoading,
     error,
     liquidAssets,
     selectedMember,
@@ -34,7 +34,7 @@ export const Dashboard = () => {
 
   useEffect(() => {
     if (error) {
-      console.error("Dashboard error:", error);
+      console.error("Dashboard - Error:", error);
       toast({
         title: "Error",
         description: "Failed to load dashboard data. Please try again.",
@@ -43,23 +43,30 @@ export const Dashboard = () => {
     }
   }, [error, toast]);
 
-  console.log("Dashboard - Auth state:", { user, loading });
+  console.log("Dashboard - Auth state:", { user, authLoading });
   console.log("Dashboard - Data state:", { 
     hasData, 
     investments: filteredInvestments,
     liquidAssets,
-    loading,
+    dataLoading,
     error 
   });
 
+  // Show loading state while checking auth
+  if (authLoading) {
+    console.log("Dashboard - Auth loading");
+    return <DashboardLoading />;
+  }
+
+  // Redirect to login if no user
   if (!user) {
-    console.log("Dashboard - User not authenticated, redirecting to login");
+    console.log("Dashboard - No user, redirecting to login");
     return <Navigate to="/login" replace />;
   }
 
-  // Only show loading state if we're actually loading data
-  if (loading && !error) {
-    console.log("Dashboard - Loading state active");
+  // Show loading state while fetching data
+  if (dataLoading && !error) {
+    console.log("Dashboard - Data loading");
     return <DashboardLoading />;
   }
 
@@ -74,7 +81,7 @@ export const Dashboard = () => {
   }
 
   // Show empty state if we have no data after loading is complete
-  if (!hasData && !loading) {
+  if (!hasData && !dataLoading) {
     console.log("Dashboard - No data available");
     return (
       <div className="container mx-auto py-8">
