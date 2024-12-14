@@ -11,13 +11,13 @@ interface Props {
   value: FamilyMember | "";
   owners: Array<{ 
     name: FamilyMember; 
-    relationship?: string;
+    relationship?: FamilyRelationship;
   }>;
   onChange: (value: FamilyMember) => void;
 }
 
 export const OwnerSelect = ({ value, owners, onChange }: Props) => {
-  const getDisplayName = (member: { name: FamilyMember; relationship?: string }) => {
+  const getDisplayName = (member: { name: FamilyMember; relationship?: FamilyRelationship }) => {
     if (member.relationship === 'Primary User') {
       return `${member.name} (Primary)`;
     }
