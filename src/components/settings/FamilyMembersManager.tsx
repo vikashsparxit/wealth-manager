@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Card } from "@/components/ui/card";
 import { UserPlus, UserMinus, Check, X, Edit2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
@@ -14,7 +15,11 @@ interface Member {
   investment_count: number;
 }
 
-export const FamilyMembersManager = () => {
+interface FamilyMembersManagerProps {
+  onClose: () => void;
+}
+
+export const FamilyMembersManager = ({ onClose }: FamilyMembersManagerProps) => {
   const [newMember, setNewMember] = useState("");
   const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(false);
@@ -174,92 +179,104 @@ export const FamilyMembersManager = () => {
   };
 
   return (
-    <Card className="p-6">
-      <div className="flex gap-2 mb-4">
-        <Input
-          placeholder="Enter member name"
-          value={newMember}
-          onChange={(e) => setNewMember(e.target.value)}
-          className="max-w-xs"
-        />
-        <Button onClick={addMember} disabled={loading || !newMember.trim()}>
-          <UserPlus className="h-4 w-4 mr-2" />
-          Add Member
-        </Button>
-      </div>
+    <DialogContent className="sm:max-w-[600px]" onInteractOutside={() => {
+      onClose();
+      // Add a small delay before enabling interactions
+      setTimeout(() => {
+        document.body.style.pointerEvents = 'auto';
+      }, 100);
+    }}>
+      <DialogHeader>
+        <DialogTitle>Family Members</DialogTitle>
+      </DialogHeader>
+      
+      <Card className="p-6">
+        <div className="flex gap-2 mb-4">
+          <Input
+            placeholder="Enter member name"
+            value={newMember}
+            onChange={(e) => setNewMember(e.target.value)}
+            className="max-w-xs"
+          />
+          <Button onClick={addMember} disabled={loading || !newMember.trim()}>
+            <UserPlus className="h-4 w-4 mr-2" />
+            Add Member
+          </Button>
+        </div>
 
-      <div className="space-y-2">
-        {members.map((member) => (
-          <div
-            key={member.id}
-            className="flex items-center justify-between p-2 bg-background rounded-lg border"
-          >
-            {editingId === member.id ? (
-              <div className="flex items-center gap-2 flex-1 mr-2">
-                <Input
-                  value={editValue}
-                  onChange={(e) => setEditValue(e.target.value)}
-                  className="flex-1"
-                  autoFocus
-                />
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => updateMember(member.id, editValue)}
-                  disabled={!editValue.trim() || editValue === member.name}
-                >
-                  <Check className="h-4 w-4" />
-                </Button>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => setEditingId(null)}
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
-            ) : (
-              <>
-                <span className="flex-1">
-                  {member.name}
-                  {member.investment_count > 0 && (
-                    <span className="ml-2 text-sm text-muted-foreground">
-                      ({member.investment_count} investments)
-                    </span>
-                  )}
-                </span>
-                <div className="flex gap-2">
+        <div className="space-y-2">
+          {members.map((member) => (
+            <div
+              key={member.id}
+              className="flex items-center justify-between p-2 bg-background rounded-lg border"
+            >
+              {editingId === member.id ? (
+                <div className="flex items-center gap-2 flex-1 mr-2">
+                  <Input
+                    value={editValue}
+                    onChange={(e) => setEditValue(e.target.value)}
+                    className="flex-1"
+                    autoFocus
+                  />
                   <Button
                     size="sm"
                     variant="ghost"
-                    onClick={() => startEditing(member)}
+                    onClick={() => updateMember(member.id, editValue)}
+                    disabled={!editValue.trim() || editValue === member.name}
                   >
-                    <Edit2 className="h-4 w-4" />
+                    <Check className="h-4 w-4" />
                   </Button>
                   <Button
-                    variant={member.status === "active" ? "destructive" : "default"}
                     size="sm"
-                    onClick={() => toggleMemberStatus(member)}
-                    disabled={loading}
+                    variant="ghost"
+                    onClick={() => setEditingId(null)}
                   >
-                    {member.status === "active" ? (
-                      <>
-                        <UserMinus className="h-4 w-4 mr-2" />
-                        Deactivate
-                      </>
-                    ) : (
-                      <>
-                        <Check className="h-4 w-4 mr-2" />
-                        Activate
-                      </>
-                    )}
+                    <X className="h-4 w-4" />
                   </Button>
                 </div>
-              </>
-            )}
-          </div>
-        ))}
-      </div>
-    </Card>
+              ) : (
+                <>
+                  <span className="flex-1">
+                    {member.name}
+                    {member.investment_count > 0 && (
+                      <span className="ml-2 text-sm text-muted-foreground">
+                        ({member.investment_count} investments)
+                      </span>
+                    )}
+                  </span>
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => startEditing(member)}
+                    >
+                      <Edit2 className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant={member.status === "active" ? "destructive" : "default"}
+                      size="sm"
+                      onClick={() => toggleMemberStatus(member)}
+                      disabled={loading}
+                    >
+                      {member.status === "active" ? (
+                        <>
+                          <UserMinus className="h-4 w-4 mr-2" />
+                          Deactivate
+                        </>
+                      ) : (
+                        <>
+                          <Check className="h-4 w-4 mr-2" />
+                          Activate
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </>
+              )}
+            </div>
+          ))}
+        </div>
+      </Card>
+    </DialogContent>
   );
 };

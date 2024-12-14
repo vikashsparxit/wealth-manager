@@ -15,7 +15,7 @@ import { useState } from "react";
 import { ProfileDialog } from "@/components/profile/ProfileDialog";
 import { FamilyMembersManager } from "@/components/settings/FamilyMembersManager";
 import { InvestmentTypesManager } from "@/components/settings/InvestmentTypesManager";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog } from "@/components/ui/dialog";
 
 interface DashboardHeaderProps {
   onAddInvestment: () => void;
@@ -28,14 +28,30 @@ export const DashboardHeader = ({ onAddInvestment }: DashboardHeaderProps) => {
   const [showSettingsDialog, setShowSettingsDialog] = useState(false);
   const [showMembersDialog, setShowMembersDialog] = useState(false);
   const [showTypesDialog, setShowTypesDialog] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   
   const dashboardName = settings?.dashboard_name ? `${settings.dashboard_name} Dashboard` : "My Wealth Dashboard";
+
+  const handleDialogChange = (setter: (open: boolean) => void) => (open: boolean) => {
+    setter(open);
+    // Add a small delay before enabling interactions
+    if (!open) {
+      setTimeout(() => {
+        document.body.style.pointerEvents = 'auto';
+      }, 100);
+    }
+  };
 
   return (
     <div className="flex justify-between items-center mb-6">
       <h1 className="text-2xl font-bold">{dashboardName}</h1>
       <div className="flex gap-4 items-center">
-        <DropdownMenu>
+        <Button onClick={onAddInvestment}>
+          <Plus className="mr-2 h-4 w-4" />
+          Add Investment
+        </Button>
+
+        <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-10 w-10 rounded-full">
               <Avatar className="h-10 w-10">
@@ -46,7 +62,14 @@ export const DashboardHeader = ({ onAddInvestment }: DashboardHeaderProps) => {
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56 p-2 bg-background border shadow-lg">
+          <DropdownMenuContent 
+            align="end" 
+            className="w-56 p-2 bg-background border shadow-lg"
+            onCloseAutoFocus={(event) => {
+              event.preventDefault();
+              setDropdownOpen(false);
+            }}
+          >
             <DropdownMenuItem 
               onClick={() => setShowProfileDialog(true)}
               className="cursor-pointer py-2 px-4 hover:bg-accent rounded-md"
@@ -79,39 +102,30 @@ export const DashboardHeader = ({ onAddInvestment }: DashboardHeaderProps) => {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-        
-        <Button onClick={onAddInvestment}>
-          <Plus className="mr-2 h-4 w-4" />
-          Add Investment
-        </Button>
       </div>
 
       <ProfileDialog 
         open={showProfileDialog} 
-        onOpenChange={setShowProfileDialog} 
+        onOpenChange={handleDialogChange(setShowProfileDialog)}
       />
       
       <SettingsDialog 
         open={showSettingsDialog} 
-        onOpenChange={setShowSettingsDialog} 
+        onOpenChange={handleDialogChange(setShowSettingsDialog)}
       />
 
-      <Dialog open={showMembersDialog} onOpenChange={setShowMembersDialog}>
-        <DialogContent className="sm:max-w-[600px]">
-          <DialogHeader>
-            <DialogTitle>Family Members</DialogTitle>
-          </DialogHeader>
-          <FamilyMembersManager />
-        </DialogContent>
+      <Dialog 
+        open={showMembersDialog} 
+        onOpenChange={handleDialogChange(setShowMembersDialog)}
+      >
+        <FamilyMembersManager onClose={() => setShowMembersDialog(false)} />
       </Dialog>
 
-      <Dialog open={showTypesDialog} onOpenChange={setShowTypesDialog}>
-        <DialogContent className="sm:max-w-[600px]">
-          <DialogHeader>
-            <DialogTitle>Investment Types</DialogTitle>
-          </DialogHeader>
-          <InvestmentTypesManager />
-        </DialogContent>
+      <Dialog 
+        open={showTypesDialog} 
+        onOpenChange={handleDialogChange(setShowTypesDialog)}
+      >
+        <InvestmentTypesManager onClose={() => setShowTypesDialog(false)} />
       </Dialog>
     </div>
   );

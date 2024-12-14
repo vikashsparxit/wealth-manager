@@ -17,7 +17,7 @@ interface LiquidAssetsDialogProps {
 
 export const LiquidAssetsDialog = ({ liquidAssets, onUpdate, selectedMember }: LiquidAssetsDialogProps) => {
   const [open, setOpen] = useState(false);
-  const [amount, setAmount] = useState(0);
+  const [amount, setAmount] = useState("0");
   const [owner, setOwner] = useState<FamilyMember>("Myself");
   const [familyMembers, setFamilyMembers] = useState<Array<{ name: FamilyMember }>>([]);
   const { toast } = useToast();
@@ -39,13 +39,7 @@ export const LiquidAssetsDialog = ({ liquidAssets, onUpdate, selectedMember }: L
         return;
       }
 
-      const typedData = (data || []).map(item => ({
-        name: item.name as FamilyMember
-      }));
-      setFamilyMembers(typedData);
-      if (typedData.length > 0) {
-        setOwner(typedData[0].name);
-      }
+      setFamilyMembers(data as Array<{ name: FamilyMember }>);
     };
 
     if (open) {
@@ -57,31 +51,45 @@ export const LiquidAssetsDialog = ({ liquidAssets, onUpdate, selectedMember }: L
     if (selectedMember !== "Wealth Combined") {
       setOwner(selectedMember);
       const asset = liquidAssets.find(a => a.owner === selectedMember);
-      setAmount(asset ? Number(asset.amount) : 0);
+      setAmount(asset ? asset.amount.toString() : "0");
     } else {
       const asset = liquidAssets.find(a => a.owner === owner);
-      setAmount(asset ? Number(asset.amount) : 0);
+      setAmount(asset ? asset.amount.toString() : "0");
     }
   }, [selectedMember, owner, liquidAssets]);
 
   const handleSave = async () => {
     try {
+      const numAmount = parseFloat(amount);
+      if (isNaN(numAmount)) {
+        throw new Error("Invalid amount");
+      }
+
       const ownerToUpdate = selectedMember !== "Wealth Combined" ? selectedMember : owner;
-      console.log("Saving liquid assets for owner:", ownerToUpdate, "amount:", amount);
-      await onUpdate(Number(amount), ownerToUpdate as FamilyMember);
+      await onUpdate(numAmount, ownerToUpdate as FamilyMember);
       setOpen(false);
     } catch (error) {
       console.error("Error saving liquid assets:", error);
       toast({
         title: "Error",
-        description: "Failed to update liquid assets",
+        description: "Failed to update liquid assets. Please try again.",
         variant: "destructive",
       });
     }
   };
 
+  const handleOpenChange = (newOpen: boolean) => {
+    setOpen(newOpen);
+    if (!newOpen) {
+      // Add a small delay before enabling interactions
+      setTimeout(() => {
+        document.body.style.pointerEvents = 'auto';
+      }, 100);
+    }
+  };
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button variant="ghost" size="icon">
           <Edit2 className="h-4 w-4" />
@@ -99,7 +107,7 @@ export const LiquidAssetsDialog = ({ liquidAssets, onUpdate, selectedMember }: L
                 onValueChange={(value: FamilyMember) => {
                   setOwner(value);
                   const asset = liquidAssets.find(a => a.owner === value);
-                  setAmount(asset ? Number(asset.amount) : 0);
+                  setAmount(asset ? asset.amount.toString() : "0");
                 }}
               >
                 <SelectTrigger className="w-full">
@@ -125,7 +133,7 @@ export const LiquidAssetsDialog = ({ liquidAssets, onUpdate, selectedMember }: L
               <Input
                 type="number"
                 value={amount}
-                onChange={(e) => setAmount(Number(e.target.value))}
+                onChange={(e) => setAmount(e.target.value)}
                 placeholder="Enter liquid assets amount"
               />
             </div>
