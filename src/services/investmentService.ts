@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import { Investment, WealthSummary } from "@/types/investment";
+import { Investment } from "@/types/investment";
 
 const mapDatabaseToInvestment = (data: any): Investment => ({
   id: data.id,
@@ -97,7 +97,7 @@ export const investmentService = {
     }
   },
 
-  calculateSummary: (investments: Investment[]): WealthSummary => {
+  calculateSummary: (investments: Investment[]) => {
     const totalInvested = investments.reduce((sum, inv) => sum + inv.investedAmount, 0);
     const currentValue = investments.reduce((sum, inv) => sum + inv.currentValue, 0);
     const growth = totalInvested > 0 ? ((currentValue - totalInvested) / totalInvested) * 100 : 0;
