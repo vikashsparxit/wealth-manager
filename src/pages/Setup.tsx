@@ -82,6 +82,7 @@ export const Setup = () => {
                 value={dashboardName}
                 onChange={(e) => setDashboardName(e.target.value)}
                 placeholder="My Wealth Dashboard"
+                className="w-full"
               />
             </div>
 
@@ -90,12 +91,16 @@ export const Setup = () => {
                 Base Currency
               </label>
               <Select value={currency} onValueChange={handleCurrencyChange}>
-                <SelectTrigger id="currency">
+                <SelectTrigger id="currency" className="w-full bg-background">
                   <SelectValue placeholder="Select currency" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-background border shadow-lg">
                   {currencies.map((curr) => (
-                    <SelectItem key={curr.value} value={curr.value}>
+                    <SelectItem 
+                      key={curr.value} 
+                      value={curr.value}
+                      className="cursor-pointer hover:bg-accent focus:bg-accent"
+                    >
                       {curr.label}
                     </SelectItem>
                   ))}

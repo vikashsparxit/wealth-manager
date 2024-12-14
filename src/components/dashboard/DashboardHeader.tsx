@@ -10,10 +10,11 @@ interface DashboardHeaderProps {
 
 export const DashboardHeader = ({ onAddInvestment }: DashboardHeaderProps) => {
   const { settings } = useSettings();
+  const dashboardName = settings?.dashboard_name ? `${settings.dashboard_name} Dashboard` : "My Wealth Dashboard";
 
   return (
     <div className="flex justify-between items-center mb-6">
-      <h1 className="text-2xl font-bold">{settings?.dashboard_name || "My Wealth Dashboard"}</h1>
+      <h1 className="text-2xl font-bold">{dashboardName}</h1>
       <div className="flex gap-4">
         <SettingsDialog />
         <AuthButton />
