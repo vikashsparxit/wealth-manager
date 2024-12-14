@@ -2,6 +2,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { LiquidAssetFormProps } from "./types";
+import { FamilyMember } from "@/types/investment";
 
 export const LiquidAssetForm = ({
   amount,
@@ -25,7 +26,7 @@ export const LiquidAssetForm = ({
         {selectedMember === "Wealth Combined" && familyMembers.length > 0 && (
           <Select 
             value={owner} 
-            onValueChange={onOwnerChange}
+            onValueChange={(value: FamilyMember) => onOwnerChange(value)}
           >
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Select owner" />
@@ -52,9 +53,10 @@ export const LiquidAssetForm = ({
             value={amount}
             onChange={(e) => onAmountChange(e.target.value)}
             placeholder="Enter liquid assets amount"
+            className="bg-background"
           />
         </div>
-        <Button onClick={onSave}>Save</Button>
+        <Button onClick={onSave} className="w-full">Save</Button>
       </div>
     </div>
   );

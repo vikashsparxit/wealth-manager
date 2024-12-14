@@ -24,32 +24,41 @@ export const useFamilyMembersManager = () => {
       setState(prev => ({ ...prev, loading: true }));
       if (!user) return;
 
-      const { data: membersWithCounts, error } = await supabase
+      console.log("Loading family members for user:", user.id);
+      
+      // First, get the count of investments per family member
+      const { data: investmentCounts, error: countError } = await supabase
+        .from('investments')
+        .select('owner, count')
+        .eq('user_id', user.id)
+        .group_by('owner');
+
+      if (countError) {
+        console.error("Error getting investment counts:", countError);
+      }
+
+      // Then get family members
+      const { data: membersData, error: membersError } = await supabase
         .from('family_members')
-        .select(`
-          id,
-          name,
-          relationship,
-          status,
-          investments:investments(count)
-        `)
+        .select('*')
         .eq('user_id', user.id)
         .order('created_at');
 
-      if (error) throw error;
+      if (membersError) {
+        console.error("Error loading family members:", membersError);
+        throw membersError;
+      }
 
-      const formattedMembers = membersWithCounts.map(member => ({
-        id: member.id,
-        name: member.name,
-        relationship: member.relationship as FamilyRelationship || "Other",
-        status: member.status,
-        investment_count: member.investments?.[0]?.count || 0
+      // Combine the data
+      const formattedMembers = membersData.map(member => ({
+        ...member,
+        investment_count: investmentCounts?.find(count => count.owner === member.name)?.count || 0
       }));
 
       console.log("Loaded members with counts:", formattedMembers);
       setState(prev => ({ ...prev, members: formattedMembers }));
     } catch (error) {
-      console.error("Error loading family members:", error);
+      console.error("Error in loadMembers:", error);
       toast({
         title: "Error",
         description: "Failed to load family members",
@@ -65,7 +74,10 @@ export const useFamilyMembersManager = () => {
 
     try {
       setState(prev => ({ ...prev, loading: true }));
-      console.log("Adding new family member:", { newMember: state.newMember, relationship: state.relationship });
+      console.log("Adding new family member:", { 
+        name: state.newMember, 
+        relationship: state.relationship 
+      });
       
       const { error } = await supabase
         .from("family_members")
@@ -82,7 +94,11 @@ export const useFamilyMembersManager = () => {
         description: "Family member added successfully",
       });
       
-      setState(prev => ({ ...prev, newMember: "", relationship: "Other" }));
+      setState(prev => ({ 
+        ...prev, 
+        newMember: "", 
+        relationship: "Other" 
+      }));
       await loadMembers();
     } catch (error) {
       console.error("Error adding family member:", error);
