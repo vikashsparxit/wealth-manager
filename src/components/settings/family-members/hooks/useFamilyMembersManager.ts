@@ -26,16 +26,23 @@ export const useFamilyMembersManager = () => {
 
       console.log("Loading family members for user:", user.id);
       
-      // First, get the count of investments per family member
-      const { data: investmentCounts, error: countError } = await supabase
+      // First, get all investments to count them manually
+      const { data: investments, error: investmentsError } = await supabase
         .from('investments')
-        .select('owner, count')
-        .eq('user_id', user.id)
-        .group_by('owner');
+        .select('owner')
+        .eq('user_id', user.id);
 
-      if (countError) {
-        console.error("Error getting investment counts:", countError);
+      if (investmentsError) {
+        console.error("Error getting investments:", investmentsError);
       }
+
+      // Count investments per owner
+      const investmentCounts = investments?.reduce((acc: Record<string, number>, inv) => {
+        acc[inv.owner] = (acc[inv.owner] || 0) + 1;
+        return acc;
+      }, {}) || {};
+
+      console.log("Investment counts:", investmentCounts);
 
       // Then get family members
       const { data: membersData, error: membersError } = await supabase
@@ -52,7 +59,7 @@ export const useFamilyMembersManager = () => {
       // Combine the data
       const formattedMembers = membersData.map(member => ({
         ...member,
-        investment_count: investmentCounts?.find(count => count.owner === member.name)?.count || 0
+        investment_count: investmentCounts[member.name] || 0
       }));
 
       console.log("Loaded members with counts:", formattedMembers);
