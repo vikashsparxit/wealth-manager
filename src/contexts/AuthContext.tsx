@@ -18,6 +18,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log("Initial session check:", { session });
       setSession(session);
       setUser(session?.user ?? null);
     });
@@ -26,9 +27,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
+      console.log("Auth state changed:", { event: _event, user: session?.user });
       setSession(session);
       setUser(session?.user ?? null);
-      console.log("Auth state changed:", _event, session?.user);
     });
 
     return () => subscription.unsubscribe();
@@ -36,13 +37,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signInWithGoogle = async () => {
     try {
+      console.log("Initiating Google sign in...");
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
           redirectTo: window.location.origin,
         },
       });
-      if (error) throw error;
+      if (error) {
+        console.error("Google sign in error:", error);
+        throw error;
+      }
     } catch (error) {
       console.error("Error signing in with Google:", error);
       throw error;
@@ -51,8 +56,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = async () => {
     try {
+      console.log("Signing out...");
       const { error } = await supabase.auth.signOut();
-      if (error) throw error;
+      if (error) {
+        console.error("Sign out error:", error);
+        throw error;
+      }
+      console.log("Successfully signed out");
     } catch (error) {
       console.error("Error signing out:", error);
       throw error;

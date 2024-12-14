@@ -26,8 +26,11 @@ export const Dashboard = () => {
     handleLiquidAssetsUpdate,
   } = useDashboard();
 
+  console.log("Dashboard - Auth state:", { user });
+
   // Redirect to login if not authenticated
   if (!user) {
+    console.log("Dashboard - User not authenticated, redirecting to login");
     return <Navigate to="/login" replace />;
   }
 
