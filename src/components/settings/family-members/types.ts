@@ -1,4 +1,4 @@
-import { FamilyRelationship } from "@/types/investment";
+import { FamilyMember, FamilyRelationship } from "@/types/investment";
 
 export interface Member {
   id: string;

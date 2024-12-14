@@ -1,7 +1,20 @@
 import { supabase } from "@/integrations/supabase/client";
-import { Investment } from "@/types/investment";
+import { Investment, InvestmentType, FamilyMember } from "@/types/investment";
 
-const mapDatabaseToInvestment = (data: any): Investment => ({
+interface DatabaseInvestment {
+  id: string;
+  type: InvestmentType;
+  owner: FamilyMember;
+  invested_amount: number;
+  current_value: number;
+  date_of_investment: string;
+  notes?: string;
+  user_id: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+const mapDatabaseToInvestment = (data: DatabaseInvestment): Investment => ({
   id: data.id,
   type: data.type,
   owner: data.owner,
@@ -11,13 +24,14 @@ const mapDatabaseToInvestment = (data: any): Investment => ({
   notes: data.notes,
 });
 
-const mapInvestmentToDatabase = (investment: Omit<Investment, "id">) => ({
+const mapInvestmentToDatabase = (investment: Omit<Investment, "id">, userId: string): Omit<DatabaseInvestment, "id" | "created_at" | "updated_at"> => ({
   type: investment.type,
   owner: investment.owner,
   invested_amount: investment.investedAmount,
   current_value: investment.currentValue,
   date_of_investment: investment.dateOfInvestment,
   notes: investment.notes,
+  user_id: userId,
 });
 
 export const investmentService = {
@@ -41,11 +55,7 @@ export const investmentService = {
 
   add: async (investment: Omit<Investment, "id">, userId: string): Promise<Investment> => {
     try {
-      const dbInvestment = {
-        ...mapInvestmentToDatabase(investment),
-        user_id: userId,
-      };
-
+      const dbInvestment = mapInvestmentToDatabase(investment, userId);
       console.log("Adding investment to database:", dbInvestment);
 
       const { data, error } = await supabase
@@ -65,8 +75,7 @@ export const investmentService = {
 
   update: async (investment: Investment, userId: string): Promise<Investment> => {
     try {
-      const dbInvestment = mapInvestmentToDatabase(investment);
-      
+      const dbInvestment = mapInvestmentToDatabase(investment, userId);
       console.log("Updating investment in database:", dbInvestment);
 
       const { data, error } = await supabase
