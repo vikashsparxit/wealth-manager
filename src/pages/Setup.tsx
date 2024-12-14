@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -19,44 +20,29 @@ const currencies = [
   { value: "USD", label: "US Dollar ($)" },
   { value: "EUR", label: "Euro (€)" },
   { value: "GBP", label: "British Pound (£)" },
-] as const;
+  { value: "JPY", label: "Japanese Yen (¥)" },
+  { value: "AUD", label: "Australian Dollar (A$)" },
+  { value: "CAD", label: "Canadian Dollar (C$)" },
+  { value: "CHF", label: "Swiss Franc (Fr)" },
+  { value: "CNY", label: "Chinese Yuan (¥)" },
+  { value: "HKD", label: "Hong Kong Dollar (HK$)" },
+  { value: "NZD", label: "New Zealand Dollar (NZ$)" },
+  { value: "SGD", label: "Singapore Dollar (S$)" },
+];
 
-type CurrencyType = typeof currencies[number]["value"];
-
-export const Setup = () => {
+export default function Setup() {
+  const [dashboardName, setDashboardName] = useState("");
+  const [currency, setCurrency] = useState("INR");
+  const [fullName, setFullName] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { initializeSettings } = useSettings();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { settings, initializeSettings } = useSettings();
   const { toast } = useToast();
-  const [dashboardName, setDashboardName] = useState("");
-  const [currency, setCurrency] = useState<CurrencyType>("INR");
-  const [fullName, setFullName] = useState(user?.user_metadata.full_name || user?.user_metadata.name || "");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  useEffect(() => {
-    if (settings) {
-      navigate("/");
-    }
-  }, [settings, navigate]);
-
-  const handleCurrencyChange = (value: string) => {
-    if (currencies.some(curr => curr.value === value)) {
-      setCurrency(value as CurrencyType);
-    }
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
-
-    if (!fullName.trim()) {
-      toast({
-        title: "Error",
-        description: "Please enter your name to continue",
-        variant: "destructive",
-      });
-      return;
-    }
 
     setIsSubmitting(true);
     try {
@@ -83,7 +69,7 @@ export const Setup = () => {
       
       navigate("/");
     } catch (error) {
-      console.error("Error saving settings:", error);
+      console.error('Error in setup:', error);
       toast({
         title: "Error",
         description: "Failed to save settings. Please try again.",
@@ -95,72 +81,72 @@ export const Setup = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <div className="max-w-md w-full space-y-8">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold">Welcome to Your Wealth Dashboard</h1>
-          <p className="mt-2 text-muted-foreground">
-            Let's set up your dashboard preferences before we begin
+    <div className="flex items-center justify-center min-h-screen bg-background p-4">
+      <Card className="w-full max-w-md p-6 space-y-6">
+        <div className="space-y-2 text-center">
+          <h1 className="text-2xl font-semibold tracking-tight">
+            Welcome to Your Wealth Dashboard
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Let's set up your dashboard preferences
           </p>
         </div>
-
-        <form onSubmit={handleSubmit} className="mt-8 space-y-6">
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <label htmlFor="fullName" className="text-sm font-medium">
-                Your Name <span className="text-red-500">*</span>
-              </label>
-              <Input
-                id="fullName"
-                type="text"
-                required
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                placeholder="Enter your name"
-                className="w-full"
-              />
-              <p className="text-sm text-muted-foreground">
-                This name will be used to identify you as the primary user
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <label htmlFor="dashboardName" className="text-sm font-medium">
-                Dashboard Name
-              </label>
-              <Input
-                id="dashboardName"
-                type="text"
-                value={dashboardName}
-                onChange={(e) => setDashboardName(e.target.value)}
-                placeholder="My Wealth Dashboard"
-                className="w-full"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <label htmlFor="currency" className="text-sm font-medium">
-                Base Currency
-              </label>
-              <Select value={currency} onValueChange={handleCurrencyChange}>
-                <SelectTrigger id="currency" className="w-full bg-background">
-                  <SelectValue placeholder="Select currency" />
-                </SelectTrigger>
-                <SelectContent className="bg-background border shadow-lg">
-                  {currencies.map((curr) => (
-                    <SelectItem 
-                      key={curr.value} 
-                      value={curr.value}
-                      className="cursor-pointer hover:bg-accent focus:bg-accent"
-                    >
-                      {curr.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <label
+              htmlFor="fullName"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              Your Name
+            </label>
+            <Input
+              id="fullName"
+              type="text"
+              required
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              placeholder="Enter your full name"
+            />
           </div>
-
+          <div className="space-y-2">
+            <label
+              htmlFor="dashboardName"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              Dashboard Name
+            </label>
+            <Input
+              id="dashboardName"
+              type="text"
+              value={dashboardName}
+              onChange={(e) => setDashboardName(e.target.value)}
+              placeholder="My Wealth Dashboard"
+            />
+          </div>
+          <div className="space-y-2">
+            <label
+              htmlFor="currency"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              Base Currency
+            </label>
+            <Select value={currency} onValueChange={setCurrency}>
+              <SelectTrigger id="currency">
+                <SelectValue placeholder="Select currency" />
+              </SelectTrigger>
+              <SelectContent>
+                {currencies.map((currency) => (
+                  <SelectItem
+                    key={currency.value}
+                    value={currency.value}
+                    className="cursor-pointer"
+                  >
+                    {currency.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
           <Button
             type="submit"
             className="w-full"
@@ -169,9 +155,7 @@ export const Setup = () => {
             {isSubmitting ? "Setting up..." : "Continue to Dashboard"}
           </Button>
         </form>
-      </div>
+      </Card>
     </div>
   );
-};
-
-export default Setup;
+}
