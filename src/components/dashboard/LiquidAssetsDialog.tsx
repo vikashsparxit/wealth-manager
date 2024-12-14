@@ -15,7 +15,6 @@ interface LiquidAssetsDialogProps {
 export const LiquidAssetsDialog = ({ liquidAssets, onUpdate }: LiquidAssetsDialogProps) => {
   const [amount, setAmount] = useState(liquidAssets);
   const [owner, setOwner] = useState<FamilyMember>("Myself");
-  const [currentAssets, setCurrentAssets] = useState<{[key: string]: number}>({});
   const familyMembers: FamilyMember[] = ["Myself", "My Wife", "My Daughter"];
 
   useEffect(() => {
@@ -35,7 +34,6 @@ export const LiquidAssetsDialog = ({ liquidAssets, onUpdate }: LiquidAssetsDialo
         return;
       }
 
-      // If no data exists yet, set amount to 0
       if (!data || data.length === 0) {
         console.log("No liquid assets found for owner:", owner);
         setAmount(0);
@@ -45,6 +43,43 @@ export const LiquidAssetsDialog = ({ liquidAssets, onUpdate }: LiquidAssetsDialo
       }
     } catch (error) {
       console.error("Error fetching liquid assets:", error);
+    }
+  };
+
+  const handleSave = async () => {
+    try {
+      console.log("Saving liquid assets for owner:", owner, "amount:", amount);
+      
+      // Check if record exists
+      const { data: existingData } = await supabase
+        .from("liquid_assets")
+        .select("id")
+        .eq("owner", owner);
+
+      let result;
+      
+      if (existingData && existingData.length > 0) {
+        // Update existing record
+        result = await supabase
+          .from("liquid_assets")
+          .update({ amount })
+          .eq("owner", owner);
+      } else {
+        // Insert new record
+        result = await supabase
+          .from("liquid_assets")
+          .insert([{ owner, amount }]);
+      }
+
+      if (result.error) {
+        console.error("Error saving liquid assets:", result.error);
+        return;
+      }
+
+      console.log("Liquid assets saved successfully");
+      onUpdate(amount, owner);
+    } catch (error) {
+      console.error("Error saving liquid assets:", error);
     }
   };
 
@@ -92,7 +127,7 @@ export const LiquidAssetsDialog = ({ liquidAssets, onUpdate }: LiquidAssetsDialo
                 className="bg-background"
               />
             </div>
-            <Button onClick={() => onUpdate(amount, owner)}>Save</Button>
+            <Button onClick={handleSave}>Save</Button>
           </div>
         </div>
       </DialogContent>
