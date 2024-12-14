@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
-import { Member } from "./types";
+import { Member, RelationshipType } from "./types";
 
 export const useFamilyMembers = () => {
   const [members, setMembers] = useState<Member[]>([]);
@@ -10,6 +10,7 @@ export const useFamilyMembers = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
   const [newMember, setNewMember] = useState("");
+  const [relationship, setRelationship] = useState<RelationshipType>("Other");
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -21,7 +22,7 @@ export const useFamilyMembers = () => {
       console.log("Loading family members for user:", user.id);
       const { data, error } = await supabase
         .from("family_members")
-        .select("id, name, status, investments:investments(count)")
+        .select("id, name, status, relationship, investments(count)")
         .eq("user_id", user.id)
         .order("created_at");
 
@@ -34,6 +35,7 @@ export const useFamilyMembers = () => {
         id: member.id,
         name: member.name,
         status: member.status,
+        relationship: member.relationship,
         investment_count: member.investments?.[0]?.count || 0
       }));
 
@@ -56,10 +58,14 @@ export const useFamilyMembers = () => {
 
     try {
       setLoading(true);
-      console.log("Adding new family member:", newMember);
+      console.log("Adding new family member:", { newMember, relationship });
       const { error } = await supabase
         .from("family_members")
-        .insert([{ name: newMember.trim(), user_id: user.id }]);
+        .insert([{ 
+          name: newMember.trim(), 
+          user_id: user.id,
+          relationship: relationship 
+        }]);
 
       if (error) throw error;
 
@@ -69,6 +75,7 @@ export const useFamilyMembers = () => {
       });
       
       setNewMember("");
+      setRelationship("Other");
       await loadMembers();
     } catch (error) {
       console.error("Error adding family member:", error);
@@ -171,8 +178,10 @@ export const useFamilyMembers = () => {
     editingId,
     editValue,
     newMember,
+    relationship,
     setEditValue,
     setNewMember,
+    setRelationship,
     addMember,
     updateMember,
     toggleMemberStatus,
