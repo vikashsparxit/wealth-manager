@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { FamilyMember } from "@/types/investment";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
 
 interface LiquidAssetsDialogProps {
   liquidAssets: number;
@@ -16,6 +17,7 @@ export const LiquidAssetsDialog = ({ liquidAssets, onUpdate }: LiquidAssetsDialo
   const [amount, setAmount] = useState(liquidAssets);
   const [owner, setOwner] = useState<FamilyMember>("Myself");
   const familyMembers: FamilyMember[] = ["Myself", "My Wife", "My Daughter"];
+  const { toast } = useToast();
 
   useEffect(() => {
     fetchLiquidAssets();
@@ -26,20 +28,21 @@ export const LiquidAssetsDialog = ({ liquidAssets, onUpdate }: LiquidAssetsDialo
       console.log("Fetching liquid assets for owner:", owner);
       const { data, error } = await supabase
         .from("liquid_assets")
-        .select("owner, amount")
-        .eq("owner", owner);
+        .select("amount")
+        .eq("owner", owner)
+        .single();
 
-      if (error) {
+      if (error && error.code !== 'PGRST116') {
         console.error("Error fetching liquid assets:", error);
         return;
       }
 
-      if (!data || data.length === 0) {
+      if (data) {
+        console.log("Found liquid assets:", data);
+        setAmount(data.amount);
+      } else {
         console.log("No liquid assets found for owner:", owner);
         setAmount(0);
-      } else {
-        console.log("Found liquid assets:", data[0]);
-        setAmount(data[0].amount);
       }
     } catch (error) {
       console.error("Error fetching liquid assets:", error);
@@ -50,36 +53,45 @@ export const LiquidAssetsDialog = ({ liquidAssets, onUpdate }: LiquidAssetsDialo
     try {
       console.log("Saving liquid assets for owner:", owner, "amount:", amount);
       
-      // Check if record exists
-      const { data: existingData } = await supabase
+      const { data: existingData, error: checkError } = await supabase
         .from("liquid_assets")
         .select("id")
         .eq("owner", owner);
 
+      if (checkError) {
+        throw checkError;
+      }
+
       let result;
       
       if (existingData && existingData.length > 0) {
-        // Update existing record
         result = await supabase
           .from("liquid_assets")
           .update({ amount })
           .eq("owner", owner);
       } else {
-        // Insert new record
         result = await supabase
           .from("liquid_assets")
           .insert([{ owner, amount }]);
       }
 
       if (result.error) {
-        console.error("Error saving liquid assets:", result.error);
-        return;
+        throw result.error;
       }
 
       console.log("Liquid assets saved successfully");
       onUpdate(amount, owner);
+      toast({
+        title: "Success",
+        description: "Liquid assets updated successfully",
+      });
     } catch (error) {
       console.error("Error saving liquid assets:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update liquid assets",
+        variant: "destructive",
+      });
     }
   };
 

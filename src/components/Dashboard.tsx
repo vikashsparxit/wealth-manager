@@ -37,15 +37,19 @@ export const Dashboard = () => {
       : investments.filter(inv => inv.owner === selectedMember);
     setFilteredInvestments(filtered);
     setSummary(investmentService.calculateSummary(filtered));
+    loadLiquidAssets();
   }, [selectedMember, investments]);
 
   const loadLiquidAssets = async () => {
     try {
       console.log("Loading liquid assets...");
-      const { data, error } = await supabase
-        .from("liquid_assets")
-        .select("amount")
-        .eq("owner", selectedMember === "Family Combined" ? "Myself" : selectedMember);
+      let query = supabase.from("liquid_assets").select("amount");
+      
+      if (selectedMember !== "Family Combined") {
+        query = query.eq("owner", selectedMember);
+      }
+
+      const { data, error } = await query;
 
       if (error) {
         console.error("Error loading liquid assets:", error);
@@ -177,6 +181,7 @@ export const Dashboard = () => {
         liquidAssets={liquidAssets}
         onLiquidAssetsUpdate={handleLiquidAssetsUpdate}
         filteredInvestments={filteredInvestments}
+        selectedMember={selectedMember}
       />
 
       <ROIInsights investments={filteredInvestments} />
