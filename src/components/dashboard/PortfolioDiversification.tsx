@@ -1,69 +1,64 @@
 import { Card } from "@/components/ui/card";
 import { Investment } from "@/types/investment";
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
+import { PieChart } from "@/components/Charts";
+import { calculatePercentage } from "@/lib/utils";
 
 interface PortfolioDiversificationProps {
   investments: Investment[];
 }
 
-const COLORS = ['#2563eb', '#22c55e', '#f97316', '#8b5cf6', '#ec4899', '#14b8a6', '#f59e0b', '#6366f1'];
-
 export const PortfolioDiversification = ({ investments }: PortfolioDiversificationProps) => {
-  const portfolioData = investments.reduce((acc, inv) => {
-    if (!acc[inv.type]) {
-      acc[inv.type] = inv.currentValue;
-    } else {
-      acc[inv.type] += inv.currentValue;
-    }
-    return acc;
-  }, {} as { [key: string]: number });
+  // Calculate total investment value
+  const totalValue = investments.reduce((sum, inv) => sum + inv.currentValue, 0);
 
-  const data = Object.entries(portfolioData)
-    .map(([type, value]) => ({
-      type,
-      value,
-      percentage: ((value / investments.reduce((sum, inv) => sum + inv.currentValue, 0)) * 100).toFixed(1),
-    }))
-    .sort((a, b) => b.value - a.value);
+  // Calculate percentage allocation by type
+  const allocationByType = investments.reduce((acc, inv) => {
+    if (!acc[inv.type]) {
+      acc[inv.type] = 0;
+    }
+    acc[inv.type] += inv.currentValue;
+    return acc;
+  }, {} as Record<string, number>);
+
+  // Convert to percentages
+  const percentages = Object.entries(allocationByType).map(([type, value]) => ({
+    type,
+    percentage: calculatePercentage(value, totalValue),
+  }));
+
+  // Sort by percentage descending
+  percentages.sort((a, b) => b.percentage - a.percentage);
 
   return (
     <Card className="p-6 mb-8">
       <h3 className="text-lg font-semibold mb-4">Portfolio Diversification</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <ResponsiveContainer width="100%" height={300}>
-          <PieChart>
-            <Pie
-              data={data}
-              dataKey="value"
-              nameKey="type"
-              cx="50%"
-              cy="50%"
-              outerRadius={100}
-              label={({ type, percentage }) => `${type} (${percentage}%)`}
-            >
-              {data.map((_, index) => (
-                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-              ))}
-            </Pie>
-            <Tooltip />
-          </PieChart>
-        </ResponsiveContainer>
+        <div>
+          <PieChart investments={investments} />
+        </div>
         <div className="space-y-4">
-          <h4 className="font-medium">Distribution Analysis</h4>
+          <h4 className="font-medium">Asset Allocation Breakdown</h4>
           <div className="space-y-2">
-            {data.map((item, index) => (
-              <div key={item.type} className="flex justify-between items-center">
-                <div className="flex items-center gap-2">
-                  <div
-                    className="w-3 h-3 rounded-full"
-                    style={{ backgroundColor: COLORS[index % COLORS.length] }}
-                  />
-                  <span>{item.type}</span>
-                </div>
-                <span className="font-medium">₹{item.value.toLocaleString()} ({item.percentage}%)</span>
+            {percentages.map(({ type, percentage }) => (
+              <div key={type} className="flex justify-between items-center">
+                <span className="text-sm">{type}</span>
+                <span className="text-sm font-medium">{percentage.toFixed(2)}%</span>
               </div>
             ))}
           </div>
+          {percentages.length > 0 && (
+            <div className="pt-4 border-t">
+              <p className="text-sm text-muted-foreground">
+                Highest concentration: {percentages[0].type} ({percentages[0].percentage.toFixed(2)}%)
+              </p>
+              {percentages.length > 1 && (
+                <p className="text-sm text-muted-foreground">
+                  Lowest concentration: {percentages[percentages.length - 1].type} (
+                  {percentages[percentages.length - 1].percentage.toFixed(2)}%)
+                </p>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </Card>
