@@ -1,5 +1,5 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { FamilyMember } from "@/types/investment";
+import { FamilyMember, FamilyRelationship } from "@/types/investment";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -12,7 +12,7 @@ interface DashboardFilterProps {
 export const DashboardFilter = ({ selectedMember, onMemberChange }: DashboardFilterProps) => {
   const [familyMembers, setFamilyMembers] = useState<Array<{ 
     name: FamilyMember;
-    relationship?: string;
+    relationship?: FamilyRelationship;
   }>>([]);
   const { user } = useAuth();
 
@@ -36,19 +36,25 @@ export const DashboardFilter = ({ selectedMember, onMemberChange }: DashboardFil
       console.log("Loaded family members:", data);
       
       // Ensure proper typing and sort primary user first
-      const typedData = (data || []).sort((a, b) => {
-        if (a.relationship === 'Primary User') return -1;
-        if (b.relationship === 'Primary User') return 1;
-        return 0;
-      });
+      const typedData = (data || [])
+        .filter((item): item is { name: FamilyMember; relationship: FamilyRelationship } => {
+          // Runtime type check to ensure name is a valid FamilyMember
+          return ['Myself', 'My Wife', 'My Daughter'].includes(item.name);
+        })
+        .sort((a, b) => {
+          if (a.relationship === 'Primary User') return -1;
+          if (b.relationship === 'Primary User') return 1;
+          return 0;
+        });
 
+      console.log("Processed family members:", typedData);
       setFamilyMembers(typedData);
     };
 
     loadFamilyMembers();
   }, [user]);
 
-  const getDisplayName = (member: { name: FamilyMember; relationship?: string }) => {
+  const getDisplayName = (member: { name: FamilyMember; relationship?: FamilyRelationship }) => {
     if (member.relationship === 'Primary User') {
       return `${member.name} (Primary)`;
     }
