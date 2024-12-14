@@ -6,7 +6,7 @@ import { useLiquidAssets } from "./useLiquidAssets";
 
 export const useDashboard = () => {
   const [showForm, setShowForm] = useState(false);
-  const [selectedMember, setSelectedMember] = useState<"Family Combined" | FamilyMember>("Family Combined");
+  const [selectedMember, setSelectedMember] = useState<"Wealth Combined" | FamilyMember>("Wealth Combined");
   
   const { 
     investments, 
@@ -21,7 +21,7 @@ export const useDashboard = () => {
   } = useLiquidAssets();
 
   const filteredInvestments = useMemo(() => {
-    return selectedMember === "Family Combined"
+    return selectedMember === "Wealth Combined"
       ? investments
       : investments.filter(inv => inv.owner === selectedMember);
   }, [selectedMember, investments]);
