@@ -2,14 +2,16 @@ import { useState, useEffect } from "react";
 import { LiquidAsset, FamilyMember } from "@/types/investment";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 export const useLiquidAssets = () => {
   const [liquidAssets, setLiquidAssets] = useState<LiquidAsset[]>([]);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const loadLiquidAssets = async () => {
     try {
-      console.log("Loading liquid assets...");
+      console.log("Loading liquid assets for user:", user?.id);
       const { data, error } = await supabase
         .from("liquid_assets")
         .select("*");
@@ -77,8 +79,10 @@ export const useLiquidAssets = () => {
   };
 
   useEffect(() => {
-    loadLiquidAssets();
-  }, []);
+    if (user) {
+      loadLiquidAssets();
+    }
+  }, [user]);
 
   return {
     liquidAssets,

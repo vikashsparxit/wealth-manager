@@ -3,16 +3,18 @@ import { Investment } from "@/types/investment";
 import { investmentService } from "@/services/investmentService";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 export const useInvestments = () => {
   const [investments, setInvestments] = useState<Investment[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const loadInvestments = async () => {
     try {
       setLoading(true);
-      console.log("Loading investments...");
+      console.log("Loading investments for user:", user?.id);
       const loadedInvestments = await investmentService.getAll();
       console.log("Loaded investments:", loadedInvestments);
       setInvestments(loadedInvestments);
@@ -72,8 +74,10 @@ export const useInvestments = () => {
   };
 
   useEffect(() => {
-    loadInvestments();
-  }, []);
+    if (user) {
+      loadInvestments();
+    }
+  }, [user]);
 
   return {
     investments,
