@@ -1,4 +1,4 @@
-export type FamilyMember = "Myself" | "My Wife" | "My Daughter";
+export type FamilyMember = "Myself" | "My Wife" | "My Daughter" | "Family";
 
 export type FamilyRelationship = "Primary User" | "Spouse" | "Son" | "Daughter" | "Mother" | "Father";
 

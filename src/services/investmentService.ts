@@ -23,6 +23,7 @@ const mapInvestmentToDatabase = (investment: Omit<Investment, "id">) => ({
 export const investmentService = {
   getAll: async (userId: string): Promise<Investment[]> => {
     try {
+      console.log("Fetching investments for user:", userId);
       const { data, error } = await supabase
         .from("investments")
         .select("*")
@@ -30,6 +31,7 @@ export const investmentService = {
         .order("date_of_investment", { ascending: false });
 
       if (error) throw error;
+      console.log("Fetched investments:", data);
       return (data || []).map(mapDatabaseToInvestment);
     } catch (error) {
       console.error("Error fetching investments:", error);
@@ -53,6 +55,7 @@ export const investmentService = {
         .single();
 
       if (error) throw error;
+      console.log("Successfully added investment:", data);
       return mapDatabaseToInvestment(data);
     } catch (error) {
       console.error("Error adding investment:", error);
@@ -75,6 +78,7 @@ export const investmentService = {
         .single();
 
       if (error) throw error;
+      console.log("Successfully updated investment:", data);
       return mapDatabaseToInvestment(data);
     } catch (error) {
       console.error("Error updating investment:", error);
@@ -84,6 +88,7 @@ export const investmentService = {
 
   delete: async (userId: string, investmentId: string): Promise<void> => {
     try {
+      console.log("Deleting investment:", investmentId);
       const { error } = await supabase
         .from("investments")
         .delete()
@@ -91,6 +96,7 @@ export const investmentService = {
         .eq("user_id", userId);
 
       if (error) throw error;
+      console.log("Successfully deleted investment");
     } catch (error) {
       console.error("Error deleting investment:", error);
       throw error;
