@@ -12,6 +12,7 @@ import {
 import { useSettings } from "@/hooks/useSettings";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const currencies = [
   { value: "INR", label: "Indian Rupee (₹)" },
@@ -26,6 +27,7 @@ export const Setup = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { settings, initializeSettings } = useSettings();
+  const { toast } = useToast();
   const [dashboardName, setDashboardName] = useState("");
   const [currency, setCurrency] = useState<CurrencyType>("INR");
   const [fullName, setFullName] = useState(user?.user_metadata.full_name || user?.user_metadata.name || "");
