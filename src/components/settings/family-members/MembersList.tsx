@@ -1,7 +1,17 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { UserMinus, Check, X, Edit2 } from "lucide-react";
 import { MemberListProps } from "./types";
+import { FamilyRelationship } from "@/types/investment";
+
+const relationshipOptions: FamilyRelationship[] = [
+  "Primary User",
+  "Spouse",
+  "Son",
+  "Daughter",
+  "Other"
+];
 
 export const MembersList = ({
   members,
@@ -32,17 +42,30 @@ export const MembersList = ({
                 placeholder="Member name"
                 autoFocus
               />
-              <Input
-                value={editRelationship}
-                onChange={(e) => setEditRelationship(e.target.value)}
-                className="flex-1"
-                placeholder="Relationship"
-              />
+              <Select 
+                value={editRelationship} 
+                onValueChange={(value: FamilyRelationship) => setEditRelationship(value)}
+              >
+                <SelectTrigger className="w-[200px]">
+                  <SelectValue placeholder="Select relationship" />
+                </SelectTrigger>
+                <SelectContent>
+                  {relationshipOptions.map((option) => (
+                    <SelectItem 
+                      key={option} 
+                      value={option}
+                      className="cursor-pointer"
+                    >
+                      {option}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <Button
                 size="sm"
                 variant="ghost"
                 onClick={() => onUpdate(member.id, editValue, editRelationship)}
-                disabled={!editValue.trim() || !editRelationship.trim()}
+                disabled={!editValue.trim() || !editRelationship}
               >
                 <Check className="h-4 w-4" />
               </Button>

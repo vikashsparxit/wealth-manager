@@ -7,15 +7,16 @@ import { useAuth } from "@/contexts/AuthContext";
 import { AddMemberForm } from "./AddMemberForm";
 import { MembersList } from "./MembersList";
 import { Member } from "./types";
+import { FamilyRelationship } from "@/types/investment";
 
 export const FamilyMembersManager = () => {
   const [newMember, setNewMember] = useState("");
-  const [relationship, setRelationship] = useState("");
+  const [relationship, setRelationship] = useState<FamilyRelationship>("Other");
   const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
-  const [editRelationship, setEditRelationship] = useState("");
+  const [editRelationship, setEditRelationship] = useState<FamilyRelationship>("Other");
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -41,7 +42,7 @@ export const FamilyMembersManager = () => {
       const formattedMembers = membersWithCounts.map(member => ({
         id: member.id,
         name: member.name,
-        relationship: member.relationship || '',
+        relationship: member.relationship as FamilyRelationship || "Other",
         status: member.status,
         investment_count: member.investments?.[0]?.count || 0
       }));
@@ -67,17 +68,19 @@ export const FamilyMembersManager = () => {
   }, [user]);
 
   const addMember = async () => {
-    if (!newMember.trim() || !relationship.trim() || !user?.id) return;
+    if (!newMember.trim() || !user?.id) return;
 
     try {
       setLoading(true);
+      console.log("Adding new family member:", { newMember, relationship });
+      
       const { error } = await supabase
         .from("family_members")
-        .insert([{ 
-          name: newMember.trim(), 
-          relationship: relationship.trim(),
-          user_id: user.id 
-        }]);
+        .insert({
+          name: newMember.trim(),
+          relationship: relationship,
+          user_id: user.id
+        });
 
       if (error) throw error;
 
@@ -87,7 +90,7 @@ export const FamilyMembersManager = () => {
       });
       
       setNewMember("");
-      setRelationship("");
+      setRelationship("Other");
       await loadMembers();
     } catch (error) {
       console.error("Error adding family member:", error);
@@ -101,14 +104,16 @@ export const FamilyMembersManager = () => {
     }
   };
 
-  const updateMember = async (id: string, newName: string, newRelationship: string) => {
+  const updateMember = async (id: string, newName: string, newRelationship: FamilyRelationship) => {
     try {
       setLoading(true);
+      console.log("Updating family member:", { id, newName, newRelationship });
+      
       const { error } = await supabase
         .from("family_members")
         .update({ 
           name: newName.trim(),
-          relationship: newRelationship.trim()
+          relationship: newRelationship
         })
         .eq("id", id)
         .eq("user_id", user?.id);
@@ -177,7 +182,7 @@ export const FamilyMembersManager = () => {
   const startEditing = (member: Member) => {
     setEditingId(member.id);
     setEditValue(member.name);
-    setEditRelationship(member.relationship || '');
+    setEditRelationship(member.relationship || "Other");
   };
 
   return (
