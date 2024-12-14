@@ -1,16 +1,29 @@
 import { useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { LogIn } from "lucide-react";
 
-export const Login = () => {
+const Login = () => {
   const { user, signInWithGoogle } = useAuth();
+  const navigate = useNavigate();
 
-  // If user is already logged in, redirect to dashboard
-  if (user) {
-    return <Navigate to="/" replace />;
-  }
+  useEffect(() => {
+    console.log("Login component - Auth state:", { user });
+    if (user) {
+      console.log("User is authenticated, redirecting to dashboard");
+      navigate("/", { replace: true });
+    }
+  }, [user, navigate]);
+
+  const handleSignIn = async () => {
+    try {
+      console.log("Initiating Google sign-in");
+      await signInWithGoogle();
+    } catch (error) {
+      console.error("Sign-in error:", error);
+    }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">
@@ -23,7 +36,7 @@ export const Login = () => {
         <Button 
           className="w-full" 
           size="lg"
-          onClick={signInWithGoogle}
+          onClick={handleSignIn}
         >
           <LogIn className="mr-2 h-4 w-4" />
           Sign in with Google
