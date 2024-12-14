@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Investment, WealthSummary, FamilyMember } from "@/types/investment";
+import { Investment, WealthSummary, FamilyMember, LiquidAsset } from "@/types/investment";
 import { investmentService } from "@/services/investmentService";
 import { Card } from "@/components/ui/card";
 import { InvestmentForm } from "@/components/InvestmentForm";
@@ -22,8 +22,8 @@ export const Dashboard = () => {
   });
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [liquidAssets, setLiquidAssets] = useState(0);
-  const [selectedMember, setSelectedMember] = useState("Family Combined");
+  const [liquidAssets, setLiquidAssets] = useState<LiquidAsset[]>([]);
+  const [selectedMember, setSelectedMember] = useState<"Family Combined" | FamilyMember>("Family Combined");
   const { toast } = useToast();
 
   useEffect(() => {
@@ -37,28 +37,22 @@ export const Dashboard = () => {
       : investments.filter(inv => inv.owner === selectedMember);
     setFilteredInvestments(filtered);
     setSummary(investmentService.calculateSummary(filtered));
-    loadLiquidAssets();
   }, [selectedMember, investments]);
 
   const loadLiquidAssets = async () => {
     try {
       console.log("Loading liquid assets...");
-      let { data, error } = await supabase
+      const { data, error } = await supabase
         .from("liquid_assets")
-        .select("amount");
-
-      if (selectedMember !== "Family Combined") {
-        data = data?.filter(asset => asset.owner === selectedMember) || [];
-      }
+        .select("*");
 
       if (error) {
         console.error("Error loading liquid assets:", error);
         return;
       }
 
-      const totalAmount = data?.reduce((sum, asset) => sum + Number(asset.amount), 0) || 0;
-      console.log("Total liquid assets loaded:", totalAmount);
-      setLiquidAssets(totalAmount);
+      console.log("Loaded liquid assets:", data);
+      setLiquidAssets(data as LiquidAsset[]);
     } catch (error) {
       console.error("Error in loadLiquidAssets:", error);
     }
@@ -126,20 +120,30 @@ export const Dashboard = () => {
 
   const handleLiquidAssetsUpdate = async (amount: number, owner: FamilyMember) => {
     try {
-      const { data: existingData } = await supabase
+      const { data: existingData, error: checkError } = await supabase
         .from("liquid_assets")
-        .select("id")
-        .eq("owner", owner);
+        .select("*")
+        .eq("owner", owner)
+        .single();
 
-      if (existingData && existingData.length > 0) {
-        await supabase
+      if (checkError && checkError.code !== 'PGRST116') {
+        throw checkError;
+      }
+
+      let result;
+      if (existingData) {
+        result = await supabase
           .from("liquid_assets")
           .update({ amount })
           .eq("owner", owner);
       } else {
-        await supabase
+        result = await supabase
           .from("liquid_assets")
           .insert([{ owner, amount }]);
+      }
+
+      if (result.error) {
+        throw result.error;
       }
 
       await loadLiquidAssets();
@@ -173,7 +177,7 @@ export const Dashboard = () => {
 
       <DashboardFilter
         selectedMember={selectedMember}
-        onMemberChange={setSelectedMember}
+        onMemberChange={(value) => setSelectedMember(value as typeof selectedMember)}
       />
 
       <DashboardStats

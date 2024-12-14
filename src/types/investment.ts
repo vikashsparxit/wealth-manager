@@ -1,4 +1,4 @@
-export type FamilyMember = "Myself" | "My Wife" | "My Daughter" | "Family";
+export type FamilyMember = "Myself" | "My Wife" | "My Daughter";
 
 export type InvestmentType =
   | "Real Estate"
@@ -27,4 +27,12 @@ export interface WealthSummary {
   totalInvested: number;
   currentValue: number;
   growth: number;
+}
+
+export interface LiquidAsset {
+  id?: string;
+  owner: FamilyMember;
+  amount: number;
+  created_at?: string;
+  updated_at?: string;
 }

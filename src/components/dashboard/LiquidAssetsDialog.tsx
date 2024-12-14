@@ -3,95 +3,38 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Edit2 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { FamilyMember } from "@/types/investment";
+import { FamilyMember, LiquidAsset } from "@/types/investment";
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 
 interface LiquidAssetsDialogProps {
-  liquidAssets: number;
+  liquidAssets: LiquidAsset[];
   onUpdate: (amount: number, owner: FamilyMember) => void;
-  selectedMember: string;
+  selectedMember: "Family Combined" | FamilyMember;
 }
 
 export const LiquidAssetsDialog = ({ liquidAssets, onUpdate, selectedMember }: LiquidAssetsDialogProps) => {
-  const [amount, setAmount] = useState(liquidAssets);
+  const [amount, setAmount] = useState(0);
   const [owner, setOwner] = useState<FamilyMember>("Myself");
   const familyMembers: FamilyMember[] = ["Myself", "My Wife", "My Daughter"];
   const { toast } = useToast();
 
   useEffect(() => {
     if (selectedMember !== "Family Combined") {
-      setOwner(selectedMember as FamilyMember);
+      setOwner(selectedMember);
+      const asset = liquidAssets.find(a => a.owner === selectedMember);
+      setAmount(asset ? asset.amount : 0);
+    } else {
+      const asset = liquidAssets.find(a => a.owner === owner);
+      setAmount(asset ? asset.amount : 0);
     }
-    fetchLiquidAssets();
-  }, [selectedMember]);
-
-  const fetchLiquidAssets = async () => {
-    try {
-      const ownerToFetch = selectedMember !== "Family Combined" ? selectedMember : owner;
-      console.log("Fetching liquid assets for owner:", ownerToFetch);
-      
-      const { data, error } = await supabase
-        .from("liquid_assets")
-        .select("amount")
-        .eq("owner", ownerToFetch)
-        .single();
-
-      if (error && error.code !== 'PGRST116') {
-        console.error("Error fetching liquid assets:", error);
-        return;
-      }
-
-      if (data) {
-        console.log("Found liquid assets:", data);
-        setAmount(data.amount);
-      } else {
-        console.log("No liquid assets found for owner:", ownerToFetch);
-        setAmount(0);
-      }
-    } catch (error) {
-      console.error("Error fetching liquid assets:", error);
-    }
-  };
+  }, [selectedMember, owner, liquidAssets]);
 
   const handleSave = async () => {
     try {
       const ownerToUpdate = selectedMember !== "Family Combined" ? selectedMember : owner;
       console.log("Saving liquid assets for owner:", ownerToUpdate, "amount:", amount);
-      
-      const { data: existingData, error: checkError } = await supabase
-        .from("liquid_assets")
-        .select("id")
-        .eq("owner", ownerToUpdate);
-
-      if (checkError) {
-        throw checkError;
-      }
-
-      let result;
-      
-      if (existingData && existingData.length > 0) {
-        result = await supabase
-          .from("liquid_assets")
-          .update({ amount })
-          .eq("owner", ownerToUpdate);
-      } else {
-        result = await supabase
-          .from("liquid_assets")
-          .insert([{ owner: ownerToUpdate, amount }]);
-      }
-
-      if (result.error) {
-        throw result.error;
-      }
-
-      console.log("Liquid assets saved successfully");
-      onUpdate(amount, ownerToUpdate as FamilyMember);
-      toast({
-        title: "Success",
-        description: "Liquid assets updated successfully",
-      });
+      await onUpdate(amount, ownerToUpdate as FamilyMember);
     } catch (error) {
       console.error("Error saving liquid assets:", error);
       toast({
@@ -118,7 +61,7 @@ export const LiquidAssetsDialog = ({ liquidAssets, onUpdate, selectedMember }: L
             {selectedMember === "Family Combined" && (
               <Select 
                 value={owner} 
-                onValueChange={(value) => setOwner(value as FamilyMember)}
+                onValueChange={(value: FamilyMember) => setOwner(value)}
               >
                 <SelectTrigger className="w-full bg-background">
                   <SelectValue placeholder="Select owner" />
@@ -138,7 +81,7 @@ export const LiquidAssetsDialog = ({ liquidAssets, onUpdate, selectedMember }: L
             )}
             <div className="space-y-1">
               <label className="text-sm text-muted-foreground">
-                Current liquid assets for {selectedMember !== "Family Combined" ? selectedMember : owner}: ₹{amount.toLocaleString()}
+                Current liquid assets for {selectedMember !== "Family Combined" ? selectedMember : owner}
               </label>
               <Input
                 type="number"

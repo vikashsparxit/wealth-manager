@@ -1,15 +1,14 @@
-import { WealthSummary } from "@/types/investment";
+import { WealthSummary, LiquidAsset, FamilyMember } from "@/types/investment";
 import { StatCard } from "./StatCard";
 import { LiquidAssetsDialog } from "./LiquidAssetsDialog";
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 
 interface DashboardStatsProps {
   summary: WealthSummary;
-  liquidAssets: number;
-  onLiquidAssetsUpdate: (amount: number, owner: string) => void;
+  liquidAssets: LiquidAsset[];
+  onLiquidAssetsUpdate: (amount: number, owner: FamilyMember) => void;
   filteredInvestments: any[];
-  selectedMember: string;
+  selectedMember: "Family Combined" | FamilyMember;
 }
 
 export const DashboardStats = ({ 
@@ -22,32 +21,20 @@ export const DashboardStats = ({
   const [totalLiquidAssets, setTotalLiquidAssets] = useState(0);
 
   useEffect(() => {
-    const fetchTotalLiquidAssets = async () => {
-      try {
-        console.log("Fetching total liquid assets for:", selectedMember);
-        let { data, error } = await supabase
-          .from("liquid_assets")
-          .select("amount");
-
-        // Only filter by owner if not viewing combined family data
-        if (selectedMember !== "Family Combined") {
-          data = data?.filter(asset => asset.owner === selectedMember) || [];
-        }
-
-        if (error) {
-          console.error("Error fetching liquid assets:", error);
-          return;
-        }
-
-        const total = data?.reduce((sum, asset) => sum + Number(asset.amount), 0) || 0;
-        console.log("Total liquid assets calculated:", total);
+    const calculateTotalLiquidAssets = () => {
+      if (selectedMember === "Family Combined") {
+        const total = liquidAssets.reduce((sum, asset) => sum + Number(asset.amount), 0);
+        console.log("Total liquid assets for all members:", total);
         setTotalLiquidAssets(total);
-      } catch (error) {
-        console.error("Error in fetchTotalLiquidAssets:", error);
+      } else {
+        const memberAsset = liquidAssets.find(asset => asset.owner === selectedMember);
+        const total = memberAsset ? Number(memberAsset.amount) : 0;
+        console.log(`Total liquid assets for ${selectedMember}:`, total);
+        setTotalLiquidAssets(total);
       }
     };
 
-    fetchTotalLiquidAssets();
+    calculateTotalLiquidAssets();
   }, [selectedMember, liquidAssets]);
 
   const totalWealth = summary.currentValue + totalLiquidAssets;
@@ -67,7 +54,7 @@ export const DashboardStats = ({
           className="bg-accent/40"
         >
           <LiquidAssetsDialog
-            liquidAssets={totalLiquidAssets}
+            liquidAssets={liquidAssets}
             onUpdate={onLiquidAssetsUpdate}
             selectedMember={selectedMember}
           />
