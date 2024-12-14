@@ -45,6 +45,30 @@ export type Database = {
         }
         Relationships: []
       }
+      liquid_assets: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          owner: Database["public"]["Enums"]["family_member"]
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          id?: string
+          owner: Database["public"]["Enums"]["family_member"]
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          owner?: Database["public"]["Enums"]["family_member"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
