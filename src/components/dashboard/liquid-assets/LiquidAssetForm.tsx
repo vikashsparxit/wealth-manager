@@ -1,7 +1,7 @@
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { LiquidAssetFormProps, FamilyMemberData } from "./types";
+import { LiquidAssetFormProps } from "./types";
 
 export const LiquidAssetForm = ({
   amount,
@@ -12,9 +12,9 @@ export const LiquidAssetForm = ({
   onOwnerChange,
   onSave,
 }: LiquidAssetFormProps) => {
-  const getDisplayName = (member: FamilyMemberData) => {
+  const getDisplayName = (member: { name: string; relationship?: string }) => {
     if (member.name === "Myself") {
-      return "Myself (Primary)";
+      return `Myself (Primary)`;
     }
     return `${member.name}${member.relationship ? ` (${member.relationship})` : ''}`;
   };
