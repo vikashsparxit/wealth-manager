@@ -49,10 +49,13 @@ export const useLiquidAssetsDialog = (
         setOwner(primary.name as FamilyMember);
       }
       
-      setFamilyMembers(data.map(member => ({
+      // Set all family members
+      const membersData = data.map(member => ({
         name: member.name as FamilyMember,
         relationship: member.relationship
-      })));
+      }));
+      console.log("Setting family members:", membersData);
+      setFamilyMembers(membersData);
     };
 
     if (open) {
@@ -84,20 +87,6 @@ export const useLiquidAssetsDialog = (
       const ownerToUpdate = selectedMember !== "Wealth Combined" ? selectedMember : owner;
       console.log("Updating liquid assets for owner:", ownerToUpdate, "amount:", numAmount);
       
-      // Verify that the owner exists and is active
-      const { data: memberData, error: memberError } = await supabase
-        .from('family_members')
-        .select('name')
-        .eq('user_id', user?.id)
-        .eq('name', ownerToUpdate)
-        .eq('status', 'active')
-        .single();
-
-      if (memberError || !memberData) {
-        console.error("Family member not found or inactive:", memberError);
-        throw new Error("Family member not found or inactive");
-      }
-
       await onUpdate(numAmount, ownerToUpdate as FamilyMember);
       setOpen(false);
     } catch (error) {

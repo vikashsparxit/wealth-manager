@@ -43,7 +43,7 @@ export const LiquidAssetForm = ({
                 <SelectItem 
                   key={member.name} 
                   value={member.name}
-                  className="cursor-pointer py-2 px-4 hover:bg-accent/50 data-[highlighted]:bg-accent"
+                  className="cursor-pointer relative flex w-full select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none hover:bg-accent focus:bg-accent data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
                 >
                   {getDisplayName(member)}
                 </SelectItem>
