@@ -15,7 +15,8 @@ export const useSettings = () => {
   } = useQuery({
     queryKey: ["settings", user?.id],
     queryFn: () => user?.id ? settingsService.getSettings(user.id) : null,
-    enabled: !!user?.id
+    enabled: !!user?.id,
+    retry: false
   });
 
   const { mutate: updateSettings } = useMutation({
@@ -47,6 +48,18 @@ export const useSettings = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["settings"] });
+      toast({
+        title: "Settings initialized",
+        description: "Your dashboard has been set up successfully."
+      });
+    },
+    onError: (error) => {
+      console.error("Error initializing settings:", error);
+      toast({
+        title: "Error",
+        description: "Failed to initialize settings. Please try again.",
+        variant: "destructive"
+      });
     }
   });
 

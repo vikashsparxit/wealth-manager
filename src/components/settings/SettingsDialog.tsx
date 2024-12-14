@@ -34,7 +34,7 @@ export const SettingsDialog = () => {
   const [currency, setCurrency] = useState<CurrencyType>(settings?.base_currency || "INR");
 
   const handleCurrencyChange = (value: string) => {
-    // Validate that the value is a valid currency type
+    // Type guard to ensure value is a valid currency
     if (currencies.some(curr => curr.value === value)) {
       setCurrency(value as CurrencyType);
     }

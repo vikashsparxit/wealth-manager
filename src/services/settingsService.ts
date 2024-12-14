@@ -9,55 +9,78 @@ export interface UserSettings {
 export const settingsService = {
   getSettings: async (userId: string): Promise<UserSettings | null> => {
     console.log("Fetching user settings for:", userId);
-    const { data, error } = await supabase
-      .from("user_settings")
-      .select("*")
-      .eq("user_id", userId)
-      .single();
+    
+    try {
+      const { data, error } = await supabase
+        .from("user_settings")
+        .select("*")
+        .eq("user_id", userId)
+        .single();
 
-    if (error) {
-      console.error("Error fetching user settings:", error);
+      if (error) {
+        if (error.code === 'PGRST116') {
+          console.log("No settings found for user, will return null");
+          return null;
+        }
+        console.error("Error fetching user settings:", error);
+        throw error;
+      }
+
+      return data;
+    } catch (error) {
+      console.error("Error in getSettings:", error);
       throw error;
     }
-
-    return data;
   },
 
   createSettings: async (userId: string, settings: Partial<UserSettings>): Promise<UserSettings> => {
-    console.log("Creating user settings:", settings);
-    const { data, error } = await supabase
-      .from("user_settings")
-      .insert([
-        {
+    console.log("Creating user settings:", { userId, settings });
+    
+    try {
+      const { data, error } = await supabase
+        .from("user_settings")
+        .insert([{
           user_id: userId,
-          ...settings
-        }
-      ])
-      .select()
-      .single();
+          dashboard_name: settings.dashboard_name || 'My Wealth Dashboard',
+          base_currency: settings.base_currency || 'INR'
+        }])
+        .select()
+        .single();
 
-    if (error) {
-      console.error("Error creating user settings:", error);
+      if (error) {
+        console.error("Error creating user settings:", error);
+        throw error;
+      }
+
+      console.log("Successfully created settings:", data);
+      return data;
+    } catch (error) {
+      console.error("Error in createSettings:", error);
       throw error;
     }
-
-    return data;
   },
 
   updateSettings: async (userId: string, settings: Partial<UserSettings>): Promise<UserSettings> => {
-    console.log("Updating user settings:", settings);
-    const { data, error } = await supabase
-      .from("user_settings")
-      .update(settings)
-      .eq("user_id", userId)
-      .select()
-      .single();
+    console.log("Updating user settings:", { userId, settings });
+    
+    try {
+      const { data, error } = await supabase
+        .from("user_settings")
+        .update(settings)
+        .eq("user_id", userId)
+        .select()
+        .single();
 
-    if (error) {
-      console.error("Error updating user settings:", error);
+      if (error) {
+        console.error("Error updating user settings:", error);
+        throw error;
+      }
+
+      console.log("Successfully updated settings:", data);
+      return data;
+    } catch (error) {
+      console.error("Error in updateSettings:", error);
       throw error;
     }
-
-    return data;
   }
 };
