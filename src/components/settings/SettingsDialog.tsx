@@ -17,6 +17,7 @@ import {
 import { Settings } from "lucide-react";
 import { useState } from "react";
 import { useSettings } from "@/hooks/useSettings";
+import { CurrencyType } from "@/types/investment";
 
 const currencies = [
   { value: "INR", label: "Indian Rupee (₹)" },
@@ -33,8 +34,6 @@ const currencies = [
   { value: "SGD", label: "Singapore Dollar (S$)" },
 ] as const;
 
-type CurrencyType = typeof currencies[number]["value"];
-
 export const SettingsDialog = () => {
   const { settings, updateSettings } = useSettings();
   const [open, setOpen] = useState(false);
@@ -42,7 +41,6 @@ export const SettingsDialog = () => {
   const [currency, setCurrency] = useState<CurrencyType>(settings?.base_currency || "INR");
 
   const handleCurrencyChange = (value: string) => {
-    // Type guard to ensure value is a valid currency
     if (currencies.some(curr => curr.value === value)) {
       setCurrency(value as CurrencyType);
     }

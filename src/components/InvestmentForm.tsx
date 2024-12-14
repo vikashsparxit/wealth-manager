@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Investment, InvestmentType } from "@/types/investment";
+import { Investment, InvestmentType, FamilyMember } from "@/types/investment";
 import {
   Dialog,
   DialogContent,
@@ -28,7 +28,7 @@ interface Props {
 export const InvestmentForm = ({ onSubmit, onCancel, investment }: Props) => {
   const { user } = useAuth();
   const [investmentTypes, setInvestmentTypes] = useState<Array<{ name: string }>>([]);
-  const [familyMembers, setFamilyMembers] = useState<Array<{ name: string }>>([]);
+  const [familyMembers, setFamilyMembers] = useState<Array<{ name: FamilyMember }>>([]);
   const [loading, setLoading] = useState(true);
 
   const [formData, setFormData] = useState({
@@ -88,7 +88,7 @@ export const InvestmentForm = ({ onSubmit, onCancel, investment }: Props) => {
     e.preventDefault();
     onSubmit({
       type: formData.type as InvestmentType,
-      owner: formData.owner,
+      owner: formData.owner as FamilyMember,
       investedAmount: Number(formData.investedAmount),
       currentValue: Number(formData.currentValue),
       dateOfInvestment: formData.dateOfInvestment,

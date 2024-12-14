@@ -164,7 +164,19 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      currency_type: "INR" | "USD" | "EUR" | "GBP"
+      currency_type:
+        | "INR"
+        | "USD"
+        | "EUR"
+        | "GBP"
+        | "JPY"
+        | "AUD"
+        | "CAD"
+        | "CHF"
+        | "CNY"
+        | "HKD"
+        | "NZD"
+        | "SGD"
       family_member: "Myself" | "My Wife" | "My Daughter" | "Family"
       investment_type:
         | "Real Estate"

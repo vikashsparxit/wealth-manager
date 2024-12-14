@@ -13,6 +13,20 @@ export type InvestmentType =
   | "PPF"
   | "Startups";
 
+export type CurrencyType =
+  | "INR"
+  | "USD"
+  | "EUR"
+  | "GBP"
+  | "JPY"
+  | "AUD"
+  | "CAD"
+  | "CHF"
+  | "CNY"
+  | "HKD"
+  | "NZD"
+  | "SGD";
+
 export interface Investment {
   id: string;
   type: InvestmentType;
