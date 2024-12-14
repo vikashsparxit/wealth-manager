@@ -28,14 +28,14 @@ export const useDashboard = () => {
   const error = investmentsError || liquidAssetsError;
 
   const filteredInvestments = useMemo(() => {
-    console.log("Filtering investments for member:", selectedMember);
+    console.log("useDashboard - Filtering investments for member:", selectedMember);
     return selectedMember === "Wealth Combined"
       ? investments
       : investments.filter(inv => inv.owner === selectedMember);
   }, [selectedMember, investments]);
 
   const summary = useMemo(() => {
-    console.log("Calculating summary for filtered investments");
+    console.log("useDashboard - Calculating summary for filtered investments");
     return investmentService.calculateSummary(filteredInvestments);
   }, [filteredInvestments]);
 
@@ -46,7 +46,9 @@ export const useDashboard = () => {
     error,
     hasData,
     investmentsCount: investments.length,
-    liquidAssetsCount: liquidAssets.length
+    liquidAssetsCount: liquidAssets.length,
+    investmentsLoading,
+    liquidAssetsLoading
   });
 
   return {

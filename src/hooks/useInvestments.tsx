@@ -14,25 +14,30 @@ export const useInvestments = () => {
 
   const loadInvestments = async () => {
     try {
+      console.log("useInvestments - Starting to load investments");
       setLoading(true);
       setError(null);
-      console.log("Loading investments for user:", user?.id);
+
       if (!user) {
-        console.log("No user found, skipping investment load");
+        console.log("useInvestments - No user found, skipping investment load");
+        setLoading(false);
         return;
       }
+
+      console.log("useInvestments - Loading investments for user:", user.id);
       const loadedInvestments = await investmentService.getAll(user.id);
-      console.log("Loaded investments:", loadedInvestments);
+      console.log("useInvestments - Loaded investments:", loadedInvestments);
       setInvestments(loadedInvestments);
-    } catch (error) {
-      console.error("Error loading investments:", error);
-      setError(error as Error);
+    } catch (err) {
+      console.error("useInvestments - Error loading investments:", err);
+      setError(err as Error);
       toast({
         title: "Error",
         description: "Failed to load investments. Please try again.",
         variant: "destructive",
       });
     } finally {
+      console.log("useInvestments - Finished loading investments");
       setLoading(false);
     }
   };
@@ -87,11 +92,8 @@ export const useInvestments = () => {
   };
 
   useEffect(() => {
-    if (user) {
-      loadInvestments();
-    } else {
-      setInvestments([]);
-    }
+    console.log("useInvestments - Auth state changed, user:", user?.id);
+    loadInvestments();
   }, [user]);
 
   return {
