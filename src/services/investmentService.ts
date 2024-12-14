@@ -44,6 +44,8 @@ export const investmentService = {
         user_id: userId,
       };
 
+      console.log("Adding investment to database:", dbInvestment);
+
       const { data, error } = await supabase
         .from("investments")
         .insert([dbInvestment])
@@ -61,6 +63,8 @@ export const investmentService = {
   update: async (investment: Investment, userId: string): Promise<Investment> => {
     try {
       const dbInvestment = mapInvestmentToDatabase(investment);
+      
+      console.log("Updating investment in database:", dbInvestment);
 
       const { data, error } = await supabase
         .from("investments")
