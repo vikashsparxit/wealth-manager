@@ -7,9 +7,11 @@ import { InvestmentTypesManager } from "@/components/settings/InvestmentTypesMan
 
 interface EmptyDashboardProps {
   onAddInvestment: () => void;
+  onManageMembers: () => void;
+  onManageTypes: () => void;
 }
 
-export const EmptyDashboard = ({ onAddInvestment }: EmptyDashboardProps) => {
+export const EmptyDashboard = ({ onAddInvestment, onManageMembers, onManageTypes }: EmptyDashboardProps) => {
   const { settings } = useSettings();
   const dashboardName = settings?.dashboard_name || "My Wealth Dashboard";
 
@@ -25,7 +27,7 @@ export const EmptyDashboard = ({ onAddInvestment }: EmptyDashboardProps) => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Dialog>
           <DialogTrigger asChild>
-            <Button variant="outline" className="space-x-2">
+            <Button variant="outline" className="space-x-2" onClick={onManageMembers}>
               <Users className="h-4 w-4" />
               <span>Manage Members</span>
             </Button>
@@ -40,7 +42,7 @@ export const EmptyDashboard = ({ onAddInvestment }: EmptyDashboardProps) => {
         
         <Dialog>
           <DialogTrigger asChild>
-            <Button variant="outline" className="space-x-2">
+            <Button variant="outline" className="space-x-2" onClick={onManageTypes}>
               <List className="h-4 w-4" />
               <span>Manage Types</span>
             </Button>

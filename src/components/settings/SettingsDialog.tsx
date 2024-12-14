@@ -23,6 +23,14 @@ const currencies = [
   { value: "USD", label: "US Dollar ($)" },
   { value: "EUR", label: "Euro (€)" },
   { value: "GBP", label: "British Pound (£)" },
+  { value: "JPY", label: "Japanese Yen (¥)" },
+  { value: "AUD", label: "Australian Dollar (A$)" },
+  { value: "CAD", label: "Canadian Dollar (C$)" },
+  { value: "CHF", label: "Swiss Franc (Fr)" },
+  { value: "CNY", label: "Chinese Yuan (¥)" },
+  { value: "HKD", label: "Hong Kong Dollar (HK$)" },
+  { value: "NZD", label: "New Zealand Dollar (NZ$)" },
+  { value: "SGD", label: "Singapore Dollar (S$)" },
 ] as const;
 
 type CurrencyType = typeof currencies[number]["value"];
@@ -76,12 +84,16 @@ export const SettingsDialog = () => {
               Base Currency
             </label>
             <Select value={currency} onValueChange={handleCurrencyChange}>
-              <SelectTrigger id="currency">
+              <SelectTrigger id="currency" className="w-full bg-background">
                 <SelectValue placeholder="Select currency" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="max-h-[300px] overflow-y-auto">
                 {currencies.map((curr) => (
-                  <SelectItem key={curr.value} value={curr.value}>
+                  <SelectItem 
+                    key={curr.value} 
+                    value={curr.value}
+                    className="cursor-pointer hover:bg-accent focus:bg-accent"
+                  >
                     {curr.label}
                   </SelectItem>
                 ))}

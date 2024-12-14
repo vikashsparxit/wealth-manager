@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Investment, InvestmentType, FamilyMember } from "@/types/investment";
+import { useState, useEffect } from "react";
+import { Investment, InvestmentType } from "@/types/investment";
 import {
   Dialog,
   DialogContent,
@@ -16,22 +16,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-
-const investmentTypes: InvestmentType[] = [
-  "Real Estate",
-  "Gold",
-  "Bonds",
-  "LIC",
-  "ULIP",
-  "Sukanya Samridhi",
-  "Mutual Funds",
-  "Stocks",
-  "NPS",
-  "PPF",
-  "Startups",
-];
-
-const familyMembers: FamilyMember[] = ["Myself", "My Wife", "My Daughter"];
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Props {
   onSubmit: (investment: Omit<Investment, "id">) => void;
@@ -40,19 +26,68 @@ interface Props {
 }
 
 export const InvestmentForm = ({ onSubmit, onCancel, investment }: Props) => {
+  const { user } = useAuth();
+  const [investmentTypes, setInvestmentTypes] = useState<Array<{ name: string }>>([]);
+  const [familyMembers, setFamilyMembers] = useState<Array<{ name: string }>>([]);
+  const [loading, setLoading] = useState(true);
+
   const [formData, setFormData] = useState({
-    type: investment?.type || investmentTypes[0],
-    owner: investment?.owner || familyMembers[0],
+    type: investment?.type || "",
+    owner: investment?.owner || "",
     investedAmount: investment?.investedAmount?.toString() || "",
     currentValue: investment?.currentValue?.toString() || "",
     dateOfInvestment: investment?.dateOfInvestment || new Date().toISOString().split("T")[0],
     notes: investment?.notes || "",
   });
 
+  useEffect(() => {
+    const loadData = async () => {
+      if (!user) return;
+      
+      try {
+        const [typesResponse, membersResponse] = await Promise.all([
+          supabase
+            .from('investment_types')
+            .select('name')
+            .eq('user_id', user.id)
+            .eq('status', 'active')
+            .order('name'),
+          supabase
+            .from('family_members')
+            .select('name')
+            .eq('user_id', user.id)
+            .eq('status', 'active')
+            .order('name')
+        ]);
+
+        if (typesResponse.error) throw typesResponse.error;
+        if (membersResponse.error) throw membersResponse.error;
+
+        setInvestmentTypes(typesResponse.data);
+        setFamilyMembers(membersResponse.data);
+        
+        // Set default values if not editing
+        if (!investment) {
+          setFormData(prev => ({
+            ...prev,
+            type: typesResponse.data[0]?.name || "",
+            owner: membersResponse.data[0]?.name || ""
+          }));
+        }
+      } catch (error) {
+        console.error('Error loading form data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, [user, investment]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit({
-      type: formData.type,
+      type: formData.type as InvestmentType,
       owner: formData.owner,
       investedAmount: Number(formData.investedAmount),
       currentValue: Number(formData.currentValue),
@@ -62,6 +97,10 @@ export const InvestmentForm = ({ onSubmit, onCancel, investment }: Props) => {
   };
 
   const today = new Date().toISOString().split("T")[0];
+
+  if (loading) {
+    return null; // or a loading spinner
+  }
 
   return (
     <Dialog open onOpenChange={onCancel}>
@@ -77,20 +116,20 @@ export const InvestmentForm = ({ onSubmit, onCancel, investment }: Props) => {
             <Select
               value={formData.type}
               onValueChange={(value) =>
-                setFormData({ ...formData, type: value as InvestmentType })
+                setFormData({ ...formData, type: value })
               }
             >
               <SelectTrigger className="w-full bg-background">
                 <SelectValue placeholder="Select type" />
               </SelectTrigger>
-              <SelectContent className="bg-background border shadow-lg">
-                {investmentTypes.map((type) => (
+              <SelectContent className="max-h-[300px] overflow-y-auto">
+                {investmentTypes.map(({ name }) => (
                   <SelectItem 
-                    key={type} 
-                    value={type}
+                    key={name} 
+                    value={name}
                     className="cursor-pointer hover:bg-accent focus:bg-accent"
                   >
-                    {type}
+                    {name}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -102,20 +141,20 @@ export const InvestmentForm = ({ onSubmit, onCancel, investment }: Props) => {
             <Select
               value={formData.owner}
               onValueChange={(value) =>
-                setFormData({ ...formData, owner: value as FamilyMember })
+                setFormData({ ...formData, owner: value })
               }
             >
               <SelectTrigger className="w-full bg-background">
                 <SelectValue placeholder="Select owner" />
               </SelectTrigger>
-              <SelectContent className="bg-background border shadow-lg">
-                {familyMembers.map((member) => (
+              <SelectContent className="max-h-[300px] overflow-y-auto">
+                {familyMembers.map(({ name }) => (
                   <SelectItem 
-                    key={member} 
-                    value={member}
+                    key={name} 
+                    value={name}
                     className="cursor-pointer hover:bg-accent focus:bg-accent"
                   >
-                    {member}
+                    {name}
                   </SelectItem>
                 ))}
               </SelectContent>
