@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Investment, InvestmentType, FamilyMember } from "@/types/investment";
+import { Investment, InvestmentType, FamilyMember, FamilyRelationship } from "@/types/investment";
 import {
   Dialog,
   DialogContent,
@@ -13,6 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { InvestmentTypeSelect } from "./investment/InvestmentTypeSelect";
 import { OwnerSelect } from "./investment/OwnerSelect";
+import { useToast } from "@/components/ui/use-toast";
 
 interface Props {
   onSubmit: (investment: Omit<Investment, "id">) => void;
@@ -22,8 +23,12 @@ interface Props {
 
 export const InvestmentForm = ({ onSubmit, onCancel, investment }: Props) => {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [investmentTypes, setInvestmentTypes] = useState<Array<{ name: InvestmentType }>>([]);
-  const [familyMembers, setFamilyMembers] = useState<Array<{ name: FamilyMember }>>([]);
+  const [familyMembers, setFamilyMembers] = useState<Array<{ 
+    name: FamilyMember;
+    relationship?: FamilyRelationship;
+  }>>([]);
   const [loading, setLoading] = useState(true);
 
   const [formData, setFormData] = useState({
@@ -49,27 +54,42 @@ export const InvestmentForm = ({ onSubmit, onCancel, investment }: Props) => {
             .order('name'),
           supabase
             .from('family_members')
-            .select('name')
+            .select('name, relationship')
             .eq('user_id', user.id)
             .eq('status', 'active')
-            .order('name')
+            .order('relationship', { ascending: true })
         ]);
 
         if (typesResponse.error) throw typesResponse.error;
         if (membersResponse.error) throw membersResponse.error;
 
+        console.log("Loaded family members:", membersResponse.data);
+        
+        // Filter and validate family members
+        const validMembers = membersResponse.data
+          .filter((member): member is { name: FamilyMember; relationship: FamilyRelationship } => {
+            return ['Myself', 'My Wife', 'My Daughter'].includes(member.name);
+          });
+
         setInvestmentTypes(typesResponse.data as Array<{ name: InvestmentType }>);
-        setFamilyMembers(membersResponse.data as Array<{ name: FamilyMember }>);
+        setFamilyMembers(validMembers);
         
         if (!investment) {
+          // Set default values
+          const primaryUser = validMembers.find(m => m.relationship === 'Primary User');
           setFormData(prev => ({
             ...prev,
             type: typesResponse.data[0]?.name || "",
-            owner: "Myself" // Default to "Myself"
+            owner: primaryUser?.name || "Myself"
           }));
         }
       } catch (error) {
         console.error('Error loading form data:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load form data. Please try again.",
+          variant: "destructive",
+        });
       } finally {
         setLoading(false);
       }
@@ -111,13 +131,11 @@ export const InvestmentForm = ({ onSubmit, onCancel, investment }: Props) => {
             onChange={(value) => setFormData({ ...formData, type: value })}
           />
 
-          {familyMembers.length > 1 && (
-            <OwnerSelect
-              value={formData.owner as FamilyMember | ""}
-              owners={familyMembers}
-              onChange={(value) => setFormData({ ...formData, owner: value })}
-            />
-          )}
+          <OwnerSelect
+            value={formData.owner as FamilyMember | ""}
+            owners={familyMembers}
+            onChange={(value) => setFormData({ ...formData, owner: value })}
+          />
 
           <div className="space-y-2">
             <label className="text-sm font-medium">Invested Amount</label>
