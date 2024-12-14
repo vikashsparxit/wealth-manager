@@ -26,9 +26,16 @@ export const InvestmentForm = ({ onSubmit, onCancel, investment }: Props) => {
   const [familyMembers, setFamilyMembers] = useState<Array<{ name: FamilyMember }>>([]);
   const [loading, setLoading] = useState(true);
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    type: string;
+    owner: FamilyMember;
+    investedAmount: string;
+    currentValue: string;
+    dateOfInvestment: string;
+    notes: string;
+  }>({
     type: investment?.type || "",
-    owner: investment?.owner || "Myself", // Default to "Myself"
+    owner: investment?.owner || "Myself",
     investedAmount: investment?.investedAmount?.toString() || "",
     currentValue: investment?.currentValue?.toString() || "",
     dateOfInvestment: investment?.dateOfInvestment || new Date().toISOString().split("T")[0],
@@ -52,7 +59,7 @@ export const InvestmentForm = ({ onSubmit, onCancel, investment }: Props) => {
             .select('name')
             .eq('user_id', user.id)
             .eq('status', 'active')
-            .order('created_at')  // Order by creation date
+            .order('created_at')
         ]);
 
         if (typesResponse.error) throw typesResponse.error;
@@ -61,11 +68,11 @@ export const InvestmentForm = ({ onSubmit, onCancel, investment }: Props) => {
         setInvestmentTypes(typesResponse.data as Array<{ name: InvestmentType }>);
         setFamilyMembers(membersResponse.data as Array<{ name: FamilyMember }>);
         
-        if (!investment) {
+        if (!investment && typesResponse.data.length > 0 && membersResponse.data.length > 0) {
           setFormData(prev => ({
             ...prev,
-            type: typesResponse.data[0]?.name || "",
-            owner: membersResponse.data[0]?.name || "Myself" // Set to first member
+            type: typesResponse.data[0].name,
+            owner: membersResponse.data[0].name as FamilyMember
           }));
         }
       } catch (error) {
@@ -82,7 +89,7 @@ export const InvestmentForm = ({ onSubmit, onCancel, investment }: Props) => {
     e.preventDefault();
     onSubmit({
       type: formData.type as InvestmentType,
-      owner: formData.owner as FamilyMember,
+      owner: formData.owner,
       investedAmount: Number(formData.investedAmount),
       currentValue: Number(formData.currentValue),
       dateOfInvestment: formData.dateOfInvestment,
@@ -113,9 +120,9 @@ export const InvestmentForm = ({ onSubmit, onCancel, investment }: Props) => {
 
           {familyMembers.length > 1 && (
             <OwnerSelect
-              value={formData.owner as FamilyMember | ""}
+              value={formData.owner}
               owners={familyMembers}
-              onChange={(value) => setFormData({ ...formData, owner: value })}
+              onChange={(value) => setFormData({ ...formData, owner: value as FamilyMember })}
             />
           )}
 
