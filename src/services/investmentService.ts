@@ -2,12 +2,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { Investment, WealthSummary, FamilyMember } from "@/types/investment";
 
 export const investmentService = {
-  getAll: async (): Promise<Investment[]> => {
-    console.log("Fetching all investments from Supabase");
+  getAll: async (userId: string): Promise<Investment[]> => {
+    console.log("Fetching all investments from Supabase for user:", userId);
     const { data, error } = await supabase
       .from("investments")
       .select("*")
-      .neq('owner', 'Family') // Exclude any entries with owner 'Family'
+      .eq('user_id', userId)
+      .neq('owner', 'Family')
       .order("date_of_investment", { ascending: true });
 
     if (error) {
@@ -19,7 +20,7 @@ export const investmentService = {
     return data.map((inv) => ({
       id: inv.id,
       type: inv.type,
-      owner: inv.owner as FamilyMember, // Cast to FamilyMember type
+      owner: inv.owner as FamilyMember,
       investedAmount: Number(inv.invested_amount),
       currentValue: Number(inv.current_value),
       dateOfInvestment: inv.date_of_investment,
@@ -27,8 +28,8 @@ export const investmentService = {
     }));
   },
 
-  add: async (investment: Omit<Investment, "id">): Promise<Investment> => {
-    console.log("Adding new investment:", investment);
+  add: async (investment: Omit<Investment, "id">, userId: string): Promise<Investment> => {
+    console.log("Adding new investment:", investment, "for user:", userId);
     const { data, error } = await supabase
       .from("investments")
       .insert({
@@ -38,6 +39,7 @@ export const investmentService = {
         current_value: investment.currentValue,
         date_of_investment: investment.dateOfInvestment,
         notes: investment.notes,
+        user_id: userId
       })
       .select()
       .single();
@@ -59,8 +61,8 @@ export const investmentService = {
     };
   },
 
-  update: async (investment: Investment): Promise<Investment> => {
-    console.log("Updating investment:", investment);
+  update: async (investment: Investment, userId: string): Promise<Investment> => {
+    console.log("Updating investment:", investment, "for user:", userId);
     const { data, error } = await supabase
       .from("investments")
       .update({
@@ -72,6 +74,7 @@ export const investmentService = {
         notes: investment.notes,
       })
       .eq("id", investment.id)
+      .eq("user_id", userId)
       .select()
       .single();
 

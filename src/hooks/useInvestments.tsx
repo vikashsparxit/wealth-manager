@@ -15,7 +15,11 @@ export const useInvestments = () => {
     try {
       setLoading(true);
       console.log("Loading investments for user:", user?.id);
-      const loadedInvestments = await investmentService.getAll();
+      if (!user) {
+        console.log("No user found, skipping investment load");
+        return;
+      }
+      const loadedInvestments = await investmentService.getAll(user.id);
       console.log("Loaded investments:", loadedInvestments);
       setInvestments(loadedInvestments);
     } catch (error) {
@@ -32,8 +36,11 @@ export const useInvestments = () => {
 
   const addInvestment = async (investment: Omit<Investment, "id">) => {
     try {
+      if (!user) {
+        throw new Error("User must be logged in to add investments");
+      }
       console.log("Adding investment:", investment);
-      const newInvestment = await investmentService.add(investment);
+      const newInvestment = await investmentService.add(investment, user.id);
       setInvestments(prev => [...prev, newInvestment]);
       toast({
         title: "Success",
@@ -53,8 +60,11 @@ export const useInvestments = () => {
 
   const updateInvestment = async (investment: Investment) => {
     try {
+      if (!user) {
+        throw new Error("User must be logged in to update investments");
+      }
       console.log("Updating investment:", investment);
-      await investmentService.update(investment);
+      await investmentService.update(investment, user.id);
       setInvestments(prev => 
         prev.map(i => i.id === investment.id ? investment : i)
       );
@@ -76,6 +86,8 @@ export const useInvestments = () => {
   useEffect(() => {
     if (user) {
       loadInvestments();
+    } else {
+      setInvestments([]);
     }
   }, [user]);
 

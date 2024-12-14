@@ -11,10 +11,15 @@ export const useLiquidAssets = () => {
 
   const loadLiquidAssets = async () => {
     try {
-      console.log("Loading liquid assets for user:", user?.id);
+      if (!user) {
+        console.log("No user found, skipping liquid assets load");
+        return;
+      }
+      console.log("Loading liquid assets for user:", user.id);
       const { data, error } = await supabase
         .from("liquid_assets")
-        .select("*");
+        .select("*")
+        .eq('user_id', user.id);
 
       if (error) {
         console.error("Error loading liquid assets:", error);
@@ -35,11 +40,15 @@ export const useLiquidAssets = () => {
 
   const updateLiquidAsset = async (amount: number, owner: FamilyMember) => {
     try {
+      if (!user) {
+        throw new Error("User must be logged in to update liquid assets");
+      }
       console.log("Updating liquid asset:", { amount, owner });
       const { data: existingData, error: checkError } = await supabase
         .from("liquid_assets")
         .select("*")
         .eq("owner", owner)
+        .eq("user_id", user.id)
         .single();
 
       if (checkError && checkError.code !== 'PGRST116') {
@@ -51,11 +60,12 @@ export const useLiquidAssets = () => {
         result = await supabase
           .from("liquid_assets")
           .update({ amount })
-          .eq("owner", owner);
+          .eq("owner", owner)
+          .eq("user_id", user.id);
       } else {
         result = await supabase
           .from("liquid_assets")
-          .insert([{ owner, amount }]);
+          .insert([{ owner, amount, user_id: user.id }]);
       }
 
       if (result.error) {
@@ -81,6 +91,8 @@ export const useLiquidAssets = () => {
   useEffect(() => {
     if (user) {
       loadLiquidAssets();
+    } else {
+      setLiquidAssets([]);
     }
   }, [user]);
 
