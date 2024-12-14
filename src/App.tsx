@@ -5,19 +5,24 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { useSettings } from "@/hooks/useSettings";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
+import Setup from "./pages/Setup";
 
 const queryClient = new QueryClient();
 
-// Protected Route component
+// Protected Route component with settings check
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user, isLoading } = useAuth();
-  console.log("ProtectedRoute - Auth state:", { user, isLoading });
+  const { user, isLoading: authLoading } = useAuth();
+  const { settings, isLoading: settingsLoading } = useSettings();
+  
+  console.log("ProtectedRoute - Auth state:", { user, authLoading });
+  console.log("ProtectedRoute - Settings state:", { settings, settingsLoading });
 
-  // Show loading state while checking auth
-  if (isLoading) {
-    console.log("Auth state is loading...");
+  // Show loading state while checking auth and settings
+  if (authLoading || settingsLoading) {
+    console.log("Loading auth or settings...");
     return <div>Loading...</div>;
   }
 
@@ -26,14 +31,27 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     return <Navigate to="/login" replace />;
   }
 
-  console.log("User is authenticated, rendering protected content");
+  // If user is authenticated but hasn't completed setup, redirect to setup
+  if (!settings) {
+    console.log("User hasn't completed setup, redirecting to setup");
+    return <Navigate to="/setup" replace />;
+  }
+
+  console.log("User is authenticated and has completed setup, rendering protected content");
   return <>{children}</>;
 };
 
 // Main App component
 const AppRoutes = () => {
-  const { user, isLoading } = useAuth();
-  console.log("AppRoutes - Auth state:", { user, isLoading });
+  const { user, isLoading: authLoading } = useAuth();
+  const { settings, isLoading: settingsLoading } = useSettings();
+  
+  console.log("AppRoutes - Auth state:", { user, authLoading });
+  console.log("AppRoutes - Settings state:", { settings, settingsLoading });
+
+  if (authLoading || settingsLoading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <Routes>
@@ -42,6 +60,18 @@ const AppRoutes = () => {
         element={
           user ? <Navigate to="/" replace /> : <Login />
         } 
+      />
+      <Route
+        path="/setup"
+        element={
+          !user ? (
+            <Navigate to="/login" replace />
+          ) : settings ? (
+            <Navigate to="/" replace />
+          ) : (
+            <Setup />
+          )
+        }
       />
       <Route
         path="/"
