@@ -18,10 +18,10 @@ export const DashboardFilter = ({ selectedMember, onMemberChange }: DashboardFil
         </SelectTrigger>
         <SelectContent className="bg-background border shadow-lg">
           <SelectItem 
-            value="Family Combined"
+            value="Wealth Combined"
             className="cursor-pointer hover:bg-accent focus:bg-accent"
           >
-            Family Combined
+            Wealth Combined
           </SelectItem>
           {familyMembers.map((member) => (
             <SelectItem 

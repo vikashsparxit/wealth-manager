@@ -75,6 +75,33 @@ export type Database = {
         }
         Relationships: []
       }
+      user_settings: {
+        Row: {
+          base_currency: Database["public"]["Enums"]["currency_type"]
+          created_at: string
+          dashboard_name: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          base_currency?: Database["public"]["Enums"]["currency_type"]
+          created_at?: string
+          dashboard_name?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          base_currency?: Database["public"]["Enums"]["currency_type"]
+          created_at?: string
+          dashboard_name?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -83,6 +110,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
+      currency_type: "INR" | "USD" | "EUR" | "GBP"
       family_member: "Myself" | "My Wife" | "My Daughter" | "Family"
       investment_type:
         | "Real Estate"
