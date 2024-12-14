@@ -25,16 +25,25 @@ const currencies = [
   { value: "GBP", label: "British Pound (£)" },
 ] as const;
 
+type CurrencyType = typeof currencies[number]["value"];
+
 export const SettingsDialog = () => {
   const { settings, updateSettings } = useSettings();
   const [open, setOpen] = useState(false);
   const [dashboardName, setDashboardName] = useState(settings?.dashboard_name || "");
-  const [currency, setCurrency] = useState(settings?.base_currency || "INR");
+  const [currency, setCurrency] = useState<CurrencyType>(settings?.base_currency || "INR");
+
+  const handleCurrencyChange = (value: string) => {
+    // Validate that the value is a valid currency type
+    if (currencies.some(curr => curr.value === value)) {
+      setCurrency(value as CurrencyType);
+    }
+  };
 
   const handleSave = () => {
     updateSettings({
       dashboard_name: dashboardName,
-      base_currency: currency as "INR" | "USD" | "EUR" | "GBP"
+      base_currency: currency
     });
     setOpen(false);
   };
@@ -66,7 +75,7 @@ export const SettingsDialog = () => {
             <label htmlFor="currency" className="text-sm font-medium">
               Base Currency
             </label>
-            <Select value={currency} onValueChange={setCurrency}>
+            <Select value={currency} onValueChange={handleCurrencyChange}>
               <SelectTrigger id="currency">
                 <SelectValue placeholder="Select currency" />
               </SelectTrigger>
