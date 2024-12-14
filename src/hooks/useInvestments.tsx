@@ -8,12 +8,14 @@ import { useAuth } from "@/contexts/AuthContext";
 export const useInvestments = () => {
   const [investments, setInvestments] = useState<Investment[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
   const { toast } = useToast();
   const { user } = useAuth();
 
   const loadInvestments = async () => {
     try {
       setLoading(true);
+      setError(null);
       console.log("Loading investments for user:", user?.id);
       if (!user) {
         console.log("No user found, skipping investment load");
@@ -24,6 +26,7 @@ export const useInvestments = () => {
       setInvestments(loadedInvestments);
     } catch (error) {
       console.error("Error loading investments:", error);
+      setError(error as Error);
       toast({
         title: "Error",
         description: "Failed to load investments. Please try again.",
@@ -94,6 +97,7 @@ export const useInvestments = () => {
   return {
     investments,
     loading,
+    error,
     addInvestment,
     updateInvestment,
   };

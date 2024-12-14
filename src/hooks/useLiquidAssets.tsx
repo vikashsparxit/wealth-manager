@@ -6,35 +6,42 @@ import { useAuth } from "@/contexts/AuthContext";
 
 export const useLiquidAssets = () => {
   const [liquidAssets, setLiquidAssets] = useState<LiquidAsset[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
   const { toast } = useToast();
   const { user } = useAuth();
 
   const loadLiquidAssets = async () => {
     try {
+      setLoading(true);
+      setError(null);
       if (!user) {
         console.log("No user found, skipping liquid assets load");
         return;
       }
       console.log("Loading liquid assets for user:", user.id);
-      const { data, error } = await supabase
+      const { data, error: supabaseError } = await supabase
         .from("liquid_assets")
         .select("*")
         .eq('user_id', user.id);
 
-      if (error) {
-        console.error("Error loading liquid assets:", error);
-        throw error;
+      if (supabaseError) {
+        console.error("Error loading liquid assets:", supabaseError);
+        throw supabaseError;
       }
 
       console.log("Loaded liquid assets:", data);
       setLiquidAssets(data as LiquidAsset[]);
     } catch (error) {
       console.error("Error in loadLiquidAssets:", error);
+      setError(error as Error);
       toast({
         title: "Error",
         description: "Failed to load liquid assets. Please try again.",
         variant: "destructive",
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -109,6 +116,8 @@ export const useLiquidAssets = () => {
 
   return {
     liquidAssets,
+    loading,
+    error,
     updateLiquidAsset,
   };
 };
