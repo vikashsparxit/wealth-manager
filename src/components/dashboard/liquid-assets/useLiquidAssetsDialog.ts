@@ -41,10 +41,11 @@ export const useLiquidAssetsDialog = (
       const primary = data.find(member => member.relationship === 'Primary User');
       if (primary) {
         console.log("Found primary member:", primary);
-        setPrimaryMember({
+        const primaryData: FamilyMemberData = {
           name: primary.name as FamilyMember,
           relationship: primary.relationship
-        });
+        };
+        setPrimaryMember(primaryData);
         setOwner(primary.name as FamilyMember);
       }
       
