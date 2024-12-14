@@ -8,12 +8,12 @@ import { FamilyRelationship } from "@/types/investment";
 export const useFamilyMembersManager = () => {
   const [state, setState] = useState<FamilyMemberState>({
     newMember: "",
-    relationship: "Other",
+    relationship: "Spouse", // Changed from "Other" to "Spouse" as default
     members: [],
     loading: false,
     editingId: null,
     editValue: "",
-    editRelationship: "Other",
+    editRelationship: "Spouse", // Changed from "Other" to "Spouse" as default
   });
 
   const { toast } = useToast();
@@ -104,7 +104,7 @@ export const useFamilyMembersManager = () => {
       setState(prev => ({ 
         ...prev, 
         newMember: "", 
-        relationship: "Other" 
+        relationship: "Spouse" // Changed from "Other" to "Spouse"
       }));
       await loadMembers();
     } catch (error) {
