@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import { Investment, WealthSummary } from "@/types/investment";
+import { Investment, WealthSummary, FamilyMember } from "@/types/investment";
 
 export const investmentService = {
   getAll: async (): Promise<Investment[]> => {
@@ -7,6 +7,7 @@ export const investmentService = {
     const { data, error } = await supabase
       .from("investments")
       .select("*")
+      .neq('owner', 'Family') // Exclude any entries with owner 'Family'
       .order("date_of_investment", { ascending: true });
 
     if (error) {
@@ -16,10 +17,13 @@ export const investmentService = {
 
     console.log("Fetched investments:", data);
     return data.map((inv) => ({
-      ...inv,
-      dateOfInvestment: inv.date_of_investment,
+      id: inv.id,
+      type: inv.type,
+      owner: inv.owner as FamilyMember, // Cast to FamilyMember type
       investedAmount: Number(inv.invested_amount),
       currentValue: Number(inv.current_value),
+      dateOfInvestment: inv.date_of_investment,
+      notes: inv.notes || "",
     }));
   },
 
@@ -45,10 +49,13 @@ export const investmentService = {
 
     console.log("Added investment:", data);
     return {
-      ...data,
-      dateOfInvestment: data.date_of_investment,
+      id: data.id,
+      type: data.type,
+      owner: data.owner as FamilyMember,
       investedAmount: Number(data.invested_amount),
       currentValue: Number(data.current_value),
+      dateOfInvestment: data.date_of_investment,
+      notes: data.notes || "",
     };
   },
 
@@ -75,10 +82,13 @@ export const investmentService = {
 
     console.log("Updated investment:", data);
     return {
-      ...data,
-      dateOfInvestment: data.date_of_investment,
+      id: data.id,
+      type: data.type,
+      owner: data.owner as FamilyMember,
       investedAmount: Number(data.invested_amount),
       currentValue: Number(data.current_value),
+      dateOfInvestment: data.date_of_investment,
+      notes: data.notes || "",
     };
   },
 
