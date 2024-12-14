@@ -39,11 +39,17 @@ export const useLiquidAssetsDialog = (
       // Find primary member and set it as default
       const primary = data.find(member => member.relationship === 'Primary User');
       if (primary) {
-        setPrimaryMember(primary);
+        setPrimaryMember({
+          name: primary.name as FamilyMember,
+          relationship: primary.relationship
+        });
         setOwner(primary.name as FamilyMember);
       }
       
-      setFamilyMembers(data as FamilyMemberData[]);
+      setFamilyMembers(data.map(member => ({
+        name: member.name as FamilyMember,
+        relationship: member.relationship
+      })));
     };
 
     if (open) {
@@ -58,7 +64,7 @@ export const useLiquidAssetsDialog = (
       setAmount(asset ? asset.amount.toString() : "0");
     } else if (primaryMember) {
       // Set primary member as default when in combined view
-      setOwner(primaryMember.name as FamilyMember);
+      setOwner(primaryMember.name);
       const asset = liquidAssets.find(a => a.owner === primaryMember.name);
       setAmount(asset ? asset.amount.toString() : "0");
     }
