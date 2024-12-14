@@ -10,6 +10,8 @@ import { StatCard } from "./dashboard/StatCard";
 import { DashboardFilter } from "./dashboard/DashboardFilter";
 import { LiquidAssetsDialog } from "./dashboard/LiquidAssetsDialog";
 import { DashboardCharts } from "./dashboard/DashboardCharts";
+import { ROIInsights } from "./dashboard/ROIInsights";
+import { PortfolioDiversification } from "./dashboard/PortfolioDiversification";
 
 export const Dashboard = () => {
   const [investments, setInvestments] = useState<Investment[]>([]);
@@ -177,7 +179,8 @@ export const Dashboard = () => {
         />
       </div>
 
-      <DashboardCharts investments={filteredInvestments} />
+      <ROIInsights investments={filteredInvestments} />
+      <PortfolioDiversification investments={filteredInvestments} />
 
       <Card className="p-6">
         <h3 className="text-lg font-semibold mb-4">Investments</h3>
