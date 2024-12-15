@@ -38,7 +38,7 @@ export const LiquidAssetForm = ({
             <SelectTrigger className="w-full bg-background border">
               <SelectValue placeholder="Select owner" />
             </SelectTrigger>
-            <SelectContent className="bg-background border shadow-lg min-w-[200px]">
+            <SelectContent className="bg-[#F1F0FB] border shadow-lg min-w-[200px]">
               {sortedMembers.map((member) => (
                 <SelectItem 
                   key={member.name} 
