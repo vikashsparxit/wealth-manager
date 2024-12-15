@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, Users, List } from "lucide-react";
 import { AuthButton } from "@/components/auth/AuthButton";
 import { SettingsDialog } from "@/components/settings/SettingsDialog";
 import { useSettings } from "@/hooks/useSettings";
@@ -16,6 +16,8 @@ import { ProfileDialog } from "@/components/profile/ProfileDialog";
 import { FamilyMembersManager } from "@/components/settings/family-members/FamilyMembersManager";
 import { InvestmentTypesManager } from "@/components/settings/InvestmentTypesManager";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { CreateShareDialog } from "@/components/share/CreateShareDialog";
+import { ManageSharesDialog } from "@/components/share/ManageSharesDialog";
 
 interface DashboardHeaderProps {
   onAddInvestment: () => void;
@@ -28,6 +30,8 @@ export const DashboardHeader = ({ onAddInvestment }: DashboardHeaderProps) => {
   const [showSettingsDialog, setShowSettingsDialog] = useState(false);
   const [showMembersDialog, setShowMembersDialog] = useState(false);
   const [showTypesDialog, setShowTypesDialog] = useState(false);
+  const [showCreateShareDialog, setShowCreateShareDialog] = useState(false);
+  const [showManageSharesDialog, setShowManageSharesDialog] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   
   const dashboardName = settings?.dashboard_name ? `${settings.dashboard_name} Dashboard` : "My Wealth Dashboard";
@@ -99,6 +103,18 @@ export const DashboardHeader = ({ onAddInvestment }: DashboardHeaderProps) => {
               Manage Types
             </DropdownMenuItem>
             <DropdownMenuItem 
+              onClick={() => handleMenuItemClick(() => setShowCreateShareDialog(true))}
+              className="cursor-pointer py-2 px-4 hover:bg-accent rounded-md"
+            >
+              Share Dashboard
+            </DropdownMenuItem>
+            <DropdownMenuItem 
+              onClick={() => handleMenuItemClick(() => setShowManageSharesDialog(true))}
+              className="cursor-pointer py-2 px-4 hover:bg-accent rounded-md"
+            >
+              Manage Shares
+            </DropdownMenuItem>
+            <DropdownMenuItem 
               onClick={() => handleMenuItemClick(signOut)}
               className="cursor-pointer py-2 px-4 hover:bg-accent rounded-md text-destructive"
             >
@@ -137,6 +153,16 @@ export const DashboardHeader = ({ onAddInvestment }: DashboardHeaderProps) => {
           <InvestmentTypesManager />
         </DialogContent>
       </Dialog>
+
+      <CreateShareDialog
+        open={showCreateShareDialog}
+        onOpenChange={handleDialogChange(setShowCreateShareDialog)}
+      />
+
+      <ManageSharesDialog
+        open={showManageSharesDialog}
+        onOpenChange={handleDialogChange(setShowManageSharesDialog)}
+      />
     </div>
   );
 };
