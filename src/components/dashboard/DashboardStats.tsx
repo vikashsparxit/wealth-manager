@@ -14,9 +14,9 @@ import {
 interface DashboardStatsProps {
   summary: WealthSummary;
   liquidAssets: LiquidAsset[];
-  onLiquidAssetsUpdate: (amount: number, owner: FamilyMember) => void;
+  onLiquidAssetsUpdate: (amount: number, owner: string) => void;
   filteredInvestments: any[];
-  selectedMember: "Wealth Combined" | FamilyMember;
+  selectedMember: "Wealth Combined" | string;
 }
 
 export const DashboardStats = ({ 
