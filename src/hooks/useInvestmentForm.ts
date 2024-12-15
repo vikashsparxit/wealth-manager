@@ -28,7 +28,7 @@ export const useInvestmentForm = (investment?: Investment, onSubmit?: (data: Omi
 
   const [formData, setFormData] = useState<FormData>({
     type: investment?.type || "",
-    owner: investment?.owner || "", // We'll set this after loading family members
+    owner: investment?.owner || "",
     investedAmount: investment?.investedAmount?.toString() || "",
     currentValue: investment?.currentValue?.toString() || "",
     dateOfInvestment: investment?.dateOfInvestment || new Date().toISOString().split("T")[0],
@@ -65,13 +65,24 @@ export const useInvestmentForm = (investment?: Investment, onSubmit?: (data: Omi
         console.log("InvestmentForm - Loaded investment types:", typesResponse.data);
         console.log("InvestmentForm - Loaded family members:", membersResponse.data);
 
-        setInvestmentTypes(typesResponse.data as Array<{ name: InvestmentType }>);
-        setFamilyMembers(membersResponse.data as FamilyMemberData[]);
-        setShowMemberSelect(membersResponse.data.length > 0);
+        // Update the name of the primary user to use their full name
+        const updatedMembers = membersResponse.data.map(member => {
+          if (member.relationship === 'Primary User' && user.user_metadata?.full_name) {
+            return {
+              ...member,
+              name: user.user_metadata.full_name as FamilyMember
+            };
+          }
+          return member;
+        });
 
-        // Only set default owner for new investments
-        if (!investment && membersResponse.data.length > 0) {
-          const primaryUser = membersResponse.data.find(m => m.relationship === 'Primary User');
+        setInvestmentTypes(typesResponse.data as Array<{ name: InvestmentType }>);
+        setFamilyMembers(updatedMembers as FamilyMemberData[]);
+        setShowMemberSelect(updatedMembers.length > 0);
+
+        // Set default owner for new investments to the primary user's full name
+        if (!investment && updatedMembers.length > 0) {
+          const primaryUser = updatedMembers.find(m => m.relationship === 'Primary User');
           if (primaryUser) {
             setFormData(prev => ({
               ...prev,

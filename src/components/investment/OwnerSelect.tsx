@@ -22,8 +22,7 @@ export const OwnerSelect = ({ value, owners, onChange }: Props) => {
 
   const getDisplayName = (member: { name: FamilyMember; relationship?: FamilyRelationship }) => {
     if (member.relationship === 'Primary User') {
-      const fullName = user?.user_metadata?.full_name;
-      return fullName ? `${fullName} (Primary)` : member.name;
+      return `${member.name} (Primary)`;
     }
     return member.name;
   };
