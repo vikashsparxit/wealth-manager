@@ -28,7 +28,7 @@ export const useInvestmentForm = (investment?: Investment, onSubmit?: (data: Omi
 
   const [formData, setFormData] = useState<FormData>({
     type: investment?.type || "",
-    owner: investment?.owner || "",
+    owner: investment?.owner || "Myself", // Default to "Myself" for new investments
     investedAmount: investment?.investedAmount?.toString() || "",
     currentValue: investment?.currentValue?.toString() || "",
     dateOfInvestment: investment?.dateOfInvestment || new Date().toISOString().split("T")[0],
@@ -56,7 +56,7 @@ export const useInvestmentForm = (investment?: Investment, onSubmit?: (data: Omi
             .select('name, relationship')
             .eq('user_id', user.id)
             .eq('status', 'active')
-            .order('created_at')
+            .order('relationship', { ascending: true }) // Order by relationship to ensure Primary User comes first
         ]);
 
         if (typesResponse.error) throw typesResponse.error;
@@ -69,7 +69,7 @@ export const useInvestmentForm = (investment?: Investment, onSubmit?: (data: Omi
         setFamilyMembers(membersResponse.data as FamilyMemberData[]);
         setShowMemberSelect(membersResponse.data.length > 0);
 
-        // Set default owner if adding new investment
+        // Only set default owner for new investments
         if (!investment && membersResponse.data.length > 0) {
           const primaryUser = membersResponse.data.find(m => m.relationship === 'Primary User');
           if (primaryUser) {
