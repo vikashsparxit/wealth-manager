@@ -128,6 +128,16 @@ export const InvestmentForm = ({ onSubmit, onCancel, investment }: InvestmentFor
     });
   };
 
+  const handleOpenChange = (open: boolean) => {
+    if (!open) {
+      // Add a small delay before enabling interactions
+      setTimeout(() => {
+        document.body.style.pointerEvents = 'auto';
+      }, 100);
+      onCancel();
+    }
+  };
+
   const today = new Date().toISOString().split("T")[0];
 
   if (loading) {
@@ -135,7 +145,7 @@ export const InvestmentForm = ({ onSubmit, onCancel, investment }: InvestmentFor
   }
 
   return (
-    <Dialog open onOpenChange={onCancel}>
+    <Dialog open onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-[425px] max-h-[85vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle>

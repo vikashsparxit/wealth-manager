@@ -34,9 +34,11 @@ export const DashboardHeader = ({ onAddInvestment }: DashboardHeaderProps) => {
 
   const handleDialogChange = (setter: (open: boolean) => void) => (open: boolean) => {
     setter(open);
-    // Ensure pointer events are restored immediately when dialog closes
+    // Add a small delay before enabling interactions
     if (!open) {
-      document.body.style.pointerEvents = '';
+      setTimeout(() => {
+        document.body.style.pointerEvents = 'auto';
+      }, 100);
     }
   };
 
