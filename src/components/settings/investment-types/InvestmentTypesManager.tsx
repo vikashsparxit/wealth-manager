@@ -24,7 +24,7 @@ export const InvestmentTypesManager = () => {
   };
 
   return (
-    <Card className="p-6">
+    <Card className="p-6 max-h-[calc(100vh-200px)] overflow-hidden flex flex-col">
       <AddTypeForm
         newType={newType}
         loading={loading}
@@ -32,7 +32,7 @@ export const InvestmentTypesManager = () => {
         onAdd={addType}
       />
 
-      <div className="space-y-2">
+      <div className="space-y-2 overflow-y-auto pr-2">
         {types.map((type) => (
           <TypeItem
             key={type.id}

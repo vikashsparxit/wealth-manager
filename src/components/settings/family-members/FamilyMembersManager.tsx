@@ -26,10 +26,10 @@ export const FamilyMembersManager = () => {
   };
 
   return (
-    <DialogContent className="sm:max-w-[600px]">
+    <DialogContent className="sm:max-w-[600px] max-h-[85vh] overflow-hidden flex flex-col">
       <FamilyMembersDialogTitle />
       
-      <Card className="p-6">
+      <Card className="p-6 overflow-hidden flex flex-col">
         <AddMemberForm
           newMember={state.newMember}
           relationship={state.relationship}
@@ -39,19 +39,21 @@ export const FamilyMembersManager = () => {
           onRelationshipChange={(value: FamilyRelationship) => setState(prev => ({ ...prev, relationship: value }))}
         />
 
-        <MembersList
-          members={state.members}
-          editingId={state.editingId}
-          editValue={state.editValue}
-          editRelationship={state.editRelationship}
-          loading={state.loading}
-          onEdit={startEditing}
-          onUpdate={updateMember}
-          onCancelEdit={() => setState(prev => ({ ...prev, editingId: null }))}
-          onToggleStatus={toggleMemberStatus}
-          setEditValue={(value) => setState(prev => ({ ...prev, editValue: value }))}
-          setEditRelationship={(value: FamilyRelationship) => setState(prev => ({ ...prev, editRelationship: value }))}
-        />
+        <div className="overflow-y-auto pr-2">
+          <MembersList
+            members={state.members}
+            editingId={state.editingId}
+            editValue={state.editValue}
+            editRelationship={state.editRelationship}
+            loading={state.loading}
+            onEdit={startEditing}
+            onUpdate={updateMember}
+            onCancelEdit={() => setState(prev => ({ ...prev, editingId: null }))}
+            onToggleStatus={toggleMemberStatus}
+            setEditValue={(value) => setState(prev => ({ ...prev, editValue: value }))}
+            setEditRelationship={(value: FamilyRelationship) => setState(prev => ({ ...prev, editRelationship: value }))}
+          />
+        </div>
       </Card>
     </DialogContent>
   );

@@ -58,11 +58,11 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px] max-h-[85vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle>Dashboard Settings</DialogTitle>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
+        <div className="grid gap-4 py-4 overflow-y-auto pr-2">
           <div className="grid gap-2">
             <label htmlFor="name" className="text-sm font-medium">
               Dashboard Name
@@ -96,7 +96,7 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
             </Select>
           </div>
         </div>
-        <div className="flex justify-end">
+        <div className="flex justify-end pt-4">
           <Button onClick={handleSave}>Save changes</Button>
         </div>
       </DialogContent>

@@ -136,13 +136,13 @@ export const InvestmentForm = ({ onSubmit, onCancel, investment }: InvestmentFor
 
   return (
     <Dialog open onOpenChange={onCancel}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px] max-h-[85vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle>
             {investment ? "Edit Investment" : "Add Investment"}
           </DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 overflow-y-auto pr-2">
           <InvestmentTypeSelect
             value={formData.type as InvestmentType | ""}
             types={investmentTypes}
