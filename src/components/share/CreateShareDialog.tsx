@@ -14,6 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { generateSecureToken, hashPassword } from "@/lib/security";
+import { ManageSharesDialog } from "./ManageSharesDialog";
 
 interface CreateShareDialogProps {
   open: boolean;
@@ -24,6 +25,7 @@ export function CreateShareDialog({ open, onOpenChange }: CreateShareDialogProps
   const [password, setPassword] = useState("");
   const [expiration, setExpiration] = useState("1"); // days
   const [isLoading, setIsLoading] = useState(false);
+  const [showManageShares, setShowManageShares] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -64,7 +66,7 @@ export function CreateShareDialog({ open, onOpenChange }: CreateShareDialogProps
       if (error) throw error;
 
       // Generate shareable link
-      const shareableLink = `${window.location.origin}/shared/${shareToken}`;
+      const shareableLink = `${window.location.origin}/share/${shareToken}`;
 
       // Copy to clipboard
       await navigator.clipboard.writeText(shareableLink);
@@ -88,54 +90,69 @@ export function CreateShareDialog({ open, onOpenChange }: CreateShareDialogProps
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Share Dashboard</DialogTitle>
-        </DialogHeader>
-        <div className="grid gap-4 py-4">
-          <div className="grid gap-2">
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter a secure password"
-            />
+    <>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Share Dashboard</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter a secure password"
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="expiration">Expires in</Label>
+              <Select
+                value={expiration}
+                onValueChange={setExpiration}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select expiration" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1">1 Day</SelectItem>
+                  <SelectItem value="5">5 Days</SelectItem>
+                  <SelectItem value="30">30 Days</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-          <div className="grid gap-2">
-            <Label htmlFor="expiration">Expires in</Label>
-            <Select
-              value={expiration}
-              onValueChange={setExpiration}
+          <div className="flex justify-between gap-3">
+            <Button
+              variant="outline"
+              onClick={() => setShowManageShares(true)}
             >
-              <SelectTrigger>
-                <SelectValue placeholder="Select expiration" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="1">1 Day</SelectItem>
-                <SelectItem value="5">5 Days</SelectItem>
-                <SelectItem value="30">30 Days</SelectItem>
-              </SelectContent>
-            </Select>
+              Manage Shares
+            </Button>
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleCreate}
+                disabled={isLoading || !password}
+              >
+                {isLoading ? "Creating..." : "Create Share Link"}
+              </Button>
+            </div>
           </div>
-        </div>
-        <div className="flex justify-end gap-3">
-          <Button
-            variant="outline"
-            onClick={() => onOpenChange(false)}
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={handleCreate}
-            disabled={isLoading || !password}
-          >
-            {isLoading ? "Creating..." : "Create Share Link"}
-          </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
+        </DialogContent>
+      </Dialog>
+
+      <ManageSharesDialog
+        open={showManageShares}
+        onOpenChange={setShowManageShares}
+      />
+    </>
   );
 }

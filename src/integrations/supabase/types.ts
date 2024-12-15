@@ -165,6 +165,44 @@ export type Database = {
         }
         Relationships: []
       }
+      share_access: {
+        Row: {
+          access_time: string | null
+          created_at: string | null
+          id: string
+          ip_address: string | null
+          shared_dashboard_id: string
+          success: boolean
+          updated_at: string | null
+        }
+        Insert: {
+          access_time?: string | null
+          created_at?: string | null
+          id?: string
+          ip_address?: string | null
+          shared_dashboard_id: string
+          success?: boolean
+          updated_at?: string | null
+        }
+        Update: {
+          access_time?: string | null
+          created_at?: string | null
+          id?: string
+          ip_address?: string | null
+          shared_dashboard_id?: string
+          success?: boolean
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "share_access_shared_dashboard_id_fkey"
+            columns: ["shared_dashboard_id"]
+            isOneToOne: false
+            referencedRelation: "shared_dashboards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       shared_dashboards: {
         Row: {
           created_at: string
