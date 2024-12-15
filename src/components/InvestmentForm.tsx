@@ -41,9 +41,13 @@ export const InvestmentForm = ({ onSubmit, onCancel, investment }: InvestmentFor
 
   useEffect(() => {
     const loadData = async () => {
-      if (!user) return;
+      if (!user) {
+        console.log("InvestmentForm - No user found, skipping data load");
+        return;
+      }
       
       try {
+        console.log("InvestmentForm - Loading data for user:", user.id);
         const [typesResponse, membersResponse] = await Promise.all([
           supabase
             .from('investment_types')
@@ -59,10 +63,17 @@ export const InvestmentForm = ({ onSubmit, onCancel, investment }: InvestmentFor
             .order('relationship', { ascending: true })
         ]);
 
-        if (typesResponse.error) throw typesResponse.error;
-        if (membersResponse.error) throw membersResponse.error;
+        if (typesResponse.error) {
+          console.error("InvestmentForm - Error loading investment types:", typesResponse.error);
+          throw typesResponse.error;
+        }
+        if (membersResponse.error) {
+          console.error("InvestmentForm - Error loading family members:", membersResponse.error);
+          throw membersResponse.error;
+        }
 
-        console.log("Loaded family members:", membersResponse.data);
+        console.log("InvestmentForm - Loaded investment types:", typesResponse.data);
+        console.log("InvestmentForm - Loaded family members:", membersResponse.data);
         
         // Filter and validate family members
         const validMembers = membersResponse.data
@@ -71,7 +82,7 @@ export const InvestmentForm = ({ onSubmit, onCancel, investment }: InvestmentFor
                    ['Primary User', 'Spouse', 'Son', 'Daughter', 'Other'].includes(member.relationship || '');
           });
 
-        console.log("Valid family members after filtering:", validMembers);
+        console.log("InvestmentForm - Valid family members after filtering:", validMembers);
         setInvestmentTypes(typesResponse.data as Array<{ name: InvestmentType }>);
         setFamilyMembers(validMembers);
         
@@ -79,7 +90,7 @@ export const InvestmentForm = ({ onSubmit, onCancel, investment }: InvestmentFor
         const shouldShowMemberSelect = validMembers.length > 1;
         setShowMemberSelect(shouldShowMemberSelect);
         
-        if (!investment) {
+        if (!investment && typesResponse.data.length > 0) {
           // Set default values
           const primaryUser = validMembers.find(m => m.relationship === 'Primary User');
           if (primaryUser) {
@@ -91,7 +102,7 @@ export const InvestmentForm = ({ onSubmit, onCancel, investment }: InvestmentFor
           }
         }
       } catch (error) {
-        console.error('Error loading form data:', error);
+        console.error('InvestmentForm - Error loading form data:', error);
         toast({
           title: "Error",
           description: "Failed to load form data. Please try again.",
