@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Plus, Users, List } from "lucide-react";
+import { Plus, Share2 } from "lucide-react";
 import { AuthButton } from "@/components/auth/AuthButton";
 import { SettingsDialog } from "@/components/settings/SettingsDialog";
 import { useSettings } from "@/hooks/useSettings";
@@ -41,7 +41,6 @@ export const DashboardHeader = ({ onAddInvestment }: DashboardHeaderProps) => {
     setDropdownOpen(false);
     
     if (!open) {
-      // Reset pointer-events after a short delay
       document.body.style.pointerEvents = 'none';
       setTimeout(() => {
         document.body.style.pointerEvents = 'auto';
@@ -61,6 +60,14 @@ export const DashboardHeader = ({ onAddInvestment }: DashboardHeaderProps) => {
         <Button onClick={onAddInvestment}>
           <Plus className="mr-2 h-4 w-4" />
           Add Investment
+        </Button>
+
+        <Button 
+          variant="outline"
+          onClick={() => setShowCreateShareDialog(true)}
+        >
+          <Share2 className="mr-2 h-4 w-4" />
+          Share
         </Button>
 
         <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
@@ -101,12 +108,6 @@ export const DashboardHeader = ({ onAddInvestment }: DashboardHeaderProps) => {
               className="cursor-pointer py-2 px-4 hover:bg-accent rounded-md"
             >
               Manage Types
-            </DropdownMenuItem>
-            <DropdownMenuItem 
-              onClick={() => handleMenuItemClick(() => setShowCreateShareDialog(true))}
-              className="cursor-pointer py-2 px-4 hover:bg-accent rounded-md"
-            >
-              Share Dashboard
             </DropdownMenuItem>
             <DropdownMenuItem 
               onClick={() => handleMenuItemClick(() => setShowManageSharesDialog(true))}

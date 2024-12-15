@@ -92,11 +92,11 @@ export function CreateShareDialog({ open, onOpenChange }: CreateShareDialogProps
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[425px] p-6">
           <DialogHeader>
-            <DialogTitle>Share Dashboard</DialogTitle>
+            <DialogTitle className="text-xl font-semibold">Share Dashboard</DialogTitle>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
+          <div className="grid gap-6 py-4">
             <div className="grid gap-2">
               <Label htmlFor="password">Password</Label>
               <Input
@@ -105,6 +105,7 @@ export function CreateShareDialog({ open, onOpenChange }: CreateShareDialogProps
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter a secure password"
+                className="w-full"
               />
             </div>
             <div className="grid gap-2">
@@ -113,10 +114,10 @@ export function CreateShareDialog({ open, onOpenChange }: CreateShareDialogProps
                 value={expiration}
                 onValueChange={setExpiration}
               >
-                <SelectTrigger>
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select expiration" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-[#F1F0FB]">
                   <SelectItem value="1">1 Day</SelectItem>
                   <SelectItem value="5">5 Days</SelectItem>
                   <SelectItem value="30">30 Days</SelectItem>
@@ -124,7 +125,7 @@ export function CreateShareDialog({ open, onOpenChange }: CreateShareDialogProps
               </Select>
             </div>
           </div>
-          <div className="flex justify-between gap-3">
+          <div className="flex justify-between gap-3 mt-6">
             <Button
               variant="outline"
               onClick={() => setShowManageShares(true)}
@@ -141,8 +142,9 @@ export function CreateShareDialog({ open, onOpenChange }: CreateShareDialogProps
               <Button
                 onClick={handleCreate}
                 disabled={isLoading || !password}
+                className="bg-blue-500 hover:bg-blue-600 text-white"
               >
-                {isLoading ? "Creating..." : "Create Share Link"}
+                Create Share Link
               </Button>
             </div>
           </div>
