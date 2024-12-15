@@ -5,7 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { format } from "date-fns";
-import { Loader2, Trash2 } from "lucide-react";
+import { Loader2, Trash2, Copy, Key } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 
 interface ManageSharesDialogProps {
@@ -19,6 +19,7 @@ interface SharedDashboard {
   created_at: string;
   expires_at: string | null;
   status: 'active' | 'revoked';
+  password_hash: string;
 }
 
 export function ManageSharesDialog({ open, onOpenChange }: ManageSharesDialogProps) {
@@ -73,18 +74,29 @@ export function ManageSharesDialog({ open, onOpenChange }: ManageSharesDialogPro
     return `${window.location.origin}/share/${token}`;
   };
 
-  const copyToClipboard = async (token: string) => {
+  const copyToClipboard = async (token: string, type: 'link' | 'password') => {
     try {
-      await navigator.clipboard.writeText(getShareUrl(token));
-      toast({
-        title: "Link copied",
-        description: "The share link has been copied to your clipboard.",
-      });
+      if (type === 'link') {
+        await navigator.clipboard.writeText(getShareUrl(token));
+        toast({
+          title: "Link copied",
+          description: "The share link has been copied to your clipboard.",
+        });
+      } else {
+        // For demo purposes, we'll use a placeholder password since we can't decrypt the hash
+        // In a real app, you might want to store the original password temporarily or implement a system
+        // to retrieve it securely
+        await navigator.clipboard.writeText("Please share the password you created for this link");
+        toast({
+          title: "Password reminder",
+          description: "Please share the password you created for this link.",
+        });
+      }
     } catch (error) {
       console.error('Error copying to clipboard:', error);
       toast({
         title: "Error",
-        description: "Failed to copy link. Please try again.",
+        description: "Failed to copy. Please try again.",
         variant: "destructive",
       });
     }
@@ -131,9 +143,19 @@ export function ManageSharesDialog({ open, onOpenChange }: ManageSharesDialogPro
                       <>
                         <Button
                           variant="outline"
-                          onClick={() => copyToClipboard(share.share_token)}
+                          onClick={() => copyToClipboard(share.share_token, 'link')}
+                          className="flex items-center gap-2"
                         >
+                          <Copy className="h-4 w-4" />
                           Copy Link
+                        </Button>
+                        <Button
+                          variant="outline"
+                          onClick={() => copyToClipboard(share.share_token, 'password')}
+                          className="flex items-center gap-2"
+                        >
+                          <Key className="h-4 w-4" />
+                          Password
                         </Button>
                         <Button
                           variant="destructive"
