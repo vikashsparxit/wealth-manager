@@ -47,14 +47,6 @@ export const InvestmentFormContent = ({
         onChange={(value) => setFormData({ ...formData, type: value })}
       />
 
-      {familyMembers.length > 0 && (
-        <OwnerSelect
-          value={formData.owner as FamilyMember}
-          owners={familyMembers}
-          onChange={(value) => setFormData({ ...formData, owner: value })}
-        />
-      )}
-
       <AmountInput
         label="Invested Amount"
         value={formData.investedAmount}
