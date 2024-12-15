@@ -29,6 +29,24 @@ export function CreateShareDialog({ open, onOpenChange }: CreateShareDialogProps
   const { toast } = useToast();
   const { user } = useAuth();
 
+  const generatePassword = () => {
+    // Generate a random password with letters, numbers, and special characters
+    const length = 12;
+    const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
+    let newPassword = "";
+    for (let i = 0; i < length; i++) {
+      newPassword += charset.charAt(Math.floor(Math.random() * charset.length));
+    }
+    setPassword(newPassword);
+
+    // Copy to clipboard
+    navigator.clipboard.writeText(newPassword);
+    toast({
+      title: "Password generated!",
+      description: "The password has been copied to your clipboard",
+    });
+  };
+
   const handleCreate = async () => {
     if (!user) return;
     
@@ -99,14 +117,23 @@ export function CreateShareDialog({ open, onOpenChange }: CreateShareDialogProps
           <div className="grid gap-6 py-4">
             <div className="grid gap-2">
               <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter a secure password"
-                className="w-full"
-              />
+              <div className="flex gap-2">
+                <Input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter a secure password"
+                  className="flex-1"
+                />
+                <Button 
+                  variant="outline" 
+                  onClick={generatePassword}
+                  type="button"
+                >
+                  Generate
+                </Button>
+              </div>
             </div>
             <div className="grid gap-2">
               <Label htmlFor="expiration">Expires in</Label>
