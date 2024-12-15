@@ -6,6 +6,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Props {
   value: FamilyMember | "";
@@ -17,9 +18,12 @@ interface Props {
 }
 
 export const OwnerSelect = ({ value, owners, onChange }: Props) => {
+  const { user } = useAuth();
+
   const getDisplayName = (member: { name: FamilyMember; relationship?: FamilyRelationship }) => {
+    // If it's the primary user (Myself), use their actual name
     if (member.relationship === 'Primary User') {
-      return `${member.name} (Primary)`;
+      return `${user?.user_metadata?.full_name || member.name} (Primary)`;
     }
     return member.name;
   };
@@ -33,6 +37,7 @@ export const OwnerSelect = ({ value, owners, onChange }: Props) => {
 
   console.log("OwnerSelect - Available owners:", sortedOwners);
   console.log("OwnerSelect - Current value:", value);
+  console.log("OwnerSelect - User metadata:", user?.user_metadata);
 
   return (
     <div className="space-y-2">
