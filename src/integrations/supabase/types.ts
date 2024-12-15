@@ -80,7 +80,7 @@ export type Database = {
           id: string
           invested_amount: number
           notes: string | null
-          owner: Database["public"]["Enums"]["family_member"]
+          owner: string
           type: Database["public"]["Enums"]["investment_type"]
           updated_at: string
           user_id: string | null
@@ -92,7 +92,7 @@ export type Database = {
           id?: string
           invested_amount: number
           notes?: string | null
-          owner: Database["public"]["Enums"]["family_member"]
+          owner: string
           type: Database["public"]["Enums"]["investment_type"]
           updated_at?: string
           user_id?: string | null
@@ -104,7 +104,7 @@ export type Database = {
           id?: string
           invested_amount?: number
           notes?: string | null
-          owner?: Database["public"]["Enums"]["family_member"]
+          owner?: string
           type?: Database["public"]["Enums"]["investment_type"]
           updated_at?: string
           user_id?: string | null
@@ -116,7 +116,7 @@ export type Database = {
           amount: number
           created_at: string
           id: string
-          owner: Database["public"]["Enums"]["family_member"]
+          owner: string
           updated_at: string
           user_id: string | null
         }
@@ -124,7 +124,7 @@ export type Database = {
           amount?: number
           created_at?: string
           id?: string
-          owner: Database["public"]["Enums"]["family_member"]
+          owner: string
           updated_at?: string
           user_id?: string | null
         }
@@ -132,7 +132,7 @@ export type Database = {
           amount?: number
           created_at?: string
           id?: string
-          owner?: Database["public"]["Enums"]["family_member"]
+          owner?: string
           updated_at?: string
           user_id?: string | null
         }
@@ -284,7 +284,6 @@ export type Database = {
         | "HKD"
         | "NZD"
         | "SGD"
-      family_member: "Myself" | "My Wife" | "My Daughter" | "Family"
       family_relationship:
         | "Primary User"
         | "Spouse"

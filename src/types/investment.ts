@@ -32,7 +32,7 @@ export type CurrencyType =
 export interface Investment {
   id: string;
   type: InvestmentType;
-  owner: FamilyMember;
+  owner: string;
   investedAmount: number;
   currentValue: number;
   dateOfInvestment: string;
@@ -47,7 +47,7 @@ export interface WealthSummary {
 
 export interface LiquidAsset {
   id?: string;
-  owner: FamilyMember;
+  owner: string;
   amount: number;
   created_at?: string;
   updated_at?: string;

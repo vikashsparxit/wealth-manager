@@ -1,10 +1,10 @@
 import { supabase } from "@/integrations/supabase/client";
-import { Investment, InvestmentType, FamilyMember } from "@/types/investment";
+import { Investment, InvestmentType } from "@/types/investment";
 
 interface DatabaseInvestment {
   id: string;
   type: InvestmentType;
-  owner: FamilyMember;
+  owner: string;
   invested_amount: number;
   current_value: number;
   date_of_investment: string;
