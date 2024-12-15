@@ -6,7 +6,7 @@ import { useLiquidAssets } from "./useLiquidAssets";
 
 export const useDashboard = () => {
   const [showForm, setShowForm] = useState(false);
-  const [selectedMember, setSelectedMember] = useState<"Wealth Combined" | FamilyMember>("Wealth Combined");
+  const [selectedMember, setSelectedMember] = useState<"Wealth Combined" | string>("Wealth Combined");
   
   const { 
     investments, 
@@ -32,6 +32,10 @@ export const useDashboard = () => {
 
   const hasData = investments.length > 0 || liquidAssets.length > 0;
 
+  const handleLiquidAssetsUpdate = async (owner: string, amount: number) => {
+    await updateLiquidAsset(owner, amount);
+  };
+
   return {
     investments,
     filteredInvestments,
@@ -45,6 +49,6 @@ export const useDashboard = () => {
     setSelectedMember,
     handleAddInvestment: addInvestment,
     handleUpdateInvestment: updateInvestment,
-    handleLiquidAssetsUpdate: updateLiquidAsset,
+    handleLiquidAssetsUpdate,
   };
 };

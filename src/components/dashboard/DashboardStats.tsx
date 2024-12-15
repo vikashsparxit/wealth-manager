@@ -1,4 +1,4 @@
-import { WealthSummary, LiquidAsset, FamilyMember } from "@/types/investment";
+import { WealthSummary, LiquidAsset } from "@/types/investment";
 import { StatCard } from "./StatCard";
 import { LiquidAssetsDialog } from "./LiquidAssetsDialog";
 import { useEffect, useState } from "react";
@@ -28,7 +28,7 @@ export const DashboardStats = ({
 }: DashboardStatsProps) => {
   const [totalLiquidAssets, setTotalLiquidAssets] = useState(0);
   const [memberSummaries, setMemberSummaries] = useState<Array<{
-    member: FamilyMember;
+    member: string;
     totalInvested: number;
     currentValue: number;
     liquidAssets: number;
