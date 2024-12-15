@@ -28,7 +28,7 @@ export const useInvestmentForm = (investment?: Investment, onSubmit?: (data: Omi
 
   const [formData, setFormData] = useState<FormData>({
     type: investment?.type || "",
-    owner: investment?.owner || "Myself", // We'll update this after loading family members
+    owner: investment?.owner || "", // We'll set this after loading family members
     investedAmount: investment?.investedAmount?.toString() || "",
     currentValue: investment?.currentValue?.toString() || "",
     dateOfInvestment: investment?.dateOfInvestment || new Date().toISOString().split("T")[0],
