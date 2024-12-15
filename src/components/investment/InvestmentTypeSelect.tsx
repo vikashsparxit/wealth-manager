@@ -6,6 +6,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useEffect } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 interface Props {
   value: InvestmentType | "";
@@ -14,6 +16,14 @@ interface Props {
 }
 
 export const InvestmentTypeSelect = ({ value, types, onChange }: Props) => {
+  const { toast } = useToast();
+
+  useEffect(() => {
+    if (types.length === 0) {
+      console.log("No investment types found, this might indicate an issue with data initialization");
+    }
+  }, [types]);
+
   return (
     <div className="space-y-2">
       <label className="text-sm font-medium">Investment Type</label>
@@ -21,7 +31,7 @@ export const InvestmentTypeSelect = ({ value, types, onChange }: Props) => {
         value={value}
         onValueChange={onChange}
       >
-        <SelectTrigger className="w-full bg-background" aria-describedby="investment-type-description">
+        <SelectTrigger className="w-full bg-background" aria-label="Select investment type">
           <SelectValue placeholder="Select type" />
         </SelectTrigger>
         <SelectContent className="max-h-[300px] overflow-y-auto">
@@ -36,7 +46,7 @@ export const InvestmentTypeSelect = ({ value, types, onChange }: Props) => {
           ))}
         </SelectContent>
       </Select>
-      <p id="investment-type-description" className="sr-only">Select the type of investment from the available options</p>
+      <p className="text-sm text-muted-foreground">Select the type of investment from the available options</p>
     </div>
   );
 };

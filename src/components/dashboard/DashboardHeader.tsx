@@ -15,7 +15,7 @@ import { useState } from "react";
 import { ProfileDialog } from "@/components/profile/ProfileDialog";
 import { FamilyMembersManager } from "@/components/settings/family-members/FamilyMembersManager";
 import { InvestmentTypesManager } from "@/components/settings/InvestmentTypesManager";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 
 interface DashboardHeaderProps {
   onAddInvestment: () => void;
@@ -34,11 +34,9 @@ export const DashboardHeader = ({ onAddInvestment }: DashboardHeaderProps) => {
 
   const handleDialogChange = (setter: (open: boolean) => void) => (open: boolean) => {
     setter(open);
-    // Add a small delay before enabling interactions
+    // Ensure pointer events are restored immediately when dialog closes
     if (!open) {
-      setTimeout(() => {
-        document.body.style.pointerEvents = 'auto';
-      }, 100);
+      document.body.style.pointerEvents = '';
     }
   };
 
@@ -119,6 +117,7 @@ export const DashboardHeader = ({ onAddInvestment }: DashboardHeaderProps) => {
         onOpenChange={handleDialogChange(setShowMembersDialog)}
       >
         <DialogContent>
+          <DialogTitle>Manage Family Members</DialogTitle>
           <FamilyMembersManager />
         </DialogContent>
       </Dialog>
@@ -128,6 +127,7 @@ export const DashboardHeader = ({ onAddInvestment }: DashboardHeaderProps) => {
         onOpenChange={handleDialogChange(setShowTypesDialog)}
       >
         <DialogContent>
+          <DialogTitle>Manage Investment Types</DialogTitle>
           <InvestmentTypesManager />
         </DialogContent>
       </Dialog>
