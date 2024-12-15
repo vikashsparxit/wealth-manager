@@ -35,21 +35,23 @@ export const InvestmentForm = ({ onSubmit, onCancel, investment }: InvestmentFor
 
   return (
     <Dialog open onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[425px] max-h-[85vh] overflow-hidden flex flex-col">
+      <DialogContent className="sm:max-w-[425px] max-h-[85vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>
             {investment ? "Edit Investment" : "Add Investment"}
           </DialogTitle>
         </DialogHeader>
-        <InvestmentFormContent
-          formData={formData}
-          setFormData={setFormData}
-          investmentTypes={investmentTypes}
-          showMemberSelect={showMemberSelect}
-          familyMembers={familyMembers}
-          onCancel={onCancel}
-          isEdit={!!investment}
-        />
+        <div className="flex-1 min-h-0 overflow-hidden">
+          <InvestmentFormContent
+            formData={formData}
+            setFormData={setFormData}
+            investmentTypes={investmentTypes}
+            showMemberSelect={showMemberSelect}
+            familyMembers={familyMembers}
+            onCancel={onCancel}
+            isEdit={!!investment}
+          />
+        </div>
       </DialogContent>
     </Dialog>
   );

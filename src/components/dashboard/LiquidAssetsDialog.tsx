@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Edit2 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { FamilyMember, LiquidAsset } from "@/types/investment";
+import { FamilyMember, LiquidAsset, FamilyRelationship } from "@/types/investment";
 import { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -17,7 +17,7 @@ interface LiquidAssetsDialogProps {
 
 interface FamilyMemberData {
   name: FamilyMember;
-  relationship?: string;
+  relationship?: FamilyRelationship;
 }
 
 export const LiquidAssetsDialog = ({ liquidAssets, onUpdate, selectedMember }: LiquidAssetsDialogProps) => {
@@ -107,49 +107,51 @@ export const LiquidAssetsDialog = ({ liquidAssets, onUpdate, selectedMember }: L
           <Edit2 className="h-4 w-4" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px] max-h-[85vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>Update Liquid Assets</DialogTitle>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
-          <div className="grid gap-2">
-            {selectedMember === "Wealth Combined" && familyMembers.length > 0 && (
-              <Select 
-                value={owner} 
-                onValueChange={(value: FamilyMember) => {
-                  setOwner(value);
-                  const asset = liquidAssets.find(a => a.owner === value);
-                  setAmount(asset ? asset.amount.toString() : "0");
-                }}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select owner" />
-                </SelectTrigger>
-                <SelectContent>
-                  {familyMembers.map((member) => (
-                    <SelectItem 
-                      key={member.name} 
-                      value={member.name}
-                      className="cursor-pointer"
-                    >
-                      {getDisplayName(member)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
-            <div className="space-y-1">
-              <label className="text-sm text-muted-foreground">
-                Current liquid assets for {selectedMember !== "Wealth Combined" ? selectedMember : owner}
-              </label>
-              <Input
-                type="number"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                placeholder="Enter liquid assets amount"
-              />
+        <div className="flex-1 min-h-0 overflow-y-auto">
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              {selectedMember === "Wealth Combined" && familyMembers.length > 0 && (
+                <Select 
+                  value={owner} 
+                  onValueChange={(value: FamilyMember) => {
+                    setOwner(value);
+                    const asset = liquidAssets.find(a => a.owner === value);
+                    setAmount(asset ? asset.amount.toString() : "0");
+                  }}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select owner" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {familyMembers.map((member) => (
+                      <SelectItem 
+                        key={member.name} 
+                        value={member.name}
+                        className="cursor-pointer"
+                      >
+                        {getDisplayName(member)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+              <div className="space-y-1">
+                <label className="text-sm text-muted-foreground">
+                  Current liquid assets for {selectedMember !== "Wealth Combined" ? selectedMember : owner}
+                </label>
+                <Input
+                  type="number"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  placeholder="Enter liquid assets amount"
+                />
+              </div>
+              <Button onClick={handleSave}>Save</Button>
             </div>
-            <Button onClick={handleSave}>Save</Button>
           </div>
         </div>
       </DialogContent>

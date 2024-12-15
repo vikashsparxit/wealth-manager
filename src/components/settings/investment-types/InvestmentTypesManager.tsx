@@ -24,30 +24,32 @@ export const InvestmentTypesManager = () => {
   };
 
   return (
-    <Card className="p-6 max-h-[calc(100vh-200px)] overflow-hidden flex flex-col">
-      <AddTypeForm
-        newType={newType}
-        loading={loading}
-        onTypeChange={setNewType}
-        onAdd={addType}
-      />
+    <div className="flex flex-col h-full max-h-[calc(85vh-120px)]">
+      <Card className="p-6 flex-1 overflow-hidden flex flex-col">
+        <AddTypeForm
+          newType={newType}
+          loading={loading}
+          onTypeChange={setNewType}
+          onAdd={addType}
+        />
 
-      <div className="space-y-2 overflow-y-auto pr-2">
-        {types.map((type) => (
-          <TypeItem
-            key={type.id}
-            type={type}
-            editingId={editingId}
-            editValue={editValue}
-            loading={loading}
-            onEdit={() => startEditing(type.id, type.name)}
-            onUpdate={updateType}
-            onCancelEdit={() => setEditingId(null)}
-            onToggleStatus={toggleTypeStatus}
-            setEditValue={setEditValue}
-          />
-        ))}
-      </div>
-    </Card>
+        <div className="space-y-2 overflow-y-auto flex-1 pr-2">
+          {types.map((type) => (
+            <TypeItem
+              key={type.id}
+              type={type}
+              editingId={editingId}
+              editValue={editValue}
+              loading={loading}
+              onEdit={() => startEditing(type.id, type.name)}
+              onUpdate={updateType}
+              onCancelEdit={() => setEditingId(null)}
+              onToggleStatus={toggleTypeStatus}
+              setEditValue={setEditValue}
+            />
+          ))}
+        </div>
+      </Card>
+    </div>
   );
 };
