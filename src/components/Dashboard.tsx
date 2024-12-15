@@ -10,10 +10,8 @@ import { EmptyDashboard } from "./dashboard/EmptyDashboard";
 import { useDashboard } from "@/hooks/useDashboard";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
-import { useToast } from "@/components/ui/use-toast";
 
 export const Dashboard = () => {
-  const { toast } = useToast();
   const { user } = useAuth();
   const {
     filteredInvestments,
@@ -33,20 +31,6 @@ export const Dashboard = () => {
   console.log("Dashboard - Auth state:", { user });
   console.log("Dashboard - Data state:", { hasData, investments: filteredInvestments });
 
-  const handleManageMembers = () => {
-    toast({
-      title: "Coming Soon",
-      description: "The ability to manage wealth members will be available soon.",
-    });
-  };
-
-  const handleManageTypes = () => {
-    toast({
-      title: "Coming Soon",
-      description: "The ability to manage investment types will be available soon.",
-    });
-  };
-
   if (!user) {
     console.log("Dashboard - User not authenticated, redirecting to login");
     return <Navigate to="/login" replace />;
@@ -60,11 +44,7 @@ export const Dashboard = () => {
     return (
       <div className="container mx-auto py-8">
         <DashboardHeader onAddInvestment={() => setShowForm(true)} />
-        <EmptyDashboard 
-          onAddInvestment={() => setShowForm(true)}
-          onManageMembers={handleManageMembers}
-          onManageTypes={handleManageTypes}
-        />
+        <EmptyDashboard onAddInvestment={() => setShowForm(true)} />
         {showForm && (
           <InvestmentForm
             onSubmit={handleAddInvestment}
