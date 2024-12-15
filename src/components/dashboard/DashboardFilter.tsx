@@ -26,7 +26,7 @@ export const DashboardFilter = ({ selectedMember, onMemberChange }: DashboardFil
         .select('name, relationship')
         .eq('user_id', user.id)
         .eq('status', 'active')
-        .order('relationship', { ascending: true });
+        .order('created_at');
 
       if (error) {
         console.error('Error loading family members:', error);
@@ -38,7 +38,12 @@ export const DashboardFilter = ({ selectedMember, onMemberChange }: DashboardFil
       // Ensure proper typing and sort primary user first
       const typedData = (data || [])
         .filter((item): item is { name: FamilyMember; relationship: FamilyRelationship } => {
-          return ['Myself', 'My Wife', 'My Daughter'].includes(item.name);
+          return Boolean(item.name && item.relationship);
+        })
+        .sort((a, b) => {
+          if (a.relationship === 'Primary User') return -1;
+          if (b.relationship === 'Primary User') return 1;
+          return 0;
         });
 
       console.log("Processed family members:", typedData);

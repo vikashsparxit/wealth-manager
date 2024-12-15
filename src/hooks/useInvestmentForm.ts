@@ -65,8 +65,9 @@ export const useInvestmentForm = (investment?: Investment, onSubmit?: (data: Omi
         console.log("InvestmentForm - Loaded investment types:", typesResponse.data);
         console.log("InvestmentForm - Loaded family members:", membersResponse.data);
         
-        // Sort family members to put primary user first
-        const sortedMembers = membersResponse.data
+        // Filter and sort family members
+        const processedMembers = membersResponse.data
+          .filter(member => member.name && member.relationship)
           .map(member => ({
             name: member.name as FamilyMember,
             relationship: member.relationship as FamilyRelationship
@@ -77,16 +78,16 @@ export const useInvestmentForm = (investment?: Investment, onSubmit?: (data: Omi
             return 0;
           });
 
-        console.log("InvestmentForm - Sorted family members:", sortedMembers);
-        setFamilyMembers(sortedMembers);
-        setShowMemberSelect(sortedMembers.length > 0);
+        console.log("InvestmentForm - Processed family members:", processedMembers);
+        setFamilyMembers(processedMembers);
+        setShowMemberSelect(processedMembers.length > 0);
 
         // Set investment types
         setInvestmentTypes(typesResponse.data as Array<{ name: InvestmentType }>);
 
         // Set default owner for new investments to the primary user
-        if (!investment && sortedMembers.length > 0) {
-          const primaryUser = sortedMembers.find(m => m.relationship === 'Primary User');
+        if (!investment && processedMembers.length > 0) {
+          const primaryUser = processedMembers.find(m => m.relationship === 'Primary User');
           if (primaryUser) {
             console.log("InvestmentForm - Setting default owner to primary user:", primaryUser.name);
             setFormData(prev => ({
