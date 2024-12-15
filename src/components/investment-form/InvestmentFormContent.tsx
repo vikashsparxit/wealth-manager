@@ -4,7 +4,7 @@ import { AmountInput } from "./AmountInput";
 import { DateInput } from "./DateInput";
 import { NotesInput } from "./NotesInput";
 import { FormActions } from "./FormActions";
-import { Investment, InvestmentType, FamilyMember } from "@/types/investment";
+import { Investment, InvestmentType, FamilyMember, FamilyRelationship } from "@/types/investment";
 
 interface InvestmentFormContentProps {
   formData: {
@@ -18,7 +18,7 @@ interface InvestmentFormContentProps {
   setFormData: (data: any) => void;
   investmentTypes: Array<{ name: InvestmentType }>;
   showMemberSelect: boolean;
-  familyMembers: Array<{ name: FamilyMember; relationship?: string }>;
+  familyMembers: Array<{ name: FamilyMember; relationship?: FamilyRelationship }>;
   onCancel: () => void;
   isEdit: boolean;
 }
