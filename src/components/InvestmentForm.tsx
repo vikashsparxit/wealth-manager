@@ -28,6 +28,7 @@ export const InvestmentForm = ({ onSubmit, onCancel, investment }: InvestmentFor
   const [investmentTypes, setInvestmentTypes] = useState<Array<{ name: InvestmentType }>>([]);
   const [familyMembers, setFamilyMembers] = useState<FamilyMemberData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showMemberSelect, setShowMemberSelect] = useState(false);
 
   const [formData, setFormData] = useState({
     type: investment?.type || "",
@@ -73,6 +74,10 @@ export const InvestmentForm = ({ onSubmit, onCancel, investment }: InvestmentFor
         console.log("Valid family members after filtering:", validMembers);
         setInvestmentTypes(typesResponse.data as Array<{ name: InvestmentType }>);
         setFamilyMembers(validMembers);
+        
+        // Set showMemberSelect based on the number of active family members
+        const shouldShowMemberSelect = validMembers.length > 1;
+        setShowMemberSelect(shouldShowMemberSelect);
         
         if (!investment) {
           // Set default values
@@ -133,11 +138,13 @@ export const InvestmentForm = ({ onSubmit, onCancel, investment }: InvestmentFor
             onChange={(value) => setFormData({ ...formData, type: value })}
           />
 
-          <OwnerSelect
-            value={formData.owner as FamilyMember}
-            owners={familyMembers}
-            onChange={(value) => setFormData({ ...formData, owner: value })}
-          />
+          {showMemberSelect && (
+            <OwnerSelect
+              value={formData.owner as FamilyMember}
+              owners={familyMembers}
+              onChange={(value) => setFormData({ ...formData, owner: value })}
+            />
+          )}
 
           <AmountInput
             label="Invested Amount"
