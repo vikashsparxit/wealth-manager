@@ -165,6 +165,39 @@ export type Database = {
         }
         Relationships: []
       }
+      shared_dashboards: {
+        Row: {
+          created_at: string
+          expires_at: string | null
+          id: string
+          password_hash: string
+          share_token: string
+          status: Database["public"]["Enums"]["share_status"] | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          password_hash: string
+          share_token: string
+          status?: Database["public"]["Enums"]["share_status"] | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          password_hash?: string
+          share_token?: string
+          status?: Database["public"]["Enums"]["share_status"] | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_settings: {
         Row: {
           base_currency: Database["public"]["Enums"]["currency_type"]
@@ -234,6 +267,7 @@ export type Database = {
         | "PPF"
         | "Startups"
       investment_type_status: "active" | "inactive"
+      share_status: "active" | "revoked"
     }
     CompositeTypes: {
       [_ in never]: never
