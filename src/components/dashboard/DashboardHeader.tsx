@@ -3,13 +3,9 @@ import { Button } from "@/components/ui/button";
 import { SettingsDialog } from "@/components/settings/SettingsDialog";
 import { ProfileDialog } from "@/components/profile/ProfileDialog";
 import { CreateShareDialog } from "@/components/share/CreateShareDialog";
-import { Settings2, UserCircle2, Share2, Plus } from "lucide-react";
+import { Settings2, UserCircle2, Share2 } from "lucide-react";
 
-interface DashboardHeaderProps {
-  onAddInvestment?: () => void;
-}
-
-export function DashboardHeader({ onAddInvestment }: DashboardHeaderProps) {
+export function DashboardHeader() {
   const [showSettings, setShowSettings] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [showShareDialog, setShowShareDialog] = useState(false);
@@ -18,16 +14,6 @@ export function DashboardHeader({ onAddInvestment }: DashboardHeaderProps) {
     <div className="flex justify-between items-center mb-8">
       <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
       <div className="flex gap-2">
-        {onAddInvestment && (
-          <Button
-            variant="default"
-            size="icon"
-            onClick={onAddInvestment}
-            title="Add Investment"
-          >
-            <Plus className="h-4 w-4" />
-          </Button>
-        )}
         <Button
           variant="outline"
           size="icon"
