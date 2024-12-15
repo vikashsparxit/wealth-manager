@@ -23,7 +23,8 @@ export const OwnerSelect = ({ value, owners, onChange }: Props) => {
   const getDisplayName = (member: { name: FamilyMember; relationship?: FamilyRelationship }) => {
     // If it's the primary user (Myself), use their actual name
     if (member.relationship === 'Primary User') {
-      return `${user?.user_metadata?.full_name || member.name} (Primary)`;
+      const fullName = user?.user_metadata?.full_name;
+      return fullName ? `${fullName} (Primary)` : member.name;
     }
     return member.name;
   };
