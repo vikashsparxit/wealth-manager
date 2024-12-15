@@ -34,7 +34,7 @@ export const InvestmentTypeSelect = ({ value, types, onChange }: Props) => {
         <SelectTrigger className="w-full bg-background" aria-label="Select investment type">
           <SelectValue placeholder="Select type" />
         </SelectTrigger>
-        <SelectContent className="max-h-[300px] overflow-y-auto">
+        <SelectContent className="bg-background border shadow-lg">
           {types.map(({ name }) => (
             <SelectItem 
               key={name} 
