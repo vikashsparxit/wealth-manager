@@ -11,7 +11,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { ProfileDialog } from "@/components/profile/ProfileDialog";
 import { FamilyMembersManager } from "@/components/settings/family-members/FamilyMembersManager";
 import { InvestmentTypesManager } from "@/components/settings/InvestmentTypesManager";
@@ -32,15 +32,23 @@ export const DashboardHeader = ({ onAddInvestment }: DashboardHeaderProps) => {
   
   const dashboardName = settings?.dashboard_name ? `${settings.dashboard_name} Dashboard` : "My Wealth Dashboard";
 
-  const handleDialogChange = (setter: (open: boolean) => void) => (open: boolean) => {
+  const handleDialogChange = useCallback((setter: (open: boolean) => void) => (open: boolean) => {
     setter(open);
-    // Add a small delay before enabling interactions
+    setDropdownOpen(false);
+    
     if (!open) {
+      // Reset pointer-events after a short delay
+      document.body.style.pointerEvents = 'none';
       setTimeout(() => {
         document.body.style.pointerEvents = 'auto';
       }, 100);
     }
-  };
+  }, []);
+
+  const handleMenuItemClick = useCallback((action: () => void) => {
+    setDropdownOpen(false);
+    action();
+  }, []);
 
   return (
     <div className="flex justify-between items-center mb-6">
@@ -65,37 +73,33 @@ export const DashboardHeader = ({ onAddInvestment }: DashboardHeaderProps) => {
           <DropdownMenuContent 
             align="end" 
             className="w-56 p-2 bg-background border shadow-lg"
-            onCloseAutoFocus={(event) => {
-              event.preventDefault();
-              setDropdownOpen(false);
-            }}
           >
             <DropdownMenuItem 
-              onClick={() => setShowProfileDialog(true)}
+              onClick={() => handleMenuItemClick(() => setShowProfileDialog(true))}
               className="cursor-pointer py-2 px-4 hover:bg-accent rounded-md"
             >
               Profile
             </DropdownMenuItem>
             <DropdownMenuItem 
-              onClick={() => setShowSettingsDialog(true)}
+              onClick={() => handleMenuItemClick(() => setShowSettingsDialog(true))}
               className="cursor-pointer py-2 px-4 hover:bg-accent rounded-md"
             >
               Settings
             </DropdownMenuItem>
             <DropdownMenuItem 
-              onClick={() => setShowMembersDialog(true)}
+              onClick={() => handleMenuItemClick(() => setShowMembersDialog(true))}
               className="cursor-pointer py-2 px-4 hover:bg-accent rounded-md"
             >
               Manage Members
             </DropdownMenuItem>
             <DropdownMenuItem 
-              onClick={() => setShowTypesDialog(true)}
+              onClick={() => handleMenuItemClick(() => setShowTypesDialog(true))}
               className="cursor-pointer py-2 px-4 hover:bg-accent rounded-md"
             >
               Manage Types
             </DropdownMenuItem>
             <DropdownMenuItem 
-              onClick={signOut}
+              onClick={() => handleMenuItemClick(signOut)}
               className="cursor-pointer py-2 px-4 hover:bg-accent rounded-md text-destructive"
             >
               Sign Out
