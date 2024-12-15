@@ -21,6 +21,7 @@ interface InvestmentFormContentProps {
   familyMembers: Array<{ name: FamilyMember; relationship?: FamilyRelationship }>;
   onCancel: () => void;
   isEdit: boolean;
+  onSubmit: (e: React.FormEvent) => void;
 }
 
 export const InvestmentFormContent = ({
@@ -31,18 +32,22 @@ export const InvestmentFormContent = ({
   familyMembers,
   onCancel,
   isEdit,
+  onSubmit,
 }: InvestmentFormContentProps) => {
   const today = new Date().toISOString().split("T")[0];
 
+  console.log("InvestmentFormContent - Family members:", familyMembers);
+  console.log("InvestmentFormContent - Show member select:", showMemberSelect);
+
   return (
-    <form onSubmit={(e) => e.preventDefault()} className="space-y-4 overflow-y-auto pr-2">
+    <form onSubmit={onSubmit} className="space-y-4">
       <InvestmentTypeSelect
         value={formData.type as InvestmentType | ""}
         types={investmentTypes}
         onChange={(value) => setFormData({ ...formData, type: value })}
       />
 
-      {showMemberSelect && (
+      {familyMembers.length > 0 && (
         <OwnerSelect
           value={formData.owner as FamilyMember}
           owners={familyMembers}

@@ -21,7 +21,6 @@ export const InvestmentForm = ({ onSubmit, onCancel, investment }: InvestmentFor
 
   const handleOpenChange = (open: boolean) => {
     if (!open) {
-      // Add a small delay before enabling interactions
       setTimeout(() => {
         document.body.style.pointerEvents = 'auto';
       }, 100);
@@ -35,13 +34,13 @@ export const InvestmentForm = ({ onSubmit, onCancel, investment }: InvestmentFor
 
   return (
     <Dialog open onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[425px] max-h-[85vh] flex flex-col">
+      <DialogContent className="sm:max-w-[425px] max-h-[85vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle>
             {investment ? "Edit Investment" : "Add Investment"}
           </DialogTitle>
         </DialogHeader>
-        <div className="flex-1 min-h-0 overflow-hidden">
+        <div className="flex-1 overflow-y-auto pr-6 -mr-6">
           <InvestmentFormContent
             formData={formData}
             setFormData={setFormData}
@@ -50,6 +49,7 @@ export const InvestmentForm = ({ onSubmit, onCancel, investment }: InvestmentFor
             familyMembers={familyMembers}
             onCancel={onCancel}
             isEdit={!!investment}
+            onSubmit={handleSubmit}
           />
         </div>
       </DialogContent>
