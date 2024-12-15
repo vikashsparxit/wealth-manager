@@ -1,142 +1,59 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
-import { AuthButton } from "@/components/auth/AuthButton";
 import { SettingsDialog } from "@/components/settings/SettingsDialog";
-import { useSettings } from "@/hooks/useSettings";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useAuth } from "@/contexts/AuthContext";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { useState, useCallback } from "react";
 import { ProfileDialog } from "@/components/profile/ProfileDialog";
-import { FamilyMembersManager } from "@/components/settings/family-members/FamilyMembersManager";
-import { InvestmentTypesManager } from "@/components/settings/InvestmentTypesManager";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { CreateShareDialog } from "@/components/share/CreateShareDialog";
+import { Settings2, UserCircle2, Share2 } from "lucide-react";
 
-interface DashboardHeaderProps {
-  onAddInvestment: () => void;
-}
-
-export const DashboardHeader = ({ onAddInvestment }: DashboardHeaderProps) => {
-  const { settings } = useSettings();
-  const { user, signOut } = useAuth();
-  const [showProfileDialog, setShowProfileDialog] = useState(false);
-  const [showSettingsDialog, setShowSettingsDialog] = useState(false);
-  const [showMembersDialog, setShowMembersDialog] = useState(false);
-  const [showTypesDialog, setShowTypesDialog] = useState(false);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  
-  const dashboardName = settings?.dashboard_name ? `${settings.dashboard_name} Dashboard` : "My Wealth Dashboard";
-
-  const handleDialogChange = useCallback((setter: (open: boolean) => void) => (open: boolean) => {
-    setter(open);
-    setDropdownOpen(false);
-    
-    if (!open) {
-      // Reset pointer-events after a short delay
-      document.body.style.pointerEvents = 'none';
-      setTimeout(() => {
-        document.body.style.pointerEvents = 'auto';
-      }, 100);
-    }
-  }, []);
-
-  const handleMenuItemClick = useCallback((action: () => void) => {
-    setDropdownOpen(false);
-    action();
-  }, []);
+export function DashboardHeader() {
+  const [showSettings, setShowSettings] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
+  const [showShareDialog, setShowShareDialog] = useState(false);
 
   return (
-    <div className="flex justify-between items-center mb-6">
-      <h1 className="text-2xl font-bold">{dashboardName}</h1>
-      <div className="flex gap-4 items-center">
-        <Button onClick={onAddInvestment}>
-          <Plus className="mr-2 h-4 w-4" />
-          Add Investment
+    <div className="flex justify-between items-center mb-8">
+      <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+      <div className="flex gap-2">
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => setShowShareDialog(true)}
+          title="Share Dashboard"
+        >
+          <Share2 className="h-4 w-4" />
         </Button>
-
-        <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-              <Avatar className="h-10 w-10">
-                <AvatarImage src={user?.user_metadata.avatar_url} />
-                <AvatarFallback>
-                  {user?.email?.charAt(0).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent 
-            align="end" 
-            className="w-56 p-2 bg-background border shadow-lg"
-          >
-            <DropdownMenuItem 
-              onClick={() => handleMenuItemClick(() => setShowProfileDialog(true))}
-              className="cursor-pointer py-2 px-4 hover:bg-accent rounded-md"
-            >
-              Profile
-            </DropdownMenuItem>
-            <DropdownMenuItem 
-              onClick={() => handleMenuItemClick(() => setShowSettingsDialog(true))}
-              className="cursor-pointer py-2 px-4 hover:bg-accent rounded-md"
-            >
-              Settings
-            </DropdownMenuItem>
-            <DropdownMenuItem 
-              onClick={() => handleMenuItemClick(() => setShowMembersDialog(true))}
-              className="cursor-pointer py-2 px-4 hover:bg-accent rounded-md"
-            >
-              Manage Members
-            </DropdownMenuItem>
-            <DropdownMenuItem 
-              onClick={() => handleMenuItemClick(() => setShowTypesDialog(true))}
-              className="cursor-pointer py-2 px-4 hover:bg-accent rounded-md"
-            >
-              Manage Types
-            </DropdownMenuItem>
-            <DropdownMenuItem 
-              onClick={() => handleMenuItemClick(signOut)}
-              className="cursor-pointer py-2 px-4 hover:bg-accent rounded-md text-destructive"
-            >
-              Sign Out
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => setShowSettings(true)}
+          title="Settings"
+        >
+          <Settings2 className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => setShowProfile(true)}
+          title="Profile"
+        >
+          <UserCircle2 className="h-4 w-4" />
+        </Button>
       </div>
 
-      <ProfileDialog 
-        open={showProfileDialog} 
-        onOpenChange={handleDialogChange(setShowProfileDialog)}
+      <SettingsDialog
+        open={showSettings}
+        onOpenChange={setShowSettings}
       />
       
-      <SettingsDialog 
-        open={showSettingsDialog} 
-        onOpenChange={handleDialogChange(setShowSettingsDialog)}
+      <ProfileDialog
+        open={showProfile}
+        onOpenChange={setShowProfile}
       />
 
-      <Dialog 
-        open={showMembersDialog} 
-        onOpenChange={handleDialogChange(setShowMembersDialog)}
-      >
-        <DialogContent>
-          <DialogTitle>Manage Family Members</DialogTitle>
-          <FamilyMembersManager />
-        </DialogContent>
-      </Dialog>
-
-      <Dialog 
-        open={showTypesDialog} 
-        onOpenChange={handleDialogChange(setShowTypesDialog)}
-      >
-        <DialogContent>
-          <DialogTitle>Manage Investment Types</DialogTitle>
-          <InvestmentTypesManager />
-        </DialogContent>
-      </Dialog>
+      <CreateShareDialog
+        open={showShareDialog}
+        onOpenChange={setShowShareDialog}
+      />
     </div>
   );
-};
+}
