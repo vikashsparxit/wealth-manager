@@ -20,7 +20,7 @@ export const DashboardFilter = ({ selectedMember, onMemberChange }: DashboardFil
     const loadFamilyMembers = async () => {
       if (!user) return;
       
-      console.log("Loading family members for dashboard filter...");
+      console.log("DashboardFilter - Loading family members...");
       const { data, error } = await supabase
         .from('family_members')
         .select('name, relationship')
@@ -33,10 +33,10 @@ export const DashboardFilter = ({ selectedMember, onMemberChange }: DashboardFil
         return;
       }
 
-      console.log("Loaded family members:", data);
+      console.log("DashboardFilter - Raw family members:", data);
       
-      // Ensure proper typing and sort primary user first
-      const typedData = (data || [])
+      // Filter and sort family members
+      const processedMembers = data
         .filter((item): item is { name: FamilyMember; relationship: FamilyRelationship } => {
           return Boolean(item.name && item.relationship);
         })
@@ -46,8 +46,8 @@ export const DashboardFilter = ({ selectedMember, onMemberChange }: DashboardFil
           return 0;
         });
 
-      console.log("Processed family members:", typedData);
-      setFamilyMembers(typedData);
+      console.log("DashboardFilter - Processed family members:", processedMembers);
+      setFamilyMembers(processedMembers);
     };
 
     loadFamilyMembers();

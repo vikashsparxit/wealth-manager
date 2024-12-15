@@ -62,16 +62,13 @@ export const useInvestmentForm = (investment?: Investment, onSubmit?: (data: Omi
         if (typesResponse.error) throw typesResponse.error;
         if (membersResponse.error) throw membersResponse.error;
 
-        console.log("InvestmentForm - Loaded investment types:", typesResponse.data);
-        console.log("InvestmentForm - Loaded family members:", membersResponse.data);
+        console.log("InvestmentForm - Raw family members:", membersResponse.data);
         
         // Filter and sort family members
         const processedMembers = membersResponse.data
-          .filter(member => member.name && member.relationship)
-          .map(member => ({
-            name: member.name as FamilyMember,
-            relationship: member.relationship as FamilyRelationship
-          }))
+          .filter((member): member is { name: FamilyMember; relationship: FamilyRelationship } => {
+            return Boolean(member.name && member.relationship);
+          })
           .sort((a, b) => {
             if (a.relationship === 'Primary User') return -1;
             if (b.relationship === 'Primary User') return 1;
