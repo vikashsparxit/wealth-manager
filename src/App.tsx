@@ -5,6 +5,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import Index from "@/pages/Index";
 import Login from "@/pages/Login";
 import Setup from "@/pages/Setup";
+import SharedDashboard from "@/pages/SharedDashboard";
 import { Footer } from "@/components/Footer";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSettings } from "@/hooks/useSettings";
@@ -71,6 +72,7 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
+      <Route path="/share/:shareToken" element={<SharedDashboard />} />
     </Routes>
   );
 }
