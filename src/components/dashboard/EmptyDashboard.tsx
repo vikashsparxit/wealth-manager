@@ -3,7 +3,7 @@ import { Plus, Users, List } from "lucide-react";
 import { useSettings } from "@/hooks/useSettings";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { FamilyMembersManager } from "@/components/settings/family-members/FamilyMembersManager";
-import { InvestmentTypesManager } from "@/components/settings/InvestmentTypesManager";
+import { InvestmentTypesManager } from "@/components/settings/investment-types/InvestmentTypesManager";
 import { useState } from "react";
 
 interface EmptyDashboardProps {
