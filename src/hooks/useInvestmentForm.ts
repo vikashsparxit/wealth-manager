@@ -64,26 +64,30 @@ export const useInvestmentForm = (investment?: Investment, onSubmit?: (data: Omi
 
         console.log("InvestmentForm - Loaded investment types:", typesResponse.data);
         console.log("InvestmentForm - Loaded family members:", membersResponse.data);
+        console.log("InvestmentForm - User metadata:", user.user_metadata);
 
-        // Update the name of the primary user to use their full name
+        // Find and update the primary user's name
         const updatedMembers = membersResponse.data.map(member => {
-          if (member.relationship === 'Primary User' && user.user_metadata?.full_name) {
+          if (member.relationship === 'Primary User') {
             return {
               ...member,
-              name: user.user_metadata.full_name as FamilyMember
+              name: user.user_metadata?.full_name || 'Myself'
             };
           }
           return member;
         });
 
+        console.log("InvestmentForm - Updated members with primary user:", updatedMembers);
+
         setInvestmentTypes(typesResponse.data as Array<{ name: InvestmentType }>);
         setFamilyMembers(updatedMembers as FamilyMemberData[]);
         setShowMemberSelect(updatedMembers.length > 0);
 
-        // Set default owner for new investments to the primary user's full name
+        // Set default owner for new investments to the primary user
         if (!investment && updatedMembers.length > 0) {
           const primaryUser = updatedMembers.find(m => m.relationship === 'Primary User');
           if (primaryUser) {
+            console.log("InvestmentForm - Setting default owner to primary user:", primaryUser.name);
             setFormData(prev => ({
               ...prev,
               owner: primaryUser.name
