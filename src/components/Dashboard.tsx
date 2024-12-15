@@ -67,7 +67,7 @@ export const Dashboard = () => {
       <DashboardStats
         summary={summary}
         liquidAssets={liquidAssets}
-        onLiquidAssetsUpdate={handleLiquidAssetsUpdate}
+        onLiquidAssetsUpdate={(amount, owner) => handleLiquidAssetsUpdate(owner, amount)}
         filteredInvestments={filteredInvestments}
         selectedMember={selectedMember}
       />
