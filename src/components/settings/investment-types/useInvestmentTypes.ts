@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
+import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { InvestmentType } from "./types";
 
@@ -12,6 +12,12 @@ export const useInvestmentTypes = () => {
   const [newType, setNewType] = useState("");
   const { toast } = useToast();
   const { user } = useAuth();
+
+  useEffect(() => {
+    if (user) {
+      loadTypes();
+    }
+  }, [user]);
 
   const loadTypes = async () => {
     try {
@@ -126,12 +132,6 @@ export const useInvestmentTypes = () => {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    if (user) {
-      loadTypes();
-    }
-  }, [user]);
 
   return {
     types,

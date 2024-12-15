@@ -1,10 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Check, X, Edit2, Minus } from "lucide-react";
-import { InvestmentType } from "./types";
 
 interface TypeItemProps {
-  type: InvestmentType;
+  type: {
+    id: string;
+    name: string;
+    status: string;
+  };
   editingId: string | null;
   editValue: string;
   loading: boolean;
