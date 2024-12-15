@@ -56,7 +56,7 @@ export const useInvestmentForm = (investment?: Investment, onSubmit?: (data: Omi
             .select('name, relationship')
             .eq('user_id', user.id)
             .eq('status', 'active')
-            .order('relationship', { ascending: true })
+            .order('created_at')
         ]);
 
         if (typesResponse.error) throw typesResponse.error;
@@ -65,21 +65,28 @@ export const useInvestmentForm = (investment?: Investment, onSubmit?: (data: Omi
         console.log("InvestmentForm - Loaded investment types:", typesResponse.data);
         console.log("InvestmentForm - Loaded family members:", membersResponse.data);
         
-        // Set all family members
-        const membersData = membersResponse.data.map(member => ({
-          name: member.name as FamilyMember,
-          relationship: member.relationship
-        }));
-        console.log("InvestmentForm - Setting family members:", membersData);
-        setFamilyMembers(membersData);
-        setShowMemberSelect(membersData.length > 0);
+        // Sort family members to put primary user first
+        const sortedMembers = membersResponse.data
+          .map(member => ({
+            name: member.name as FamilyMember,
+            relationship: member.relationship as FamilyRelationship
+          }))
+          .sort((a, b) => {
+            if (a.relationship === 'Primary User') return -1;
+            if (b.relationship === 'Primary User') return 1;
+            return 0;
+          });
+
+        console.log("InvestmentForm - Sorted family members:", sortedMembers);
+        setFamilyMembers(sortedMembers);
+        setShowMemberSelect(sortedMembers.length > 0);
 
         // Set investment types
         setInvestmentTypes(typesResponse.data as Array<{ name: InvestmentType }>);
 
         // Set default owner for new investments to the primary user
-        if (!investment && membersData.length > 0) {
-          const primaryUser = membersData.find(m => m.relationship === 'Primary User');
+        if (!investment && sortedMembers.length > 0) {
+          const primaryUser = sortedMembers.find(m => m.relationship === 'Primary User');
           if (primaryUser) {
             console.log("InvestmentForm - Setting default owner to primary user:", primaryUser.name);
             setFormData(prev => ({

@@ -24,14 +24,7 @@ export const OwnerSelect = ({ value, owners, onChange }: Props) => {
     return member.name;
   };
 
-  // Sort owners to ensure primary user comes first
-  const sortedOwners = [...owners].sort((a, b) => {
-    if (a.relationship === 'Primary User') return -1;
-    if (b.relationship === 'Primary User') return 1;
-    return 0;
-  });
-
-  console.log("OwnerSelect - Available owners:", sortedOwners);
+  console.log("OwnerSelect - Available owners:", owners);
   console.log("OwnerSelect - Current value:", value);
 
   return (
@@ -48,7 +41,7 @@ export const OwnerSelect = ({ value, owners, onChange }: Props) => {
           <SelectValue placeholder="Select member" />
         </SelectTrigger>
         <SelectContent className="bg-background border shadow-lg">
-          {sortedOwners.map(({ name, relationship }) => (
+          {owners.map(({ name, relationship }) => (
             <SelectItem 
               key={name} 
               value={name}
