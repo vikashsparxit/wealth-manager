@@ -32,6 +32,9 @@ export const InvestmentForm = ({ onSubmit, onCancel, investment }: InvestmentFor
     return null;
   }
 
+  console.log("InvestmentForm - Family members:", familyMembers);
+  console.log("InvestmentForm - Show member select:", showMemberSelect);
+
   return (
     <Dialog open onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-[425px] max-h-[85vh] overflow-hidden flex flex-col">
@@ -45,7 +48,7 @@ export const InvestmentForm = ({ onSubmit, onCancel, investment }: InvestmentFor
             formData={formData}
             setFormData={setFormData}
             investmentTypes={investmentTypes}
-            showMemberSelect={true}
+            showMemberSelect={showMemberSelect}
             familyMembers={familyMembers}
             onCancel={onCancel}
             isEdit={!!investment}

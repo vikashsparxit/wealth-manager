@@ -28,7 +28,7 @@ export const useInvestmentForm = (investment?: Investment, onSubmit?: (data: Omi
 
   const [formData, setFormData] = useState<FormData>({
     type: investment?.type || "",
-    owner: investment?.owner || "Myself",
+    owner: investment?.owner || "",
     investedAmount: investment?.investedAmount?.toString() || "",
     currentValue: investment?.currentValue?.toString() || "",
     dateOfInvestment: investment?.dateOfInvestment || new Date().toISOString().split("T")[0],
@@ -56,7 +56,7 @@ export const useInvestmentForm = (investment?: Investment, onSubmit?: (data: Omi
             .select('name, relationship')
             .eq('user_id', user.id)
             .eq('status', 'active')
-            .order('relationship', { ascending: true })
+            .order('created_at')
         ]);
 
         if (typesResponse.error) throw typesResponse.error;
@@ -64,24 +64,17 @@ export const useInvestmentForm = (investment?: Investment, onSubmit?: (data: Omi
 
         console.log("InvestmentForm - Loaded investment types:", typesResponse.data);
         console.log("InvestmentForm - Loaded family members:", membersResponse.data);
-        
-        const validMembers = membersResponse.data
-          .filter((member): member is { name: FamilyMember; relationship: FamilyRelationship } => {
-            return ['Myself', 'My Wife', 'My Daughter'].includes(member.name) && 
-                   ['Primary User', 'Spouse', 'Son', 'Daughter', 'Other'].includes(member.relationship || '');
-          });
 
-        console.log("InvestmentForm - Valid family members after filtering:", validMembers);
         setInvestmentTypes(typesResponse.data as Array<{ name: InvestmentType }>);
-        setFamilyMembers(validMembers);
-        setShowMemberSelect(validMembers.length > 1);
-        
-        if (!investment && typesResponse.data.length > 0) {
-          const primaryUser = validMembers.find(m => m.relationship === 'Primary User');
+        setFamilyMembers(membersResponse.data as FamilyMemberData[]);
+        setShowMemberSelect(membersResponse.data.length > 0);
+
+        // Set default owner if adding new investment
+        if (!investment && membersResponse.data.length > 0) {
+          const primaryUser = membersResponse.data.find(m => m.relationship === 'Primary User');
           if (primaryUser) {
             setFormData(prev => ({
               ...prev,
-              type: typesResponse.data[0]?.name || "",
               owner: primaryUser.name
             }));
           }

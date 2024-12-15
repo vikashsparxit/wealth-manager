@@ -32,6 +32,7 @@ export const OwnerSelect = ({ value, owners, onChange }: Props) => {
   });
 
   console.log("OwnerSelect - Available owners:", sortedOwners);
+  console.log("OwnerSelect - Current value:", value);
 
   return (
     <div className="space-y-2">
@@ -58,7 +59,7 @@ export const OwnerSelect = ({ value, owners, onChange }: Props) => {
           ))}
         </SelectContent>
       </Select>
-      <p id="owner-description" className="sr-only">Select the member for this investment from the list of family members</p>
+      <p className="text-sm text-muted-foreground">Select the member for this investment</p>
     </div>
   );
 };
