@@ -10,6 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface DashboardStatsProps {
   summary: WealthSummary;
@@ -35,9 +36,10 @@ export const DashboardStats = ({
     totalWealth: number;
     growth: number;
   }>>([]);
+  const { user } = useAuth();
 
   // Calculate annualized return
-  const calculateAnnualizedReturn = (investments: any[]) => {
+  const calculateAnnualizedReturn = (investments: Investment[]) => {
     if (investments.length === 0) return 0;
 
     const totalInvested = investments.reduce((sum, inv) => sum + inv.investedAmount, 0);
@@ -47,7 +49,7 @@ export const DashboardStats = ({
     const earliestDate = investments.reduce((earliest, inv) => {
       const invDate = new Date(inv.dateOfInvestment);
       return earliest ? (invDate < earliest ? invDate : earliest) : invDate;
-    }, null);
+    }, null as Date | null);
 
     if (!earliestDate) return 0;
 
@@ -105,6 +107,12 @@ export const DashboardStats = ({
     ? summary.totalInvested / filteredInvestments.length 
     : 0;
 
+  const getGrowthColor = (growth: number) => {
+    if (growth > 0) return "text-emerald-600";
+    if (growth < 0) return "text-red-600";
+    return "text-gray-600";
+  };
+
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -138,11 +146,13 @@ export const DashboardStats = ({
         <StatCard
           title="Overall Growth"
           value={`${summary.growth.toFixed(2)}%`}
+          className={getGrowthColor(summary.growth)}
         />
 
         <StatCard
           title="Annualized Return"
           value={`${annualizedReturn.toFixed(2)}%`}
+          className={getGrowthColor(annualizedReturn)}
         />
 
         <StatCard
@@ -173,7 +183,9 @@ export const DashboardStats = ({
                   <TableCell className="text-right">₹{summary.currentValue.toLocaleString()}</TableCell>
                   <TableCell className="text-right">₹{summary.liquidAssets.toLocaleString()}</TableCell>
                   <TableCell className="text-right">₹{summary.totalWealth.toLocaleString()}</TableCell>
-                  <TableCell className="text-right">{summary.growth.toFixed(2)}%</TableCell>
+                  <TableCell className={`text-right ${getGrowthColor(summary.growth)}`}>
+                    {summary.growth.toFixed(2)}%
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
