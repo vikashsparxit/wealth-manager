@@ -24,8 +24,8 @@ export const InvestmentTypesManager = () => {
   };
 
   return (
-    <div className="flex flex-col h-[600px]">
-      <div className="mb-4">
+    <div className="flex flex-col h-[calc(100vh-200px)] max-h-[600px]">
+      <div className="sticky top-0 bg-background z-10 pb-4">
         <h2 className="text-lg font-semibold mb-4">Manage Investment Types</h2>
         <AddTypeForm
           newType={newType}
@@ -35,7 +35,7 @@ export const InvestmentTypesManager = () => {
         />
       </div>
       
-      <Card className="flex-1 p-6 overflow-hidden">
+      <Card className="flex-1 overflow-hidden mt-2">
         <TypesList
           types={types}
           editingId={editingId}

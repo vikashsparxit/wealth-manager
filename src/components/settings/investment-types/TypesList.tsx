@@ -29,7 +29,7 @@ export const TypesList = ({
   setEditValue,
 }: TypesListProps) => {
   return (
-    <ScrollArea className="h-[500px] pr-4">
+    <ScrollArea className="h-full px-6 py-4">
       <div className="space-y-2">
         {types.map((type) => (
           <TypeItem
