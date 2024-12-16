@@ -34,8 +34,7 @@ const SharedDashboard = () => {
         .from("shared_dashboards")
         .select()
         .eq("share_token", shareToken)
-        .eq("status", 'active')
-        .limit(1);
+        .eq("status", 'active');
 
       console.log("Initial fetch response:", { dashboards, fetchError });
 
