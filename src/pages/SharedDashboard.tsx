@@ -29,18 +29,23 @@ const SharedDashboard = () => {
     try {
       console.log("Verifying share token:", shareToken);
       
-      // Fetch the shared dashboard details
+      // Fetch the shared dashboard details with explicit select
       const { data: dashboard, error: fetchError } = await supabase
         .from("shared_dashboards")
-        .select("*")
+        .select("id, status, expires_at, password_hash")
         .eq("share_token", shareToken)
         .eq("status", "active")
         .single();
 
-      console.log("Fetched dashboard:", dashboard);
+      console.log("Fetch response:", { dashboard, fetchError });
 
-      if (fetchError || !dashboard) {
+      if (fetchError) {
         console.error("Error fetching dashboard:", fetchError);
+        throw new Error("Invalid or expired share link");
+      }
+
+      if (!dashboard) {
+        console.error("No dashboard found for token:", shareToken);
         throw new Error("Invalid or expired share link");
       }
 
@@ -80,7 +85,7 @@ const SharedDashboard = () => {
         description: errorMessage,
       });
 
-      // Log failed attempt
+      // Log failed attempt if we have the dashboard id
       if (shareToken) {
         const { data: dashboard } = await supabase
           .from("shared_dashboards")
