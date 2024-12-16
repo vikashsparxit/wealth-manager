@@ -20,6 +20,7 @@ interface SharedDashboard {
   expires_at: string | null;
   status: 'active' | 'revoked';
   password_hash: string;
+  password?: string; // Add this to store the plain password temporarily
 }
 
 export function ManageSharesDialog({ open, onOpenChange }: ManageSharesDialogProps) {
@@ -37,7 +38,14 @@ export function ManageSharesDialog({ open, onOpenChange }: ManageSharesDialogPro
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data as SharedDashboard[];
+      
+      // Get the passwords from localStorage if available
+      const sharesWithPasswords = (data as SharedDashboard[]).map(share => ({
+        ...share,
+        password: localStorage.getItem(`share_password_${share.id}`)
+      }));
+      
+      return sharesWithPasswords;
     },
     enabled: !!user,
   });
@@ -51,6 +59,9 @@ export function ManageSharesDialog({ open, onOpenChange }: ManageSharesDialogPro
         .eq('id', shareId);
 
       if (error) throw error;
+
+      // Remove password from localStorage when revoking
+      localStorage.removeItem(`share_password_${shareId}`);
 
       toast({
         title: "Share link revoked",
@@ -74,22 +85,28 @@ export function ManageSharesDialog({ open, onOpenChange }: ManageSharesDialogPro
     return `${window.location.origin}/share/${token}`;
   };
 
-  const copyToClipboard = async (token: string, type: 'link' | 'password') => {
+  const copyToClipboard = async (share: SharedDashboard, type: 'link' | 'password') => {
     try {
       if (type === 'link') {
-        await navigator.clipboard.writeText(getShareUrl(token));
+        await navigator.clipboard.writeText(getShareUrl(share.share_token));
         toast({
           title: "Link copied",
           description: "The share link has been copied to your clipboard.",
         });
       } else {
-        // For demo purposes, we'll use a placeholder password since we can't decrypt the hash
-        // In a real app, you might want to store the original password temporarily or implement a system
-        // to retrieve it securely
-        await navigator.clipboard.writeText("Please share the password you created for this link");
+        const password = share.password;
+        if (!password) {
+          toast({
+            title: "Password not available",
+            description: "The password for this share is not available.",
+            variant: "destructive",
+          });
+          return;
+        }
+        await navigator.clipboard.writeText(password);
         toast({
-          title: "Password reminder",
-          description: "Please share the password you created for this link.",
+          title: "Password copied",
+          description: "The password has been copied to your clipboard.",
         });
       }
     } catch (error) {
@@ -143,7 +160,7 @@ export function ManageSharesDialog({ open, onOpenChange }: ManageSharesDialogPro
                       <>
                         <Button
                           variant="outline"
-                          onClick={() => copyToClipboard(share.share_token, 'link')}
+                          onClick={() => copyToClipboard(share, 'link')}
                           className="flex items-center gap-2"
                         >
                           <Copy className="h-4 w-4" />
@@ -151,7 +168,7 @@ export function ManageSharesDialog({ open, onOpenChange }: ManageSharesDialogPro
                         </Button>
                         <Button
                           variant="outline"
-                          onClick={() => copyToClipboard(share.share_token, 'password')}
+                          onClick={() => copyToClipboard(share, 'password')}
                           className="flex items-center gap-2"
                         >
                           <Key className="h-4 w-4" />

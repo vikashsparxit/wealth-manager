@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useParams, Navigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { verifyPassword } from "@/lib/security";
 import { supabase } from "@/integrations/supabase/client";
 import { Dashboard } from "@/components/Dashboard";
@@ -27,6 +27,8 @@ const SharedDashboard = () => {
     setError(null);
 
     try {
+      console.log("Verifying share token:", shareToken);
+      
       // Fetch the shared dashboard details
       const { data: dashboard, error: fetchError } = await supabase
         .from("shared_dashboards")
@@ -34,6 +36,8 @@ const SharedDashboard = () => {
         .eq("share_token", shareToken)
         .eq("status", "active")
         .single();
+
+      console.log("Fetched dashboard:", dashboard);
 
       if (fetchError || !dashboard) {
         throw new Error("Invalid or expired share link");
@@ -46,6 +50,8 @@ const SharedDashboard = () => {
 
       // Verify the password
       const isValid = await verifyPassword(password, dashboard.password_hash);
+      console.log("Password verification result:", isValid);
+
       if (!isValid) {
         throw new Error("Incorrect password");
       }
@@ -63,6 +69,7 @@ const SharedDashboard = () => {
         description: "Welcome to the shared dashboard",
       });
     } catch (err) {
+      console.error("Share verification error:", err);
       const errorMessage = err instanceof Error ? err.message : "Failed to verify password";
       setError(errorMessage);
       toast({
@@ -72,7 +79,7 @@ const SharedDashboard = () => {
       });
 
       // Log failed attempt
-      if (error && shareToken) {
+      if (shareToken) {
         await supabase.from("share_access").insert({
           shared_dashboard_id: shareToken,
           success: false,
