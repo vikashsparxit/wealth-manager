@@ -26,13 +26,33 @@ export const OCRUpload = ({ onExtractedData }: OCRUploadProps) => {
       return;
     }
 
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      console.error("Invalid file type:", file.type);
+      toast({
+        title: "Error",
+        description: "Please upload an image file (JPEG, PNG, etc.)",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       setIsProcessing(true);
       console.log("Starting file upload process");
       
       // Convert the file to base64
       const reader = new FileReader();
-      reader.readAsDataURL(file);
+      
+      reader.onerror = (error) => {
+        console.error("Error reading file:", error);
+        setIsProcessing(false);
+        toast({
+          title: "Error",
+          description: "Failed to read the file. Please try again.",
+          variant: "destructive",
+        });
+      };
       
       reader.onload = async () => {
         try {
@@ -67,7 +87,7 @@ export const OCRUpload = ({ onExtractedData }: OCRUploadProps) => {
           console.error("Error processing document:", error);
           toast({
             title: "Error",
-            description: "Failed to process the document. Please try again.",
+            description: "Failed to process the document. Please ensure the image is clear and contains investment details.",
             variant: "destructive",
           });
         } finally {
@@ -75,15 +95,7 @@ export const OCRUpload = ({ onExtractedData }: OCRUploadProps) => {
         }
       };
 
-      reader.onerror = (error) => {
-        console.error("Error reading file:", error);
-        setIsProcessing(false);
-        toast({
-          title: "Error",
-          description: "Failed to read the file. Please try again.",
-          variant: "destructive",
-        });
-      };
+      reader.readAsDataURL(file);
 
     } catch (error) {
       console.error("Error in file upload:", error);
