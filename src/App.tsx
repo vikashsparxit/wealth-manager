@@ -25,11 +25,12 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   }
 
   if (!user) {
+    console.log("No user found, redirecting to login");
     return <Navigate to="/login" replace />;
   }
 
-  // If user exists but no settings, redirect to setup
-  if (!settings) {
+  // If user exists but no settings or settings are still loading, redirect to setup
+  if (!settings && !settingsLoading) {
     console.log("No settings found, redirecting to setup");
     return <Navigate to="/setup" replace />;
   }
