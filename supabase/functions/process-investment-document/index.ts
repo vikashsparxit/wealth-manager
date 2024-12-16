@@ -65,17 +65,16 @@ serve(async (req) => {
 
     try {
       console.log("Processing image with document understanding model")
-      // Create a Blob from the Uint8Array
-      const blob = new Blob([bytes])
+      // Create a Blob from the Uint8Array with explicit type
+      const blob = new Blob([bytes], { type: 'image/jpeg' })
       
       console.log("Calling Hugging Face API with document question answering task")
-      const result = await hf.documentQuestionAnswering({
+      const result = await hf.questionAnswering({
+        model: "deepset/roberta-base-squad2",
         inputs: {
-          image: blob,
-          question: "What are the investment amount, current value, and date in this document?"
-        },
-        model: "microsoft/layoutlmv3-base",
-        wait_for_model: true
+          question: "What are the investment amount, current value, and date in this document?",
+          context: await blob.text()
+        }
       })
 
       console.log("OCR Result:", result)
