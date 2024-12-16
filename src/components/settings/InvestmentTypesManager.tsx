@@ -24,7 +24,7 @@ export const InvestmentTypesManager = () => {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-200px)] max-h-[600px]">
+    <div className="flex flex-col h-[calc(100vh-120px)] max-h-[700px]">
       {/* Fixed header section */}
       <div className="bg-background pb-4 border-b">
         <h2 className="text-lg font-semibold mb-4">Manage Investment Types</h2>
