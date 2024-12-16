@@ -14,7 +14,7 @@ serve(async (req) => {
 
   try {
     const { image } = await req.json()
-    console.log("Received request with image data")
+    console.log("Received request with image data length:", image?.length || 0)
     
     if (!image) {
       console.error("No image data received")
@@ -31,8 +31,8 @@ serve(async (req) => {
     }
 
     // Extract the base64 data after the comma
-    const base64Data = image.split(',')[1]
-    if (!base64Data) {
+    const base64Match = image.match(/^data:image\/\w+;base64,(.+)$/)
+    if (!base64Match) {
       console.error("Invalid image format")
       return new Response(
         JSON.stringify({ 
@@ -45,6 +45,9 @@ serve(async (req) => {
         }
       )
     }
+
+    const base64Data = base64Match[1]
+    console.log("Base64 data length:", base64Data.length)
 
     const hfToken = Deno.env.get('HUGGING_FACE_ACCESS_TOKEN')
     if (!hfToken) {
