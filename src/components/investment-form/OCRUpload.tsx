@@ -71,7 +71,7 @@ export const OCRUpload = ({ onExtractedData }: OCRUploadProps) => {
           <Upload className="h-4 w-4" />
           <span>{isProcessing ? "Processing..." : "Upload Investment Document"}</span>
           <input
-            type="text"
+            type="file"
             accept="image/*"
             className="hidden"
             onChange={handleFileUpload}
