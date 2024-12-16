@@ -25,7 +25,8 @@ export const DashboardFilter = ({ selectedMember, onMemberChange }: DashboardFil
         .from('family_members')
         .select('name, relationship')
         .eq('user_id', user.id)
-        .eq('status', 'active');
+        .eq('status', 'active')
+        .order('created_at');
 
       if (error) {
         console.error('Error loading family members:', error);

@@ -70,14 +70,19 @@ export const useInvestmentForm = (investment?: Investment, onSubmit?: (data: Omi
             return Boolean(member.name && member.relationship);
           })
           .sort((a, b) => {
+            // First, prioritize Primary User
             if (a.relationship === 'Primary User') return -1;
             if (b.relationship === 'Primary User') return 1;
-            return 0;
+            // Then sort by relationship type
+            if (a.relationship === 'Spouse') return -1;
+            if (b.relationship === 'Spouse') return 1;
+            // Finally sort alphabetically
+            return a.name.localeCompare(b.name);
           });
 
         console.log("InvestmentForm - Processed family members:", processedMembers);
         setFamilyMembers(processedMembers);
-        setShowMemberSelect(true); // Always show member select if we have data
+        setShowMemberSelect(processedMembers.length > 0);
 
         // Set investment types
         setInvestmentTypes(typesResponse.data as Array<{ name: InvestmentType }>);
