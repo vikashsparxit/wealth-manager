@@ -15,6 +15,7 @@ export const useActivityLog = () => {
       const { data, error } = await supabase
         .from("activity_logs")
         .select("*")
+        .eq('user_id', user.id)
         .order("created_at", { ascending: false });
 
       if (error) {

@@ -69,8 +69,9 @@ serve(async (req) => {
         model: 'microsoft/layoutlmv3-base',
         inputs: {
           image,
-          question: "What is the investment amount, current value and date?"
+          question: "What is the investment amount, current value and date?",
         },
+        wait_for_model: true
       })
 
       console.log("OCR Result:", result)
