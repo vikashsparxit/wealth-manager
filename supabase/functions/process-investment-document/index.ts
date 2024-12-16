@@ -69,7 +69,7 @@ serve(async (req) => {
       const result = await hf.documentQuestionAnswering({
         model: 'microsoft/layoutlmv3-base',
         inputs: {
-          image: image,
+          image: base64Data,
           question: "What are the investment amount, current value, and date in this document?",
         },
       })
@@ -105,6 +105,10 @@ serve(async (req) => {
 
       console.log("Extracted Data:", extractedData)
 
+      if (Object.keys(extractedData).length === 0) {
+        throw new Error("No data could be extracted from the document")
+      }
+
       return new Response(
         JSON.stringify({ 
           success: true, 
@@ -119,7 +123,7 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({ 
           success: false, 
-          error: 'Failed to process document',
+          error: 'Failed to process document. Please ensure the image is clear and contains investment details.',
           details: ocrError.message
         }),
         { 
