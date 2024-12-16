@@ -37,10 +37,10 @@ export const useFamilyMembersManager = () => {
       }
 
       // Count investments per owner
-      const investmentCounts = investments?.reduce((acc: Record<string, number>, inv) => {
-        acc[inv.owner] = (acc[inv.owner] || 0) + 1;
-        return acc;
-      }, {}) || {};
+      const investmentCounts: Record<string, number> = {};
+      investments?.forEach(inv => {
+        investmentCounts[inv.owner] = (investmentCounts[inv.owner] || 0) + 1;
+      });
 
       console.log("Investment counts:", investmentCounts);
 

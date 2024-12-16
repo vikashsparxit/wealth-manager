@@ -1,277 +1,62 @@
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { DialogContent } from "@/components/ui/dialog";
 import { Card } from "@/components/ui/card";
-import { UserPlus, UserMinus, Check, X, Edit2 } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
-
-interface Member {
-  id: string;
-  name: string;
-  status: string;
-  investment_count: number;
-}
+import { AddMemberForm } from "./AddMemberForm";
+import { MembersList } from "./MembersList";
+import { FamilyMembersDialogTitle } from "./FamilyMembersDialogTitle";
+import { useFamilyMembersManager } from "./hooks/useFamilyMembersManager";
+import { Member } from "./types";
+import { FamilyRelationship } from "@/types/investment";
 
 export const FamilyMembersManager = () => {
-  const [newMember, setNewMember] = useState("");
-  const [members, setMembers] = useState<Member[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [editValue, setEditValue] = useState("");
-  const { toast } = useToast();
-  const { user } = useAuth();
-
-  const loadMembers = async () => {
-    try {
-      setLoading(true);
-      if (!user) return;
-
-      const { data: membersWithCounts, error } = await supabase
-        .from('family_members')
-        .select(`
-          id,
-          name,
-          status,
-          investments:investments(count)
-        `)
-        .eq('user_id', user.id)
-        .order('created_at');
-
-      if (error) throw error;
-
-      const formattedMembers = membersWithCounts.map(member => ({
-        id: member.id,
-        name: member.name,
-        status: member.status,
-        investment_count: member.investments?.[0]?.count || 0
-      }));
-
-      console.log("Loaded members with counts:", formattedMembers);
-      setMembers(formattedMembers);
-    } catch (error) {
-      console.error("Error loading family members:", error);
-      toast({
-        title: "Error",
-        description: "Failed to load family members",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (user) {
-      loadMembers();
-    }
-  }, [user]);
-
-  const addMember = async () => {
-    if (!newMember.trim() || !user?.id) return;
-
-    try {
-      setLoading(true);
-      const { error } = await supabase
-        .from("family_members")
-        .insert([{ name: newMember.trim(), user_id: user.id }]);
-
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "Family member added successfully",
-      });
-      
-      setNewMember("");
-      await loadMembers();
-    } catch (error) {
-      console.error("Error adding family member:", error);
-      toast({
-        title: "Error",
-        description: "Failed to add family member",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const updateMember = async (id: string, newName: string) => {
-    try {
-      setLoading(true);
-      const { error } = await supabase
-        .from("family_members")
-        .update({ name: newName.trim() })
-        .eq("id", id)
-        .eq("user_id", user?.id);
-
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "Family member updated successfully",
-      });
-      
-      setEditingId(null);
-      await loadMembers();
-    } catch (error) {
-      console.error("Error updating family member:", error);
-      toast({
-        title: "Error",
-        description: "Failed to update family member",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const toggleMemberStatus = async (member: Member) => {
-    if (member.investment_count > 0 && member.status === 'active') {
-      toast({
-        title: "Cannot Deactivate",
-        description: "This member has active investments. Please remove or reassign them first.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    try {
-      setLoading(true);
-      const newStatus = member.status === "active" ? "inactive" : "active";
-      
-      const { error } = await supabase
-        .from("family_members")
-        .update({ status: newStatus })
-        .eq("id", member.id)
-        .eq("user_id", user?.id);
-
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "Family member status updated successfully",
-      });
-      
-      await loadMembers();
-    } catch (error) {
-      console.error("Error updating family member status:", error);
-      toast({
-        title: "Error",
-        description: "Failed to update family member status",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+  const {
+    state,
+    setState,
+    addMember,
+    updateMember,
+    toggleMemberStatus,
+  } = useFamilyMembersManager();
 
   const startEditing = (member: Member) => {
-    setEditingId(member.id);
-    setEditValue(member.name);
+    setState(prev => ({
+      ...prev,
+      editingId: member.id,
+      editValue: member.name,
+      editRelationship: member.relationship || "Spouse"
+    }));
   };
 
   return (
-    <DialogContent className="sm:max-w-[600px]" onInteractOutside={() => {
-      // Add a small delay before enabling interactions
-      setTimeout(() => {
-        document.body.style.pointerEvents = 'auto';
-      }, 100);
-    }}>
-      <DialogHeader>
-        <DialogTitle>Family Members</DialogTitle>
-      </DialogHeader>
+    <DialogContent className="sm:max-w-[600px] max-h-[85vh] flex flex-col">
+      <FamilyMembersDialogTitle />
       
-      <Card className="p-6">
-        <div className="flex gap-2 mb-4">
-          <Input
-            placeholder="Enter member name"
-            value={newMember}
-            onChange={(e) => setNewMember(e.target.value)}
-            className="max-w-xs"
+      <div className="flex-1 min-h-0">
+        <Card className="p-6 h-full flex flex-col">
+          <AddMemberForm
+            newMember={state.newMember}
+            relationship={state.relationship}
+            loading={state.loading}
+            onAdd={addMember}
+            onMemberChange={(value) => setState(prev => ({ ...prev, newMember: value }))}
+            onRelationshipChange={(value: FamilyRelationship) => setState(prev => ({ ...prev, relationship: value }))}
           />
-          <Button onClick={addMember} disabled={loading || !newMember.trim()}>
-            <UserPlus className="h-4 w-4 mr-2" />
-            Add Member
-          </Button>
-        </div>
 
-        <div className="space-y-2">
-          {members.map((member) => (
-            <div
-              key={member.id}
-              className="flex items-center justify-between p-2 bg-background rounded-lg border"
-            >
-              {editingId === member.id ? (
-                <div className="flex items-center gap-2 flex-1 mr-2">
-                  <Input
-                    value={editValue}
-                    onChange={(e) => setEditValue(e.target.value)}
-                    className="flex-1"
-                    autoFocus
-                  />
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => updateMember(member.id, editValue)}
-                    disabled={!editValue.trim() || editValue === member.name}
-                  >
-                    <Check className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => setEditingId(null)}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-              ) : (
-                <>
-                  <span className="flex-1">
-                    {member.name}
-                    {member.investment_count > 0 && (
-                      <span className="ml-2 text-sm text-muted-foreground">
-                        ({member.investment_count} investments)
-                      </span>
-                    )}
-                  </span>
-                  <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => startEditing(member)}
-                    >
-                      <Edit2 className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant={member.status === "active" ? "destructive" : "default"}
-                      size="sm"
-                      onClick={() => toggleMemberStatus(member)}
-                      disabled={loading}
-                    >
-                      {member.status === "active" ? (
-                        <>
-                          <UserMinus className="h-4 w-4 mr-2" />
-                          Deactivate
-                        </>
-                      ) : (
-                        <>
-                          <Check className="h-4 w-4 mr-2" />
-                          Activate
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                </>
-              )}
-            </div>
-          ))}
-        </div>
-      </Card>
+          <div className="overflow-y-auto flex-1 pr-2">
+            <MembersList
+              members={state.members}
+              editingId={state.editingId}
+              editValue={state.editValue}
+              editRelationship={state.editRelationship}
+              loading={state.loading}
+              onEdit={startEditing}
+              onUpdate={updateMember}
+              onCancelEdit={() => setState(prev => ({ ...prev, editingId: null }))}
+              onToggleStatus={toggleMemberStatus}
+              setEditValue={(value) => setState(prev => ({ ...prev, editValue: value }))}
+              setEditRelationship={(value: FamilyRelationship) => setState(prev => ({ ...prev, editRelationship: value }))}
+            />
+          </div>
+        </Card>
+      </div>
     </DialogContent>
   );
 };
