@@ -14,9 +14,10 @@ serve(async (req) => {
 
   try {
     const { image } = await req.json()
+    console.log("Received request with image data length:", image?.length || 0)
     
     if (!image) {
-      console.error("No image data received");
+      console.error("No image data received")
       return new Response(
         JSON.stringify({ 
           success: false,
@@ -31,7 +32,7 @@ serve(async (req) => {
 
     // Validate base64 image format
     if (!image.startsWith('data:image/')) {
-      console.error("Invalid image format");
+      console.error("Invalid image format")
       return new Response(
         JSON.stringify({ 
           success: false,
@@ -46,7 +47,7 @@ serve(async (req) => {
 
     const hfToken = Deno.env.get('HUGGING_FACE_ACCESS_TOKEN')
     if (!hfToken) {
-      console.error("Missing Hugging Face access token");
+      console.error("Missing Hugging Face access token")
       return new Response(
         JSON.stringify({ 
           success: false,
@@ -59,11 +60,11 @@ serve(async (req) => {
       )
     }
 
-    console.log("Initializing Hugging Face client");
+    console.log("Initializing Hugging Face client")
     const hf = new HfInference(hfToken)
 
     try {
-      console.log("Processing image with document understanding model");
+      console.log("Processing image with document understanding model")
       const result = await hf.documentQuestionAnswering({
         model: 'microsoft/layoutlmv3-base',
         inputs: {
@@ -121,7 +122,8 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({ 
           success: false, 
-          error: 'Failed to process document. Please ensure the image is clear and contains investment details.' 
+          error: 'Failed to process document. Please ensure the image is clear and contains investment details.',
+          details: ocrError.message
         }),
         { 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -134,7 +136,8 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: error.message || 'Failed to process document' 
+        error: 'Failed to process document. Please try again.',
+        details: error.message
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
