@@ -102,19 +102,17 @@ function AppRoutes() {
 
 function App() {
   return (
-    <React.StrictMode>
-      <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <div className="min-h-screen flex flex-col">
-            <Router>
-              <AppRoutes />
-            </Router>
-            <Footer />
-            <Toaster />
-          </div>
-        </AuthProvider>
-      </QueryClientProvider>
-    </React.StrictMode>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <div className="min-h-screen flex flex-col">
+          <Router>
+            <AppRoutes />
+          </Router>
+          <Footer />
+          <Toaster />
+        </div>
+      </AuthProvider>
+    </QueryClientProvider>
   );
 }
 
