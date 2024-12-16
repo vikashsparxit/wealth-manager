@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
-import { AddTypeForm } from "./AddTypeForm";
-import { TypesList } from "./TypesList";
-import { useInvestmentTypes } from "./useInvestmentTypes";
+import { AddTypeForm } from "@/components/settings/investment-types/AddTypeForm";
+import { TypesList } from "@/components/settings/investment-types/TypesList";
+import { useInvestmentTypes } from "@/components/settings/investment-types/useInvestmentTypes";
 
 export const InvestmentTypesManager = () => {
   const {
