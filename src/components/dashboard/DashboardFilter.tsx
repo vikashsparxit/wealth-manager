@@ -15,36 +15,46 @@ export const DashboardFilter = ({ selectedMember, onMemberChange }: DashboardFil
     relationship?: FamilyRelationship;
   }>>([]);
   const { user } = useAuth();
+  const [primaryUserName, setPrimaryUserName] = useState<string>("");
 
   useEffect(() => {
-    const loadFamilyMembers = async () => {
+    const loadData = async () => {
       if (!user) return;
       
-      console.log("DashboardFilter - Loading family members...");
-      const { data, error } = await supabase
-        .from('family_members')
-        .select('name, relationship')
-        .eq('user_id', user.id)
-        .eq('status', 'active')
-        .order('created_at');
+      const [membersResponse, profileResponse] = await Promise.all([
+        supabase
+          .from('family_members')
+          .select('name, relationship')
+          .eq('user_id', user.id)
+          .eq('status', 'active')
+          .order('created_at'),
+        supabase
+          .from('profiles')
+          .select('full_name')
+          .eq('id', user.id)
+          .single()
+      ]);
 
-      if (error) {
-        console.error('Error loading family members:', error);
+      if (membersResponse.error) {
+        console.error('Error loading family members:', membersResponse.error);
         return;
       }
 
-      console.log("DashboardFilter - Raw family members:", data);
+      if (profileResponse.error) {
+        console.error('Error loading profile:', profileResponse.error);
+      } else if (profileResponse.data?.full_name) {
+        setPrimaryUserName(profileResponse.data.full_name);
+      }
+
+      console.log("DashboardFilter - Raw family members:", membersResponse.data);
       
-      // Filter and sort family members
-      const processedMembers = data
-        .filter((item): item is { name: FamilyMember; relationship: FamilyRelationship } => {
-          return Boolean(item.name && item.relationship);
+      const processedMembers = membersResponse.data
+        .filter((member): member is { name: FamilyMember; relationship: FamilyRelationship } => {
+          return Boolean(member.name && member.relationship);
         })
         .sort((a, b) => {
-          // First, prioritize Primary User
           if (a.relationship === 'Primary User') return -1;
           if (b.relationship === 'Primary User') return 1;
-          // Then sort alphabetically
           return a.name.localeCompare(b.name);
         });
 
@@ -52,12 +62,12 @@ export const DashboardFilter = ({ selectedMember, onMemberChange }: DashboardFil
       setFamilyMembers(processedMembers);
     };
 
-    loadFamilyMembers();
+    loadData();
   }, [user]);
 
   const getDisplayName = (member: { name: string; relationship?: string }) => {
     if (member.name === "Myself" && member.relationship === "Primary User") {
-      return "Myself (Primary)";
+      return `${primaryUserName || "Myself"} (Primary)`;
     }
     if (member.relationship) {
       return `${member.name} (${member.relationship})`;

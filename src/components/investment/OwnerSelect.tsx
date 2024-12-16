@@ -6,6 +6,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { useEffect, useState } from "react";
 
 interface Props {
   value: FamilyMember | "";
@@ -17,9 +20,35 @@ interface Props {
 }
 
 export const OwnerSelect = ({ value, owners, onChange }: Props) => {
+  const { user } = useAuth();
+  const [primaryUserName, setPrimaryUserName] = useState<string>("");
+
+  useEffect(() => {
+    const loadPrimaryUserName = async () => {
+      if (!user) return;
+      
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('full_name')
+        .eq('id', user.id)
+        .single();
+
+      if (error) {
+        console.error('Error loading primary user name:', error);
+        return;
+      }
+
+      if (data?.full_name) {
+        setPrimaryUserName(data.full_name);
+      }
+    };
+
+    loadPrimaryUserName();
+  }, [user]);
+
   const getDisplayName = (member: { name: FamilyMember; relationship?: FamilyRelationship }) => {
     if (member.name === "Myself" && member.relationship === "Primary User") {
-      return "Myself (Primary)";
+      return `${primaryUserName || "Myself"} (Primary)`;
     }
     if (member.relationship) {
       return `${member.name} (${member.relationship})`;
@@ -29,10 +58,8 @@ export const OwnerSelect = ({ value, owners, onChange }: Props) => {
 
   // Sort owners to ensure primary user comes first
   const sortedOwners = [...owners].sort((a, b) => {
-    // First, prioritize Primary User
     if (a.relationship === "Primary User") return -1;
     if (b.relationship === "Primary User") return 1;
-    // Then sort alphabetically
     return a.name.localeCompare(b.name);
   });
 

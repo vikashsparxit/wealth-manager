@@ -3,6 +3,9 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { UserPlus } from "lucide-react";
 import { FamilyRelationship } from "@/types/investment";
+import { useEffect, useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
 interface LiquidAssetFormProps {
   amount: string;
@@ -26,9 +29,35 @@ export const LiquidAssetForm = ({
   onOwnerChange,
   onSave,
 }: LiquidAssetFormProps) => {
+  const { user } = useAuth();
+  const [primaryUserName, setPrimaryUserName] = useState<string>("");
+
+  useEffect(() => {
+    const loadPrimaryUserName = async () => {
+      if (!user) return;
+      
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('full_name')
+        .eq('id', user.id)
+        .single();
+
+      if (error) {
+        console.error('Error loading primary user name:', error);
+        return;
+      }
+
+      if (data?.full_name) {
+        setPrimaryUserName(data.full_name);
+      }
+    };
+
+    loadPrimaryUserName();
+  }, [user]);
+
   const getDisplayName = (member: { name: string; relationship?: string }) => {
     if (member.name === "Myself" && member.relationship === "Primary User") {
-      return "Myself (Primary)";
+      return `${primaryUserName || "Myself"} (Primary)`;
     }
     if (member.relationship) {
       return `${member.name} (${member.relationship})`;
@@ -42,10 +71,6 @@ export const LiquidAssetForm = ({
     if (b.relationship === "Primary User") return 1;
     return a.name.localeCompare(b.name);
   });
-
-  console.log("LiquidAssetForm - Sorted members:", sortedMembers);
-  console.log("LiquidAssetForm - Selected member:", selectedMember);
-  console.log("LiquidAssetForm - Current owner:", owner);
 
   return (
     <div className="grid gap-4 py-4">
