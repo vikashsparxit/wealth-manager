@@ -1,27 +1,21 @@
-import { useState, useEffect } from "react";
-import { useToast } from "@/components/ui/use-toast";
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { InvestmentType } from "./types";
+import { useToast } from "@/hooks/use-toast";
 
 export const useInvestmentTypes = () => {
-  const [types, setTypes] = useState<InvestmentType[]>([]);
+  const [newType, setNewType] = useState("");
   const [loading, setLoading] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
-  const [newType, setNewType] = useState("");
   const { toast } = useToast();
   const { user } = useAuth();
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    if (user) {
-      loadTypes();
-    }
-  }, [user]);
-
-  const loadTypes = async () => {
-    try {
-      setLoading(true);
+  const { data: types = [] } = useQuery({
+    queryKey: ["investment-types", user?.id],
+    queryFn: async () => {
       const { data, error } = await supabase
         .from("investment_types")
         .select("*")
@@ -29,18 +23,10 @@ export const useInvestmentTypes = () => {
         .order('name');
 
       if (error) throw error;
-      setTypes(data || []);
-    } catch (error) {
-      console.error("Error loading investment types:", error);
-      toast({
-        title: "Error",
-        description: "Failed to load investment types",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+      return data || [];
+    },
+    enabled: !!user?.id,
+  });
 
   const addType = async () => {
     if (!newType.trim() || !user?.id) return;
@@ -59,7 +45,7 @@ export const useInvestmentTypes = () => {
       });
       
       setNewType("");
-      await loadTypes();
+      queryClient.invalidateQueries({ queryKey: ["investment-types"] });
     } catch (error) {
       console.error("Error adding investment type:", error);
       toast({
@@ -89,7 +75,7 @@ export const useInvestmentTypes = () => {
       });
       
       setEditingId(null);
-      await loadTypes();
+      queryClient.invalidateQueries({ queryKey: ["investment-types"] });
     } catch (error) {
       console.error("Error updating investment type:", error);
       toast({
@@ -120,7 +106,7 @@ export const useInvestmentTypes = () => {
         description: "Investment type status updated successfully",
       });
       
-      await loadTypes();
+      queryClient.invalidateQueries({ queryKey: ["investment-types"] });
     } catch (error) {
       console.error("Error updating investment type status:", error);
       toast({
