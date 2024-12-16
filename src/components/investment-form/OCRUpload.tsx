@@ -69,17 +69,19 @@ export const OCRUpload = ({ onExtractedData }: OCRUploadProps) => {
   return (
     <div className="flex items-center gap-2 mb-4">
       <TooltipProvider>
-        <Tooltip>
+        <Tooltip delayDuration={300}>
           <TooltipTrigger asChild>
             <Button
               variant="outline"
-              className="w-full"
+              className="w-full relative group"
               disabled={isProcessing}
             >
               <label className="flex items-center justify-center gap-2 cursor-pointer w-full">
                 <Upload className="h-4 w-4" />
-                <span>{isProcessing ? "Processing..." : "Upload Investment Document"}</span>
-                <Sparkles className="h-4 w-4 text-blue-500" />
+                <span className="flex-1">
+                  {isProcessing ? "Processing..." : "Upload Investment Document"}
+                </span>
+                <Sparkles className="h-4 w-4 text-blue-500 transition-transform group-hover:scale-110" />
                 <input
                   type="file"
                   accept="image/*"
@@ -90,7 +92,10 @@ export const OCRUpload = ({ onExtractedData }: OCRUploadProps) => {
               </label>
             </Button>
           </TooltipTrigger>
-          <TooltipContent>
+          <TooltipContent 
+            side="top" 
+            className="bg-white text-slate-900 border border-slate-200 shadow-lg p-3 max-w-[250px] text-sm"
+          >
             <p>Upload an investment document and let AI extract the details automatically</p>
           </TooltipContent>
         </Tooltip>
