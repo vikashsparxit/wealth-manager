@@ -303,6 +303,7 @@ export type Database = {
         | "NPS"
         | "PPF"
         | "Startups"
+        | "Sukanya Samriddhi Yojana (SSY)"
       investment_type_status: "active" | "inactive"
       share_status: "active" | "revoked"
     }

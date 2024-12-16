@@ -3,26 +3,29 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Navigate, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { LogIn } from "lucide-react";
+import { useSettings } from "@/hooks/useSettings";
+import { useToast } from "@/components/ui/use-toast";
 
 const Login = () => {
   const { user, isLoading, signInWithGoogle } = useAuth();
+  const { settings, isLoading: settingsLoading } = useSettings();
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   useEffect(() => {
     console.log("Login component - Auth state:", { user, isLoading });
-    if (user) {
-      console.log("User is authenticated, redirecting to dashboard");
-      navigate("/", { replace: true });
-    }
-  }, [user, navigate]);
+    console.log("Login component - Settings state:", { settings, settingsLoading });
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div>Loading...</div>
-      </div>
-    );
-  }
+    if (user) {
+      if (!settings && !settingsLoading) {
+        console.log("User authenticated but no settings, redirecting to setup");
+        navigate("/setup", { replace: true });
+      } else if (settings) {
+        console.log("User authenticated with settings, redirecting to dashboard");
+        navigate("/", { replace: true });
+      }
+    }
+  }, [user, settings, settingsLoading, navigate]);
 
   const handleSignIn = async () => {
     try {
@@ -30,8 +33,25 @@ const Login = () => {
       await signInWithGoogle();
     } catch (error) {
       console.error("Sign-in error:", error);
+      toast({
+        variant: "destructive",
+        title: "Authentication Error",
+        description: "Failed to sign in. Please try again.",
+      });
     }
   };
+
+  if (isLoading || settingsLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div>Loading...</div>
+      </div>
+    );
+  }
+
+  if (user) {
+    return null; // Let the useEffect handle redirection
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">
