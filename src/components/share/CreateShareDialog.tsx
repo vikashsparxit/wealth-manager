@@ -60,11 +60,14 @@ export function CreateShareDialog({ open, onOpenChange }: CreateShareDialogProps
         return;
       }
 
-      const shareToken = await generateSecureToken();
+      // Generate a longer token for better security
+      const shareToken = await generateSecureToken(64); // Increased from default 32
       const passwordHash = await hashPassword(password);
 
       const expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + parseInt(expiration));
+
+      console.log("Creating share with token:", shareToken);
 
       const { data, error } = await supabase
         .from('shared_dashboards')
@@ -73,6 +76,7 @@ export function CreateShareDialog({ open, onOpenChange }: CreateShareDialogProps
           share_token: shareToken,
           password_hash: passwordHash,
           expires_at: expiresAt.toISOString(),
+          status: 'active'
         })
         .select()
         .single();
@@ -85,6 +89,8 @@ export function CreateShareDialog({ open, onOpenChange }: CreateShareDialogProps
       }
 
       const shareableLink = `${window.location.origin}/share/${shareToken}`;
+      console.log("Generated shareable link:", shareableLink);
+      
       await navigator.clipboard.writeText(shareableLink);
 
       toast({
@@ -142,7 +148,7 @@ export function CreateShareDialog({ open, onOpenChange }: CreateShareDialogProps
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select expiration" />
                 </SelectTrigger>
-                <SelectContent className="bg-[#F1F0FB]">
+                <SelectContent>
                   <SelectItem value="1">1 Day</SelectItem>
                   <SelectItem value="5">5 Days</SelectItem>
                   <SelectItem value="30">30 Days</SelectItem>

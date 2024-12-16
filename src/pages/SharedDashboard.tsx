@@ -18,6 +18,7 @@ const SharedDashboard = () => {
   const [error, setError] = useState<string | null>(null);
 
   if (!shareToken) {
+    console.log("No share token provided");
     return <Navigate to="/login" replace />;
   }
 
@@ -49,7 +50,7 @@ const SharedDashboard = () => {
       }
 
       const dashboard = dashboards[0];
-      console.log("Found dashboard:", dashboard);
+      console.log("Found dashboard:", { id: dashboard.id, expires_at: dashboard.expires_at });
 
       // Check if the link has expired
       if (dashboard.expires_at && new Date(dashboard.expires_at) < new Date()) {
