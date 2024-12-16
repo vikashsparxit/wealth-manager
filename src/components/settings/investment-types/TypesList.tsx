@@ -14,7 +14,7 @@ interface TypesListProps {
   editingId: string | null;
   editValue: string;
   loading: boolean;
-  onEdit: (type: Type) => void;
+  onEdit: (id: string, name: string) => void;
   onUpdate: (id: string, newName: string) => void;
   onCancelEdit: () => void;
   onToggleStatus: (id: string, status: string) => void;
@@ -66,14 +66,14 @@ export const TypesList = ({
               </div>
             ) : (
               <>
-                <span className="flex-1 cursor-pointer" onClick={() => onEdit(type)}>
+                <span className="flex-1 cursor-pointer" onClick={() => onEdit(type.id, type.name)}>
                   {type.name}
                 </span>
                 <div className="flex gap-2">
                   <Button
                     size="sm"
                     variant="ghost"
-                    onClick={() => onEdit(type)}
+                    onClick={() => onEdit(type.id, type.name)}
                   >
                     <Edit2 className="h-4 w-4" />
                   </Button>
