@@ -53,16 +53,6 @@ export default function Setup() {
         .update({ full_name: fullName.trim() })
         .eq('id', user.id);
 
-      // Update the primary family member's name and relationship
-      await supabase
-        .from('family_members')
-        .update({ 
-          name: 'Myself',
-          relationship: 'Primary User'
-        })
-        .eq('user_id', user.id)
-        .eq('name', 'Myself');
-
       await initializeSettings({
         dashboard_name: dashboardName || "My Wealth Dashboard",
         base_currency: currency
@@ -159,4 +149,4 @@ export default function Setup() {
       </Card>
     </div>
   );
-}
+};
