@@ -15,7 +15,7 @@ export const LiquidAssetForm = ({
 }: LiquidAssetFormProps) => {
   const getDisplayName = (member: { name: string; relationship?: string }) => {
     if (member.relationship === "Primary User") {
-      return "Myself (Primary)";
+      return `${member.name} (Primary)`;
     }
     return `${member.name}${member.relationship ? ` (${member.relationship})` : ''}`;
   };
@@ -24,7 +24,7 @@ export const LiquidAssetForm = ({
   const sortedMembers = [...familyMembers].sort((a, b) => {
     if (a.relationship === "Primary User") return -1;
     if (b.relationship === "Primary User") return 1;
-    return 0;
+    return a.name.localeCompare(b.name);
   });
 
   return (

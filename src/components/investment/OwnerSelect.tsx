@@ -32,10 +32,7 @@ export const OwnerSelect = ({ value, owners, onChange }: Props) => {
     // First, prioritize Primary User
     if (a.relationship === 'Primary User') return -1;
     if (b.relationship === 'Primary User') return 1;
-    // Then sort by relationship type
-    if (a.relationship === 'Spouse') return -1;
-    if (b.relationship === 'Spouse') return 1;
-    // Finally sort alphabetically
+    // Then sort alphabetically
     return a.name.localeCompare(b.name);
   });
 
