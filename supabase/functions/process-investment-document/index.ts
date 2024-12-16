@@ -7,17 +7,40 @@ const corsHeaders = {
 }
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
   }
 
   try {
     const { image } = await req.json()
+    
+    if (!image) {
+      console.error("No image data received");
+      return new Response(
+        JSON.stringify({ error: 'No image data provided' }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400 
+        }
+      )
+    }
 
-    // Initialize Hugging Face client
+    console.log("Initializing Hugging Face client");
     const hf = new HfInference(Deno.env.get('HUGGING_FACE_ACCESS_TOKEN'))
 
-    // Process the image with Microsoft's document understanding model
+    if (!Deno.env.get('HUGGING_FACE_ACCESS_TOKEN')) {
+      console.error("Missing Hugging Face access token");
+      return new Response(
+        JSON.stringify({ error: 'Configuration error' }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 500 
+        }
+      )
+    }
+
+    console.log("Processing image with document understanding model");
     const result = await hf.documentQuestionAnswering({
       model: 'microsoft/layoutlmv3-base',
       inputs: {
@@ -33,7 +56,6 @@ serve(async (req) => {
     const datePattern = /(\d{1,2}[-/]\d{1,2}[-/]\d{2,4})/
     const amounts = result.answer.match(amountPattern) || []
     
-    // Try to identify invested amount and current value
     const extractedData: {
       investedAmount?: string;
       currentValue?: string;
@@ -41,7 +63,6 @@ serve(async (req) => {
     } = {}
 
     if (amounts.length >= 2) {
-      // Assume first amount is invested amount and second is current value
       extractedData.investedAmount = amounts[0].replace(/[^\d.]/g, '')
       extractedData.currentValue = amounts[1].replace(/[^\d.]/g, '')
     } else if (amounts.length === 1) {
@@ -69,7 +90,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: 'Failed to process document' 
+        error: error.message || 'Failed to process document' 
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

@@ -19,47 +19,55 @@ export const DashboardFilter = ({ selectedMember, onMemberChange }: DashboardFil
 
   useEffect(() => {
     const loadData = async () => {
-      if (!user) return;
-      
-      const [membersResponse, profileResponse] = await Promise.all([
-        supabase
-          .from('family_members')
-          .select('name, relationship')
-          .eq('user_id', user.id)
-          .eq('status', 'active')
-          .order('created_at'),
-        supabase
-          .from('profiles')
-          .select('full_name')
-          .eq('id', user.id)
-          .single()
-      ]);
-
-      if (membersResponse.error) {
-        console.error('Error loading family members:', membersResponse.error);
+      if (!user) {
+        console.log("DashboardFilter - No user found, skipping data load");
         return;
       }
-
-      if (profileResponse.error) {
-        console.error('Error loading profile:', profileResponse.error);
-      } else if (profileResponse.data?.full_name) {
-        setPrimaryUserName(profileResponse.data.full_name);
-      }
-
-      console.log("DashboardFilter - Raw family members:", membersResponse.data);
       
-      const processedMembers = membersResponse.data
-        .filter((member): member is { name: FamilyMember; relationship: FamilyRelationship } => {
-          return Boolean(member.name && member.relationship);
-        })
-        .sort((a, b) => {
-          if (a.relationship === 'Primary User') return -1;
-          if (b.relationship === 'Primary User') return 1;
-          return a.name.localeCompare(b.name);
-        });
+      try {
+        console.log("DashboardFilter - Loading data for user:", user.id);
+        const [membersResponse, profileResponse] = await Promise.all([
+          supabase
+            .from('family_members')
+            .select('name, relationship')
+            .eq('user_id', user.id)
+            .eq('status', 'active')
+            .order('created_at'),
+          supabase
+            .from('profiles')
+            .select('full_name')
+            .eq('id', user.id)
+            .single()
+        ]);
 
-      console.log("DashboardFilter - Processed and sorted family members:", processedMembers);
-      setFamilyMembers(processedMembers);
+        if (membersResponse.error) {
+          console.error('Error loading family members:', membersResponse.error);
+          return;
+        }
+
+        if (profileResponse.error) {
+          console.error('Error loading profile:', profileResponse.error);
+        } else if (profileResponse.data?.full_name) {
+          setPrimaryUserName(profileResponse.data.full_name);
+        }
+
+        console.log("DashboardFilter - Raw family members:", membersResponse.data);
+        
+        const processedMembers = membersResponse.data
+          .filter((member): member is { name: FamilyMember; relationship: FamilyRelationship } => {
+            return Boolean(member.name && member.relationship);
+          })
+          .sort((a, b) => {
+            if (a.relationship === 'Primary User') return -1;
+            if (b.relationship === 'Primary User') return 1;
+            return a.name.localeCompare(b.name);
+          });
+
+        console.log("DashboardFilter - Processed and sorted family members:", processedMembers);
+        setFamilyMembers(processedMembers);
+      } catch (error) {
+        console.error("DashboardFilter - Error loading data:", error);
+      }
     };
 
     loadData();

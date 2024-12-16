@@ -17,6 +17,7 @@ export const OCRUpload = ({ onExtractedData }: OCRUploadProps) => {
   const { toast } = useToast();
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    event.stopPropagation();
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -40,6 +41,10 @@ export const OCRUpload = ({ onExtractedData }: OCRUploadProps) => {
           if (error) {
             console.error("OCR function error:", error);
             throw error;
+          }
+
+          if (!data?.success) {
+            throw new Error(data?.error || "Failed to process document");
           }
 
           console.log("OCR Response:", data);
@@ -86,17 +91,23 @@ export const OCRUpload = ({ onExtractedData }: OCRUploadProps) => {
     }
   };
 
+  const handleButtonClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const fileInput = document.getElementById('file-upload') as HTMLInputElement;
+    if (fileInput) {
+      fileInput.click();
+    }
+  };
+
   return (
     <div className="space-y-2">
       <Button
         variant="outline"
         className="w-full relative group"
         disabled={isProcessing}
-        onClick={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          document.getElementById('file-upload')?.click();
-        }}
+        onClick={handleButtonClick}
+        type="button"
       >
         <div className="flex items-center justify-center gap-2 w-full">
           <Upload className="h-4 w-4" />
@@ -105,19 +116,21 @@ export const OCRUpload = ({ onExtractedData }: OCRUploadProps) => {
           </span>
           <Sparkles className="h-4 w-4 text-blue-500 transition-transform group-hover:scale-110" />
         </div>
-        <input
-          id="file-upload"
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={handleFileUpload}
-          disabled={isProcessing}
-          onClick={(e) => e.stopPropagation()}
-        />
       </Button>
+      
       <p className="text-xs text-muted-foreground text-center">
         Upload an investment document and let AI extract the details automatically
       </p>
+      
+      <input
+        id="file-upload"
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={handleFileUpload}
+        disabled={isProcessing}
+        onClick={(e) => e.stopPropagation()}
+      />
     </div>
   );
 };
