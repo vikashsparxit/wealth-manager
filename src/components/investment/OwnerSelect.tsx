@@ -18,8 +18,8 @@ interface Props {
 
 export const OwnerSelect = ({ value, owners, onChange }: Props) => {
   const getDisplayName = (member: { name: FamilyMember; relationship?: FamilyRelationship }) => {
-    if (member.relationship === 'Primary User') {
-      return `${member.name} (Primary)`;
+    if (member.name === "Myself" && member.relationship === "Primary User") {
+      return "Myself (Primary)";
     }
     if (member.relationship) {
       return `${member.name} (${member.relationship})`;
@@ -30,8 +30,8 @@ export const OwnerSelect = ({ value, owners, onChange }: Props) => {
   // Sort owners to ensure primary user comes first
   const sortedOwners = [...owners].sort((a, b) => {
     // First, prioritize Primary User
-    if (a.relationship === 'Primary User') return -1;
-    if (b.relationship === 'Primary User') return 1;
+    if (a.relationship === "Primary User") return -1;
+    if (b.relationship === "Primary User") return 1;
     // Then sort alphabetically
     return a.name.localeCompare(b.name);
   });

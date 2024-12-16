@@ -56,8 +56,8 @@ export const DashboardFilter = ({ selectedMember, onMemberChange }: DashboardFil
   }, [user]);
 
   const getDisplayName = (member: { name: string; relationship?: string }) => {
-    if (member.relationship === 'Primary User') {
-      return `${member.name} (Primary)`;
+    if (member.name === "Myself" && member.relationship === "Primary User") {
+      return "Myself (Primary)";
     }
     if (member.relationship) {
       return `${member.name} (${member.relationship})`;

@@ -14,8 +14,8 @@ export const LiquidAssetForm = ({
   onSave,
 }: LiquidAssetFormProps) => {
   const getDisplayName = (member: { name: string; relationship?: string }) => {
-    if (member.relationship === "Primary User") {
-      return `${member.name} (Primary)`;
+    if (member.name === "Myself" && member.relationship === "Primary User") {
+      return "Myself (Primary)";
     }
     return `${member.name}${member.relationship ? ` (${member.relationship})` : ''}`;
   };
