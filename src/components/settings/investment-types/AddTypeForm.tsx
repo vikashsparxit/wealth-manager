@@ -11,7 +11,7 @@ interface AddTypeFormProps {
 
 export const AddTypeForm = ({ newType, loading, onTypeChange, onAdd }: AddTypeFormProps) => {
   return (
-    <div className="flex gap-2 mb-4">
+    <div className="flex gap-2">
       <Input
         placeholder="Enter investment type"
         value={newType}

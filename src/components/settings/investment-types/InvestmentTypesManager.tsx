@@ -24,15 +24,18 @@ export const InvestmentTypesManager = () => {
   };
 
   return (
-    <div className="flex flex-col h-full">
-      <Card className="p-6 flex flex-col h-full">
+    <div className="flex flex-col h-[600px]">
+      <div className="mb-4">
+        <h2 className="text-lg font-semibold mb-4">Manage Investment Types</h2>
         <AddTypeForm
           newType={newType}
           loading={loading}
           onTypeChange={setNewType}
           onAdd={addType}
         />
-        
+      </div>
+      
+      <Card className="flex-1 p-6 overflow-hidden">
         <TypesList
           types={types}
           editingId={editingId}
