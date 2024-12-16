@@ -4,6 +4,7 @@ import { AmountInput } from "./AmountInput";
 import { DateInput } from "./DateInput";
 import { NotesInput } from "./NotesInput";
 import { FormActions } from "./FormActions";
+import { OCRUpload } from "./OCRUpload";
 import { Investment, InvestmentType, FamilyMember, FamilyRelationship } from "@/types/investment";
 
 interface InvestmentFormContentProps {
@@ -36,11 +37,24 @@ export const InvestmentFormContent = ({
 }: InvestmentFormContentProps) => {
   const today = new Date().toISOString().split("T")[0];
 
+  const handleOCRData = (extractedData: {
+    investedAmount?: string;
+    currentValue?: string;
+    dateOfInvestment?: string;
+  }) => {
+    setFormData({
+      ...formData,
+      ...extractedData,
+    });
+  };
+
   console.log("InvestmentFormContent - Family members:", familyMembers);
   console.log("InvestmentFormContent - Show member select:", showMemberSelect);
 
   return (
     <form onSubmit={onSubmit} className="space-y-4">
+      <OCRUpload onExtractedData={handleOCRData} />
+      
       <InvestmentTypeSelect
         value={formData.type as InvestmentType | ""}
         types={investmentTypes}
