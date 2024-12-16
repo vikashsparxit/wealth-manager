@@ -29,8 +29,13 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     return <Navigate to="/login" replace />;
   }
 
-  // If user exists but no settings or settings are still loading, redirect to setup
-  if (!settings && !settingsLoading) {
+  // If user exists but settings are not loaded yet, wait
+  if (settingsLoading) {
+    return <div>Loading settings...</div>;
+  }
+
+  // If user exists but no settings, redirect to setup
+  if (!settings) {
     console.log("No settings found, redirecting to setup");
     return <Navigate to="/setup" replace />;
   }
@@ -47,7 +52,12 @@ function AppRoutes() {
 
   // If user is authenticated and on login, redirect appropriately
   if (user && window.location.pathname === '/login') {
-    if (!settings && !settingsLoading) {
+    // Wait for settings to load before deciding where to redirect
+    if (settingsLoading) {
+      return <div>Loading settings...</div>;
+    }
+    
+    if (!settings) {
       console.log("Authenticated user without settings, redirecting to setup");
       return <Navigate to="/setup" replace />;
     }
@@ -60,7 +70,11 @@ function AppRoutes() {
       <Route path="/login" element={<Login />} />
       <Route path="/setup" element={
         user ? (
-          settings ? <Navigate to="/" replace /> : <Setup />
+          settingsLoading ? (
+            <div>Loading settings...</div>
+          ) : (
+            settings ? <Navigate to="/" replace /> : <Setup />
+          )
         ) : (
           <Navigate to="/login" replace />
         )
