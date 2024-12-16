@@ -25,8 +25,7 @@ export const DashboardFilter = ({ selectedMember, onMemberChange }: DashboardFil
         .from('family_members')
         .select('name, relationship')
         .eq('user_id', user.id)
-        .eq('status', 'active')
-        .order('relationship', { ascending: true }); // Order by relationship to ensure Primary User comes first
+        .eq('status', 'active');
 
       if (error) {
         console.error('Error loading family members:', error);
@@ -41,8 +40,13 @@ export const DashboardFilter = ({ selectedMember, onMemberChange }: DashboardFil
           return Boolean(item.name && item.relationship);
         })
         .sort((a, b) => {
+          // First, prioritize Primary User
           if (a.relationship === 'Primary User') return -1;
           if (b.relationship === 'Primary User') return 1;
+          // Then sort by relationship type
+          if (a.relationship === 'Spouse') return -1;
+          if (b.relationship === 'Spouse') return 1;
+          // Finally sort alphabetically
           return a.name.localeCompare(b.name);
         });
 
@@ -56,6 +60,9 @@ export const DashboardFilter = ({ selectedMember, onMemberChange }: DashboardFil
   const getDisplayName = (member: { name: FamilyMember; relationship?: FamilyRelationship }) => {
     if (member.relationship === 'Primary User') {
       return `${member.name} (Primary)`;
+    }
+    if (member.relationship) {
+      return `${member.name} (${member.relationship})`;
     }
     return member.name;
   };

@@ -21,13 +21,21 @@ export const OwnerSelect = ({ value, owners, onChange }: Props) => {
     if (member.relationship === 'Primary User') {
       return `${member.name} (Primary)`;
     }
+    if (member.relationship) {
+      return `${member.name} (${member.relationship})`;
+    }
     return member.name;
   };
 
-  // Sort owners to ensure primary user comes first
+  // Sort owners to ensure primary user comes first, then by relationship and name
   const sortedOwners = [...owners].sort((a, b) => {
+    // First, prioritize Primary User
     if (a.relationship === 'Primary User') return -1;
     if (b.relationship === 'Primary User') return 1;
+    // Then sort by relationship type
+    if (a.relationship === 'Spouse') return -1;
+    if (b.relationship === 'Spouse') return 1;
+    // Finally sort alphabetically
     return a.name.localeCompare(b.name);
   });
 
