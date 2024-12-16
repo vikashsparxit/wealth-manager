@@ -89,7 +89,7 @@ export const DashboardFilter = ({ selectedMember, onMemberChange }: DashboardFil
         <SelectContent className="bg-background border shadow-lg">
           <SelectItem 
             value="Wealth Combined"
-            className="cursor-pointer hover:bg-accent focus:bg-accent"
+            className="cursor-pointer hover:bg-accent/50 focus:bg-accent/50"
           >
             Wealth Combined
           </SelectItem>
@@ -97,7 +97,7 @@ export const DashboardFilter = ({ selectedMember, onMemberChange }: DashboardFil
             <SelectItem 
               key={member.name} 
               value={member.name}
-              className="cursor-pointer hover:bg-accent focus:bg-accent"
+              className="cursor-pointer hover:bg-accent/50 focus:bg-accent/50"
             >
               {getDisplayName(member)}
             </SelectItem>

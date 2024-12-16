@@ -87,7 +87,7 @@ export const LiquidAssetForm = ({
             value={owner} 
             onValueChange={onOwnerChange}
           >
-            <SelectTrigger className="w-[200px]">
+            <SelectTrigger className="w-[200px] bg-background">
               <SelectValue placeholder="Select owner" />
             </SelectTrigger>
             <SelectContent className="bg-background border shadow-lg">
@@ -95,7 +95,7 @@ export const LiquidAssetForm = ({
                 <SelectItem 
                   key={member.name} 
                   value={member.name}
-                  className="cursor-pointer py-2 px-4 hover:bg-accent rounded-md"
+                  className="cursor-pointer py-2 px-4 hover:bg-accent/50 rounded-md"
                 >
                   {getDisplayName(member)}
                 </SelectItem>
