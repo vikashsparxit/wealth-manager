@@ -7,6 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { format } from "date-fns";
 import { Loader2, Trash2, Copy, Key } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface ManageSharesDialogProps {
   open: boolean;
@@ -20,7 +21,7 @@ interface SharedDashboard {
   expires_at: string | null;
   status: 'active' | 'revoked';
   password_hash: string;
-  password?: string; // Add this to store the plain password temporarily
+  password?: string;
 }
 
 export function ManageSharesDialog({ open, onOpenChange }: ManageSharesDialogProps) {
@@ -39,7 +40,6 @@ export function ManageSharesDialog({ open, onOpenChange }: ManageSharesDialogPro
 
       if (error) throw error;
       
-      // Get the passwords from localStorage if available
       const sharesWithPasswords = (data as SharedDashboard[]).map(share => ({
         ...share,
         password: localStorage.getItem(`share_password_${share.id}`)
@@ -60,7 +60,6 @@ export function ManageSharesDialog({ open, onOpenChange }: ManageSharesDialogPro
 
       if (error) throw error;
 
-      // Remove password from localStorage when revoking
       localStorage.removeItem(`share_password_${shareId}`);
 
       toast({
@@ -121,78 +120,80 @@ export function ManageSharesDialog({ open, onOpenChange }: ManageSharesDialogPro
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[600px] h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>Manage Shared Links</DialogTitle>
         </DialogHeader>
         
-        <div className="space-y-4">
-          {isLoading ? (
-            <div className="flex justify-center py-8">
-              <Loader2 className="h-6 w-6 animate-spin" />
-            </div>
-          ) : !shares?.length ? (
-            <p className="text-center text-muted-foreground py-8">
-              No shared dashboard links found.
-            </p>
-          ) : (
-            <div className="space-y-4">
-              {shares.map((share) => (
-                <div
-                  key={share.id}
-                  className="flex items-center justify-between p-4 border rounded-lg"
-                >
-                  <div className="space-y-1">
-                    <p className="font-medium">
-                      Created: {format(new Date(share.created_at), 'PPp')}
-                    </p>
-                    {share.expires_at && (
-                      <p className="text-sm text-muted-foreground">
-                        Expires: {format(new Date(share.expires_at), 'PPp')}
+        <ScrollArea className="flex-1 px-1">
+          <div className="space-y-4">
+            {isLoading ? (
+              <div className="flex justify-center py-8">
+                <Loader2 className="h-6 w-6 animate-spin" />
+              </div>
+            ) : !shares?.length ? (
+              <p className="text-center text-muted-foreground py-8">
+                No shared dashboard links found.
+              </p>
+            ) : (
+              <div className="space-y-4">
+                {shares.map((share) => (
+                  <div
+                    key={share.id}
+                    className="flex items-center justify-between p-4 border rounded-lg"
+                  >
+                    <div className="space-y-1">
+                      <p className="font-medium">
+                        Created: {format(new Date(share.created_at), 'PPp')}
                       </p>
-                    )}
-                    <p className={`text-sm ${share.status === 'revoked' ? 'text-destructive' : 'text-muted-foreground'}`}>
-                      Status: {share.status}
-                    </p>
+                      {share.expires_at && (
+                        <p className="text-sm text-muted-foreground">
+                          Expires: {format(new Date(share.expires_at), 'PPp')}
+                        </p>
+                      )}
+                      <p className={`text-sm ${share.status === 'revoked' ? 'text-destructive' : 'text-muted-foreground'}`}>
+                        Status: {share.status}
+                      </p>
+                    </div>
+                    <div className="flex gap-2">
+                      {share.status === 'active' && (
+                        <>
+                          <Button
+                            variant="outline"
+                            onClick={() => copyToClipboard(share, 'link')}
+                            className="flex items-center gap-2"
+                          >
+                            <Copy className="h-4 w-4" />
+                            Copy Link
+                          </Button>
+                          <Button
+                            variant="outline"
+                            onClick={() => copyToClipboard(share, 'password')}
+                            className="flex items-center gap-2"
+                          >
+                            <Key className="h-4 w-4" />
+                            Password
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            onClick={() => handleRevoke(share.id)}
+                            disabled={isRevoking === share.id}
+                          >
+                            {isRevoking === share.id ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <Trash2 className="h-4 w-4" />
+                            )}
+                          </Button>
+                        </>
+                      )}
+                    </div>
                   </div>
-                  <div className="flex gap-2">
-                    {share.status === 'active' && (
-                      <>
-                        <Button
-                          variant="outline"
-                          onClick={() => copyToClipboard(share, 'link')}
-                          className="flex items-center gap-2"
-                        >
-                          <Copy className="h-4 w-4" />
-                          Copy Link
-                        </Button>
-                        <Button
-                          variant="outline"
-                          onClick={() => copyToClipboard(share, 'password')}
-                          className="flex items-center gap-2"
-                        >
-                          <Key className="h-4 w-4" />
-                          Password
-                        </Button>
-                        <Button
-                          variant="destructive"
-                          onClick={() => handleRevoke(share.id)}
-                          disabled={isRevoking === share.id}
-                        >
-                          {isRevoking === share.id ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                          ) : (
-                            <Trash2 className="h-4 w-4" />
-                          )}
-                        </Button>
-                      </>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </ScrollArea>
       </DialogContent>
     </Dialog>
   );

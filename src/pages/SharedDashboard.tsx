@@ -33,9 +33,10 @@ const SharedDashboard = () => {
       // First, check if the dashboard exists and is active
       const { data: dashboards, error: fetchError } = await supabase
         .from("shared_dashboards")
-        .select()
+        .select("*")
         .eq("share_token", shareToken)
-        .eq("status", 'active');
+        .eq("status", 'active')
+        .maybeSingle();
 
       console.log("Initial fetch response:", { dashboards, fetchError });
 
@@ -44,22 +45,21 @@ const SharedDashboard = () => {
         throw new Error("Failed to verify share link");
       }
 
-      if (!dashboards || dashboards.length === 0) {
+      if (!dashboards) {
         console.error("No dashboard found for token:", shareToken);
         throw new Error("Invalid or expired share link");
       }
 
-      const dashboard = dashboards[0];
-      console.log("Found dashboard:", { id: dashboard.id, expires_at: dashboard.expires_at });
+      console.log("Found dashboard:", { id: dashboards.id, expires_at: dashboards.expires_at });
 
       // Check if the link has expired
-      if (dashboard.expires_at && new Date(dashboard.expires_at) < new Date()) {
-        console.log("Share link expired:", dashboard.expires_at);
+      if (dashboards.expires_at && new Date(dashboards.expires_at) < new Date()) {
+        console.log("Share link expired:", dashboards.expires_at);
         throw new Error("This share link has expired");
       }
 
       // Verify the password
-      const isValid = await verifyPassword(password, dashboard.password_hash);
+      const isValid = await verifyPassword(password, dashboards.password_hash);
       console.log("Password verification result:", isValid);
 
       if (!isValid) {
@@ -68,7 +68,7 @@ const SharedDashboard = () => {
 
       // Log the successful access attempt
       await supabase.from("share_access").insert({
-        shared_dashboard_id: dashboard.id,
+        shared_dashboard_id: dashboards.id,
         success: true,
         ip_address: null // We'll implement IP tracking later if needed
       });
