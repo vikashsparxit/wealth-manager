@@ -69,8 +69,9 @@ serve(async (req) => {
         model: 'microsoft/layoutlmv3-base',
         inputs: {
           image,
-          question: "What is the investment amount, current value and date?",
+          question: "Extract the investment amount, current value, and date from this document.",
         },
+        use_cache: false,
         wait_for_model: true
       })
 

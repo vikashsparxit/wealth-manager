@@ -73,18 +73,19 @@ export const OCRUpload = ({ onExtractedData }: OCRUploadProps) => {
             body: { image: base64Image }
           });
 
+          console.log("OCR Response:", { data, error });
+
           if (error) {
             console.error("OCR function error:", error);
-            throw error;
+            throw new Error(error.message || "Failed to process document");
           }
 
           if (!data?.success) {
             throw new Error(data?.error || "Failed to process document");
           }
 
-          console.log("OCR Response:", data);
-
           if (data?.extractedData) {
+            console.log("Successfully extracted data:", data.extractedData);
             onExtractedData(data.extractedData);
             toast({
               title: "Success",
@@ -108,7 +109,7 @@ export const OCRUpload = ({ onExtractedData }: OCRUploadProps) => {
       reader.readAsDataURL(file);
 
     } catch (error) {
-      console.error("Error in file upload:", error);
+      console.error('Error in file upload:', error);
       setIsProcessing(false);
       toast({
         title: "Error",
