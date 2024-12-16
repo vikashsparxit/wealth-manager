@@ -78,17 +78,29 @@ export const DashboardStats = ({
   }, [selectedMember, liquidAssets]);
 
   useEffect(() => {
-    // Calculate individual member summaries
-    const summaries = liquidAssets.map(asset => {
-      const memberInvestments = filteredInvestments.filter(inv => inv.owner === asset.owner);
+    // Get unique members from both investments and liquid assets
+    const uniqueMembers = new Set([
+      ...filteredInvestments.map(inv => inv.owner),
+      ...liquidAssets.map(asset => asset.owner)
+    ]);
+
+    // Calculate summaries for each unique member
+    const summaries = Array.from(uniqueMembers).map(member => {
+      const memberInvestments = filteredInvestments.filter(inv => inv.owner === member);
+      const memberAsset = liquidAssets.find(asset => asset.owner === member);
+      
       const totalInvested = memberInvestments.reduce((sum, inv) => sum + inv.investedAmount, 0);
       const currentValue = memberInvestments.reduce((sum, inv) => sum + inv.currentValue, 0);
-      const liquidAmount = Number(asset.amount);
+      const liquidAmount = memberAsset ? Number(memberAsset.amount) : 0;
       const totalWealth = currentValue + liquidAmount;
-      const growth = totalInvested > 0 ? ((currentValue - totalInvested) / totalInvested) * 100 : 0;
+      
+      // Calculate growth only if there are investments
+      const growth = totalInvested > 0 
+        ? ((currentValue - totalInvested) / totalInvested) * 100 
+        : 0;
 
       return {
-        member: asset.owner,
+        member,
         totalInvested,
         currentValue,
         liquidAssets: liquidAmount,
@@ -97,6 +109,7 @@ export const DashboardStats = ({
       };
     });
 
+    console.log("Updated member summaries:", summaries);
     setMemberSummaries(summaries);
   }, [liquidAssets, filteredInvestments]);
 
