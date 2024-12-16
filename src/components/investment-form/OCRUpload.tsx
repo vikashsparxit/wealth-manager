@@ -1,8 +1,14 @@
 import { useState } from "react";
-import { Upload } from "lucide-react";
+import { Upload, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface OCRUploadProps {
   onExtractedData: (data: {
@@ -62,23 +68,33 @@ export const OCRUpload = ({ onExtractedData }: OCRUploadProps) => {
 
   return (
     <div className="flex items-center gap-2 mb-4">
-      <Button
-        variant="outline"
-        className="w-full"
-        disabled={isProcessing}
-      >
-        <label className="flex items-center justify-center gap-2 cursor-pointer w-full">
-          <Upload className="h-4 w-4" />
-          <span>{isProcessing ? "Processing..." : "Upload Investment Document"}</span>
-          <input
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={handleFileUpload}
-            disabled={isProcessing}
-          />
-        </label>
-      </Button>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="outline"
+              className="w-full"
+              disabled={isProcessing}
+            >
+              <label className="flex items-center justify-center gap-2 cursor-pointer w-full">
+                <Upload className="h-4 w-4" />
+                <span>{isProcessing ? "Processing..." : "Upload Investment Document"}</span>
+                <Sparkles className="h-4 w-4 text-blue-500" />
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleFileUpload}
+                  disabled={isProcessing}
+                />
+              </label>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Upload an investment document and let AI extract the details automatically</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
     </div>
   );
 };
