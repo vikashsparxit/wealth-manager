@@ -1,10 +1,10 @@
 import { DialogContent } from "@/components/ui/dialog";
 import { Card } from "@/components/ui/card";
-import { AddMemberForm } from "./AddMemberForm";
-import { MembersList } from "./MembersList";
-import { FamilyMembersDialogTitle } from "./FamilyMembersDialogTitle";
-import { useFamilyMembersManager } from "./hooks/useFamilyMembersManager";
-import { Member } from "./types";
+import { AddMemberForm } from "./family-members/AddMemberForm";
+import { MembersList } from "./family-members/MembersList";
+import { FamilyMembersDialogTitle } from "./family-members/FamilyMembersDialogTitle";
+import { useFamilyMembersManager } from "./family-members/hooks/useFamilyMembersManager";
+import { Member } from "./family-members/types";
 import { FamilyRelationship } from "@/types/investment";
 
 export const FamilyMembersManager = () => {
