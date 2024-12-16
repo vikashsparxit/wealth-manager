@@ -3,6 +3,7 @@ import { Investment, InvestmentType, FamilyMember, FamilyRelationship } from "@/
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/components/ui/use-toast";
+import { useActivityLogger } from "@/hooks/useActivityLogger";
 
 interface FamilyMemberData {
   name: FamilyMember;
@@ -21,6 +22,7 @@ interface FormData {
 export const useInvestmentForm = (investment?: Investment, onSubmit?: (data: Omit<Investment, "id">) => void) => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { logUserActivity } = useActivityLogger();
   const [investmentTypes, setInvestmentTypes] = useState<Array<{ name: InvestmentType }>>([]);
   const [familyMembers, setFamilyMembers] = useState<FamilyMemberData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -64,30 +66,23 @@ export const useInvestmentForm = (investment?: Investment, onSubmit?: (data: Omi
 
         console.log("InvestmentForm - Raw family members:", membersResponse.data);
         
-        // Filter and sort family members
         const processedMembers = membersResponse.data
           .filter((member): member is { name: FamilyMember; relationship: FamilyRelationship } => {
             return Boolean(member.name && member.relationship);
           })
           .sort((a, b) => {
-            // First, prioritize Primary User
             if (a.relationship === 'Primary User') return -1;
             if (b.relationship === 'Primary User') return 1;
-            // Then sort by relationship type
             if (a.relationship === 'Spouse') return -1;
             if (b.relationship === 'Spouse') return 1;
-            // Finally sort alphabetically
             return a.name.localeCompare(b.name);
           });
 
         console.log("InvestmentForm - Processed family members:", processedMembers);
         setFamilyMembers(processedMembers);
         setShowMemberSelect(processedMembers.length > 0);
-
-        // Set investment types
         setInvestmentTypes(typesResponse.data as Array<{ name: InvestmentType }>);
 
-        // Set default owner for new investments to the primary user
         if (!investment) {
           const primaryUser = processedMembers.find(m => m.relationship === 'Primary User');
           if (primaryUser) {
@@ -113,17 +108,36 @@ export const useInvestmentForm = (investment?: Investment, onSubmit?: (data: Omi
     loadData();
   }, [user, investment]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (onSubmit) {
-      onSubmit({
+      const investmentData = {
         type: formData.type as InvestmentType,
         owner: formData.owner as FamilyMember,
         investedAmount: Number(formData.investedAmount),
         currentValue: Number(formData.currentValue),
         dateOfInvestment: formData.dateOfInvestment,
         notes: formData.notes,
-      });
+      };
+
+      try {
+        await logUserActivity(
+          investment ? "investment_updated" : "investment_created",
+          investment 
+            ? `Updated ${investmentData.type} investment for ${investmentData.owner}`
+            : `Created new ${investmentData.type} investment for ${investmentData.owner}`,
+          {
+            investmentType: investmentData.type,
+            owner: investmentData.owner,
+            investedAmount: investmentData.investedAmount,
+            currentValue: investmentData.currentValue,
+          }
+        );
+      } catch (error) {
+        console.error("Failed to log investment activity:", error);
+      }
+
+      onSubmit(investmentData);
     }
   };
 
