@@ -30,7 +30,7 @@ serve(async (req) => {
       )
     }
 
-    // Clean base64 string - remove any prefixes/metadata
+    // Clean base64 string and convert to Uint8Array
     const base64Data = image.replace(/^data:image\/\w+;base64,/, '');
     
     if (!base64Data) {
@@ -48,6 +48,15 @@ serve(async (req) => {
     }
 
     console.log("Cleaned base64 data length:", base64Data.length)
+
+    // Convert base64 to Uint8Array
+    const binaryString = atob(base64Data);
+    const bytes = new Uint8Array(binaryString.length);
+    for (let i = 0; i < binaryString.length; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
+
+    console.log("Converted to Uint8Array, length:", bytes.length)
 
     const hfToken = Deno.env.get('HUGGING_FACE_ACCESS_TOKEN')
     if (!hfToken) {
@@ -72,7 +81,7 @@ serve(async (req) => {
       const result = await hf.documentQuestionAnswering({
         model: 'microsoft/layoutlmv3-base',
         inputs: {
-          image: base64Data,
+          image: bytes,
           question: "What are the investment amount, current value, and date in this document?",
         },
       })
