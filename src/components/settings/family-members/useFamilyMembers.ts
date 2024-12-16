@@ -19,25 +19,45 @@ export const useFamilyMembers = () => {
       if (!user) return;
 
       console.log("Loading family members for user:", user.id);
-      const { data, error } = await supabase
-        .from("family_members")
-        .select("id, name, status, investments:investments(count)")
-        .eq("user_id", user.id)
-        .order("created_at");
+      
+      // First, get all investments to count them manually
+      const { data: investments, error: investmentsError } = await supabase
+        .from('investments')
+        .select('owner')
+        .eq('user_id', user.id);
 
-      if (error) {
-        console.error("Error loading family members:", error);
-        throw error;
+      if (investmentsError) {
+        console.error("Error getting investments:", investmentsError);
+        throw investmentsError;
       }
 
-      const formattedMembers = data.map(member => ({
-        id: member.id,
-        name: member.name,
-        status: member.status,
-        investment_count: member.investments?.[0]?.count || 0
+      // Count investments per owner
+      const investmentCounts: Record<string, number> = {};
+      investments?.forEach(inv => {
+        investmentCounts[inv.owner] = (investmentCounts[inv.owner] || 0) + 1;
+      });
+
+      console.log("Investment counts:", investmentCounts);
+
+      // Then get family members
+      const { data: membersData, error: membersError } = await supabase
+        .from('family_members')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at');
+
+      if (membersError) {
+        console.error("Error loading family members:", membersError);
+        throw membersError;
+      }
+
+      // Combine the data
+      const formattedMembers = membersData.map(member => ({
+        ...member,
+        investment_count: investmentCounts[member.name] || 0
       }));
 
-      console.log("Loaded members:", formattedMembers);
+      console.log("Loaded members with counts:", formattedMembers);
       setMembers(formattedMembers);
     } catch (error) {
       console.error("Error in loadMembers:", error);
