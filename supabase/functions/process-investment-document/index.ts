@@ -18,7 +18,10 @@ serve(async (req) => {
     if (!image) {
       console.error("No image data received");
       return new Response(
-        JSON.stringify({ error: 'No image data provided' }),
+        JSON.stringify({ 
+          success: false,
+          error: 'No image data provided' 
+        }),
         { 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           status: 400 
@@ -26,19 +29,37 @@ serve(async (req) => {
       )
     }
 
-    console.log("Initializing Hugging Face client");
-    const hf = new HfInference(Deno.env.get('HUGGING_FACE_ACCESS_TOKEN'))
+    if (!image.startsWith('data:image/')) {
+      console.error("Invalid image format");
+      return new Response(
+        JSON.stringify({ 
+          success: false,
+          error: 'Invalid image format. Must be a base64 encoded image.' 
+        }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400 
+        }
+      )
+    }
 
-    if (!Deno.env.get('HUGGING_FACE_ACCESS_TOKEN')) {
+    const hfToken = Deno.env.get('HUGGING_FACE_ACCESS_TOKEN')
+    if (!hfToken) {
       console.error("Missing Hugging Face access token");
       return new Response(
-        JSON.stringify({ error: 'Configuration error' }),
+        JSON.stringify({ 
+          success: false,
+          error: 'Server configuration error' 
+        }),
         { 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           status: 500 
         }
       )
     }
+
+    console.log("Initializing Hugging Face client");
+    const hf = new HfInference(hfToken)
 
     console.log("Processing image with document understanding model");
     const result = await hf.documentQuestionAnswering({
@@ -86,7 +107,7 @@ serve(async (req) => {
       }
     )
   } catch (error) {
-    console.error('Error:', error)
+    console.error('Error processing document:', error)
     return new Response(
       JSON.stringify({ 
         success: false, 

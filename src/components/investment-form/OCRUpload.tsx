@@ -17,9 +17,14 @@ export const OCRUpload = ({ onExtractedData }: OCRUploadProps) => {
   const { toast } = useToast();
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    event.preventDefault();
     event.stopPropagation();
+    
     const file = event.target.files?.[0];
-    if (!file) return;
+    if (!file) {
+      console.log("No file selected");
+      return;
+    }
 
     try {
       setIsProcessing(true);
