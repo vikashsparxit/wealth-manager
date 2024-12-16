@@ -30,30 +30,17 @@ serve(async (req) => {
       )
     }
 
-    // Clean base64 string and convert to Uint8Array
-    const base64Data = image.replace(/^data:image\/\w+;base64,/, '');
-    
-    if (!base64Data) {
-      console.error("Invalid base64 data after cleaning")
-      return new Response(
-        JSON.stringify({ 
-          success: false,
-          error: 'Invalid base64 data format' 
-        }),
-        { 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          status: 422 
-        }
-      )
-    }
-
+    // Clean base64 string
+    const base64Data = image.replace(/^data:image\/\w+;base64,/, '')
     console.log("Cleaned base64 data length:", base64Data.length)
 
-    // Convert base64 to Uint8Array
-    const binaryString = atob(base64Data);
-    const bytes = new Uint8Array(binaryString.length);
-    for (let i = 0; i < binaryString.length; i++) {
-      bytes[i] = binaryString.charCodeAt(i);
+    // Convert base64 to binary data
+    const binaryStr = atob(base64Data)
+    const len = binaryStr.length
+    const bytes = new Uint8Array(len)
+    
+    for (let i = 0; i < len; i++) {
+      bytes[i] = binaryStr.charCodeAt(i)
     }
 
     console.log("Converted to Uint8Array, length:", bytes.length)
@@ -78,10 +65,13 @@ serve(async (req) => {
 
     try {
       console.log("Processing image with document understanding model")
+      // Create a Blob from the Uint8Array
+      const blob = new Blob([bytes], { type: 'image/jpeg' })
+      
       const result = await hf.documentQuestionAnswering({
         model: 'microsoft/layoutlmv3-base',
         inputs: {
-          image: bytes,
+          image: blob,
           question: "What are the investment amount, current value, and date in this document?",
         },
       })
