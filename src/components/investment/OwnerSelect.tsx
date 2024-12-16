@@ -28,7 +28,7 @@ export const OwnerSelect = ({ value, owners, onChange }: Props) => {
   const sortedOwners = [...owners].sort((a, b) => {
     if (a.relationship === 'Primary User') return -1;
     if (b.relationship === 'Primary User') return 1;
-    return 0;
+    return a.name.localeCompare(b.name);
   });
 
   console.log("OwnerSelect - Available owners:", sortedOwners);

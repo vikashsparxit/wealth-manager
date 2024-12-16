@@ -26,7 +26,7 @@ export const DashboardFilter = ({ selectedMember, onMemberChange }: DashboardFil
         .select('name, relationship')
         .eq('user_id', user.id)
         .eq('status', 'active')
-        .order('created_at');
+        .order('relationship', { ascending: true }); // Order by relationship to ensure Primary User comes first
 
       if (error) {
         console.error('Error loading family members:', error);
@@ -43,7 +43,7 @@ export const DashboardFilter = ({ selectedMember, onMemberChange }: DashboardFil
         .sort((a, b) => {
           if (a.relationship === 'Primary User') return -1;
           if (b.relationship === 'Primary User') return 1;
-          return 0;
+          return a.name.localeCompare(b.name);
         });
 
       console.log("DashboardFilter - Processed family members:", processedMembers);
