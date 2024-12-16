@@ -1,14 +1,8 @@
 import { useState } from "react";
 import { Upload, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
 interface OCRUploadProps {
   onExtractedData: (data: {
@@ -67,39 +61,33 @@ export const OCRUpload = ({ onExtractedData }: OCRUploadProps) => {
   };
 
   return (
-    <div className="flex items-center gap-2 mb-4">
-      <TooltipProvider>
-        <Tooltip delayDuration={300}>
-          <TooltipTrigger asChild>
-            <Button
-              variant="outline"
-              className="w-full relative group"
-              disabled={isProcessing}
-            >
-              <label className="flex items-center justify-center gap-2 cursor-pointer w-full">
-                <Upload className="h-4 w-4" />
-                <span className="flex-1">
-                  {isProcessing ? "Processing..." : "Upload Investment Document"}
-                </span>
-                <Sparkles className="h-4 w-4 text-blue-500 transition-transform group-hover:scale-110" />
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleFileUpload}
-                  disabled={isProcessing}
-                />
-              </label>
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent 
-            side="top" 
-            className="bg-white text-slate-900 border border-slate-200 shadow-md p-2 max-w-[200px] text-xs leading-relaxed"
-          >
-            <p>Upload an investment document and let AI extract the details automatically</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+    <div className="space-y-2">
+      <Button
+        variant="outline"
+        className="w-full relative group"
+        disabled={isProcessing}
+        onClick={() => document.getElementById('file-upload')?.click()}
+      >
+        <div className="flex items-center justify-center gap-2 w-full">
+          <Upload className="h-4 w-4" />
+          <span className="flex-1">
+            {isProcessing ? "Processing..." : "Upload Investment Document"}
+          </span>
+          <Sparkles className="h-4 w-4 text-blue-500 transition-transform group-hover:scale-110" />
+        </div>
+        <input
+          id="file-upload"
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={handleFileUpload}
+          disabled={isProcessing}
+          onClick={(e) => e.stopPropagation()}
+        />
+      </Button>
+      <p className="text-xs text-muted-foreground text-center">
+        Upload an investment document and let AI extract the details automatically
+      </p>
     </div>
   );
 };
