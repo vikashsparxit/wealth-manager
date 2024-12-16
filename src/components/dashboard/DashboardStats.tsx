@@ -1,4 +1,4 @@
-import { WealthSummary, LiquidAsset } from "@/types/investment";
+import { WealthSummary, LiquidAsset, Investment } from "@/types/investment";
 import { StatCard } from "./StatCard";
 import { LiquidAssetsDialog } from "./LiquidAssetsDialog";
 import { useEffect, useState } from "react";
@@ -10,6 +10,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+
+interface DashboardStatsProps {
+  summary: WealthSummary;
+  liquidAssets: LiquidAsset[];
+  onLiquidAssetsUpdate: (amount: number, owner: string) => void;
+  filteredInvestments: Investment[];
+  selectedMember: "Wealth Combined" | string;
+}
 
 export const DashboardStats = ({ 
   summary, 
