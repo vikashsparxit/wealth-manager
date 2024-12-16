@@ -27,26 +27,32 @@ const SharedDashboard = () => {
     setError(null);
 
     try {
-      console.log("Verifying share token:", shareToken);
+      console.log("Starting verification for share token:", shareToken);
       
-      // Fetch the shared dashboard details with explicit select
-      const { data: dashboard, error: fetchError } = await supabase
+      // First, check if the dashboard exists and is active
+      const { data: dashboards, error: fetchError } = await supabase
         .from("shared_dashboards")
         .select("id, status, expires_at, password_hash")
-        .eq("share_token", shareToken)
-        .eq("status", "active")
-        .single();
+        .eq("share_token", shareToken);
 
-      console.log("Fetch response:", { dashboard, fetchError });
+      console.log("Initial fetch response:", { dashboards, fetchError });
 
       if (fetchError) {
-        console.error("Error fetching dashboard:", fetchError);
+        console.error("Error fetching dashboards:", fetchError);
+        throw new Error("Failed to verify share link");
+      }
+
+      if (!dashboards || dashboards.length === 0) {
+        console.error("No dashboard found for token:", shareToken);
         throw new Error("Invalid or expired share link");
       }
 
-      if (!dashboard) {
-        console.error("No dashboard found for token:", shareToken);
-        throw new Error("Invalid or expired share link");
+      const dashboard = dashboards[0];
+      console.log("Found dashboard:", { id: dashboard.id, status: dashboard.status });
+
+      if (dashboard.status !== 'active') {
+        console.error("Dashboard is not active:", dashboard.status);
+        throw new Error("This share link has been revoked");
       }
 
       // Check if the link has expired
@@ -86,20 +92,18 @@ const SharedDashboard = () => {
       });
 
       // Log failed attempt if we have the dashboard id
-      if (shareToken) {
-        const { data: dashboard } = await supabase
-          .from("shared_dashboards")
-          .select("id")
-          .eq("share_token", shareToken)
-          .single();
+      const { data: dashboard } = await supabase
+        .from("shared_dashboards")
+        .select("id")
+        .eq("share_token", shareToken)
+        .single();
 
-        if (dashboard) {
-          await supabase.from("share_access").insert({
-            shared_dashboard_id: dashboard.id,
-            success: false,
-            ip_address: null
-          });
-        }
+      if (dashboard) {
+        await supabase.from("share_access").insert({
+          shared_dashboard_id: dashboard.id,
+          success: false,
+          ip_address: null
+        });
       }
     } finally {
       setIsVerifying(false);
