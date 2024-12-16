@@ -32,8 +32,9 @@ const SharedDashboard = () => {
       // First, check if the dashboard exists and is active
       const { data: dashboards, error: fetchError } = await supabase
         .from("shared_dashboards")
-        .select("id, status, expires_at, password_hash")
-        .eq("share_token", shareToken);
+        .select("*")
+        .eq("share_token", shareToken)
+        .eq("status", 'active');
 
       console.log("Initial fetch response:", { dashboards, fetchError });
 
@@ -48,12 +49,7 @@ const SharedDashboard = () => {
       }
 
       const dashboard = dashboards[0];
-      console.log("Found dashboard:", { id: dashboard.id, status: dashboard.status });
-
-      if (dashboard.status !== 'active') {
-        console.error("Dashboard is not active:", dashboard.status);
-        throw new Error("This share link has been revoked");
-      }
+      console.log("Found dashboard:", dashboard);
 
       // Check if the link has expired
       if (dashboard.expires_at && new Date(dashboard.expires_at) < new Date()) {
@@ -96,7 +92,7 @@ const SharedDashboard = () => {
         .from("shared_dashboards")
         .select("id")
         .eq("share_token", shareToken)
-        .single();
+        .maybeSingle();
 
       if (dashboard) {
         await supabase.from("share_access").insert({
