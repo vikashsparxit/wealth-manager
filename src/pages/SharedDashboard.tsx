@@ -32,9 +32,10 @@ const SharedDashboard = () => {
       // First, check if the dashboard exists and is active
       const { data: dashboards, error: fetchError } = await supabase
         .from("shared_dashboards")
-        .select("*")
+        .select()
         .eq("share_token", shareToken)
-        .eq("status", 'active');
+        .eq("status", 'active')
+        .limit(1);
 
       console.log("Initial fetch response:", { dashboards, fetchError });
 
