@@ -22,20 +22,38 @@ serve(async (req) => {
       model: 'microsoft/layoutlmv3-base',
       inputs: {
         image,
-        question: "What is the investment amount and date?"
+        question: "What is the investment amount, current value and date?"
       },
     })
 
     console.log("OCR Result:", result)
 
     // Extract relevant information using regex patterns
-    const amountPattern = /(?:Rs\.|INR|₹)\s*(\d+(?:,\d+)*(?:\.\d{2})?)/i
+    const amountPattern = /(?:Rs\.|INR|₹)\s*(\d+(?:,\d+)*(?:\.\d{2})?)/gi
     const datePattern = /(\d{1,2}[-/]\d{1,2}[-/]\d{2,4})/
+    const amounts = result.answer.match(amountPattern) || []
+    
+    // Try to identify invested amount and current value
+    const extractedData: {
+      investedAmount?: string;
+      currentValue?: string;
+      dateOfInvestment?: string;
+    } = {}
 
-    const extractedData = {
-      investedAmount: result.answer.match(amountPattern)?.[1] || '',
-      dateOfInvestment: result.answer.match(datePattern)?.[1] || '',
+    if (amounts.length >= 2) {
+      // Assume first amount is invested amount and second is current value
+      extractedData.investedAmount = amounts[0].replace(/[^\d.]/g, '')
+      extractedData.currentValue = amounts[1].replace(/[^\d.]/g, '')
+    } else if (amounts.length === 1) {
+      extractedData.investedAmount = amounts[0].replace(/[^\d.]/g, '')
     }
+
+    const dateMatch = result.answer.match(datePattern)
+    if (dateMatch) {
+      extractedData.dateOfInvestment = dateMatch[1]
+    }
+
+    console.log("Extracted Data:", extractedData)
 
     return new Response(
       JSON.stringify({ 
