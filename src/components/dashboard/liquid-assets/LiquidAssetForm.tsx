@@ -1,8 +1,21 @@
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import { LiquidAssetFormProps } from "./types";
-import { FamilyMember } from "@/types/investment";
+import { UserPlus } from "lucide-react";
+import { FamilyRelationship } from "@/types/investment";
+
+interface LiquidAssetFormProps {
+  amount: string;
+  owner: string;
+  familyMembers: Array<{ 
+    name: string; 
+    relationship?: FamilyRelationship;
+  }>;
+  selectedMember: string;
+  onAmountChange: (value: string) => void;
+  onOwnerChange: (value: string) => void;
+  onSave: () => void;
+}
 
 export const LiquidAssetForm = ({
   amount,
@@ -17,33 +30,47 @@ export const LiquidAssetForm = ({
     if (member.name === "Myself" && member.relationship === "Primary User") {
       return "Myself (Primary)";
     }
-    return `${member.name}${member.relationship ? ` (${member.relationship})` : ''}`;
+    if (member.relationship) {
+      return `${member.name} (${member.relationship})`;
+    }
+    return member.name;
   };
 
-  // Sort family members to put Primary User first
+  // Sort family members to ensure primary user comes first
   const sortedMembers = [...familyMembers].sort((a, b) => {
     if (a.relationship === "Primary User") return -1;
     if (b.relationship === "Primary User") return 1;
     return a.name.localeCompare(b.name);
   });
 
+  console.log("LiquidAssetForm - Sorted members:", sortedMembers);
+  console.log("LiquidAssetForm - Selected member:", selectedMember);
+  console.log("LiquidAssetForm - Current owner:", owner);
+
   return (
     <div className="grid gap-4 py-4">
-      <div className="grid gap-2">
-        {selectedMember === "Wealth Combined" && familyMembers.length > 0 && (
+      <div className="flex gap-2">
+        <Input
+          placeholder="Enter liquid assets amount"
+          value={amount}
+          onChange={(e) => onAmountChange(e.target.value)}
+          className="flex-1"
+          type="number"
+        />
+        {selectedMember === "Wealth Combined" && (
           <Select 
             value={owner} 
-            onValueChange={(value: FamilyMember) => onOwnerChange(value)}
+            onValueChange={onOwnerChange}
           >
-            <SelectTrigger className="w-full bg-background border">
+            <SelectTrigger className="w-[200px]">
               <SelectValue placeholder="Select owner" />
             </SelectTrigger>
-            <SelectContent className="bg-[#F1F0FB] border shadow-lg min-w-[200px]">
+            <SelectContent className="bg-background border shadow-lg">
               {sortedMembers.map((member) => (
                 <SelectItem 
                   key={member.name} 
                   value={member.name}
-                  className="cursor-pointer relative flex w-full select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none hover:bg-accent focus:bg-accent data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
+                  className="cursor-pointer py-2 px-4 hover:bg-accent rounded-md"
                 >
                   {getDisplayName(member)}
                 </SelectItem>
@@ -51,20 +78,8 @@ export const LiquidAssetForm = ({
             </SelectContent>
           </Select>
         )}
-        <div className="space-y-1">
-          <label className="text-sm text-muted-foreground">
-            Current liquid assets for {selectedMember !== "Wealth Combined" ? selectedMember : owner}
-          </label>
-          <Input
-            type="number"
-            value={amount}
-            onChange={(e) => onAmountChange(e.target.value)}
-            placeholder="Enter liquid assets amount"
-            className="bg-background"
-          />
-        </div>
-        <Button onClick={onSave} className="w-full">Save</Button>
       </div>
+      <Button onClick={onSave} className="w-full">Save</Button>
     </div>
   );
 };
