@@ -56,16 +56,17 @@ export const OCRUpload = ({ onExtractedData }: OCRUploadProps) => {
       
       reader.onload = async () => {
         try {
-          const base64Image = reader.result as string;
-          console.log("File converted to base64, length:", base64Image.length);
+          const base64String = reader.result as string;
+          console.log("File converted to base64, length:", base64String.length);
           
-          // Clean base64 string if needed
-          const cleanBase64 = base64Image.includes('base64,') 
-            ? base64Image
-            : `data:${file.type};base64,${base64Image}`;
+          // Ensure proper base64 format with data URI
+          const base64Data = base64String.includes('base64,') 
+            ? base64String
+            : `data:${file.type};base64,${base64String}`;
           
+          console.log("Sending request to process-investment-document");
           const { data, error } = await supabase.functions.invoke('process-investment-document', {
-            body: { image: cleanBase64 }
+            body: { image: base64Data }
           });
 
           console.log("OCR Response:", { data, error });

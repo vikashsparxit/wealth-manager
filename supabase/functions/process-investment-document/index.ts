@@ -30,18 +30,15 @@ serve(async (req) => {
       )
     }
 
-    // Clean and validate base64 data
-    let base64Data = image;
-    if (image.includes('base64,')) {
-      base64Data = image.split('base64,')[1];
-    }
-
+    // Clean base64 string - remove any prefixes/metadata
+    const base64Data = image.replace(/^data:image\/\w+;base64,/, '');
+    
     if (!base64Data) {
-      console.error("Invalid base64 data")
+      console.error("Invalid base64 data after cleaning")
       return new Response(
         JSON.stringify({ 
           success: false,
-          error: 'Invalid image data format' 
+          error: 'Invalid base64 data format' 
         }),
         { 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -50,7 +47,7 @@ serve(async (req) => {
       )
     }
 
-    console.log("Base64 data length:", base64Data.length)
+    console.log("Cleaned base64 data length:", base64Data.length)
 
     const hfToken = Deno.env.get('HUGGING_FACE_ACCESS_TOKEN')
     if (!hfToken) {
