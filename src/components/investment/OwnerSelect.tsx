@@ -18,7 +18,7 @@ interface Props {
 
 export const OwnerSelect = ({ value, owners, onChange }: Props) => {
   const getDisplayName = (member: { name: FamilyMember; relationship?: FamilyRelationship }) => {
-    if (member.name === 'Vikash') {
+    if (member.relationship === 'Primary User') {
       return `${member.name} (Primary)`;
     }
     if (member.relationship) {
@@ -27,12 +27,9 @@ export const OwnerSelect = ({ value, owners, onChange }: Props) => {
     return member.name;
   };
 
-  // Sort owners to ensure Vikash and primary user comes first
+  // Sort owners to ensure primary user comes first
   const sortedOwners = [...owners].sort((a, b) => {
-    // First, prioritize Vikash
-    if (a.name === 'Vikash') return -1;
-    if (b.name === 'Vikash') return 1;
-    // Then prioritize Primary User
+    // First, prioritize Primary User
     if (a.relationship === 'Primary User') return -1;
     if (b.relationship === 'Primary User') return 1;
     // Then sort by relationship type
