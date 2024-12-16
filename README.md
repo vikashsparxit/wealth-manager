@@ -1,69 +1,152 @@
-# Welcome to your Lovable project
 
-## Project info
+# **Family Wealth Manager Dashboard**  
 
-**URL**: https://lovable.dev/projects/b6b3afdb-1e35-4db8-84af-5b5399d2977e
+## **Project Overview**  
+The **Family Wealth Manager Dashboard** is a personal finance tool designed to help families manage and track their wealth across multiple asset classes. It simplifies investment tracking, provides insights into growth trends, and offers detailed family and individual wealth summaries.  
 
-## How can I edit this code?
+---
 
-There are several ways of editing your application.
+## **Features**  
 
-**Use Lovable**
+### **1. Investment Tracking**  
+- Add and categorize investments by asset type, owner, and value.  
+- Track invested amount, current value, and growth over time.  
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/b6b3afdb-1e35-4db8-84af-5b5399d2977e) and start prompting.
+### **2. Wealth Summary**  
+- View combined family wealth and individual contributions.  
+- Real-time calculations for **Total Wealth**, **Growth Percentage**, and **Liquid Assets**.  
 
-Changes made via Lovable will be committed automatically to this repo.
+### **3. Asset Classes Supported**  
+- **Precious Metals**: Physical Gold, Digital Gold, SGB  
+- **Equities**: Stocks, Mutual Funds, ETFs, Pre-IPO Investments  
+- **Insurance**: LIC, ULIP  
+- **Fixed Income**: PPF, NPS, Bonds  
+- **Alternative Investments**: Startups, Real Estate  
 
-**Use your preferred IDE**
+### **4. Visual Insights**  
+- Graphs and charts powered by **Chart.js** for investment trends and ROI analysis.  
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### **5. User Management**  
+- Track investments for family members (Spouse, Children, etc.) and manage their individual wealth reports.  
+- Role-based summaries (e.g., Combined Family View, Individual View).  
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### **6. Sharing and Reports**  
+- Generate live reports to share with family members or stakeholders.  
+- Export wealth summaries in **PDF** or **CSV** formats.  
 
-Follow these steps:
+---
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+## **Tech Stack**  
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+### **Frontend**  
+- **React** with **TypeScript**  
+- **Vite** as the build tool  
+- **Tailwind CSS** for styling  
+- **shadcn/ui**: Pre-built UI components  
+- **lucide-react**: Icon library  
 
-# Step 3: Install the necessary dependencies.
-npm i
+### **State Management & Data**  
+- **React Query** for server state management and data fetching  
+- **React Context** for global state  
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+### **Backend & Database**  
+- **Supabase** for:  
+  - Authentication  
+  - Database (PostgreSQL)  
+  - Real-time subscriptions  
+  - Edge Functions  
+
+### **Routing**  
+- **react-router-dom** for client-side routing  
+
+### **Development Tools**  
+- **TypeScript** for type safety  
+- **ESLint** for code linting  
+- **PostCSS** for CSS processing  
+- **SWC** (via Vite) for fast compilation  
+
+---
+
+## **Getting Started**  
+
+### **Prerequisites**  
+- Node.js (v16 or above)  
+- npm or yarn installed  
+
+### **Clone the Repository**  
+```bash
+git clone https://github.com/vikashsparxit/wealth-manager.git
+cd wealth-manager
+```
+
+### **Install Dependencies**  
+```bash
+npm install
+```
+
+### **Run the Development Server**  
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+### **Build for Production**  
+```bash
+npm run build
+```
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### **Environment Variables**  
+Create a `.env` file in the root directory to configure environment variables:  
+```plaintext
+VITE_SUPABASE_URL=<your_supabase_url>
+VITE_SUPABASE_ANON_KEY=<your_supabase_anon_key>
+```
 
-**Use GitHub Codespaces**
+---
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## **Folder Structure**  
+```
+wealth-manager/
+├── public/               # Static assets
+├── src/
+│   ├── components/       # Reusable components
+│   ├── contexts/         # Global state management
+│   ├── hooks/            # Custom hooks
+│   ├── pages/            # Page components
+│   ├── services/         # API functions (Supabase)
+│   ├── styles/           # Tailwind CSS configuration
+│   ├── utils/            # Utility functions
+│   └── main.tsx          # Entry point
+├── index.html            # HTML template
+├── package.json          # Project configuration
+└── vite.config.ts        # Vite configuration
+```
 
-## What technologies are used for this project?
+---
 
-This project is built with .
+## **Future Improvements**  
+- Add biometric security (Face ID/Touch ID) for access.  
+- Integrate AI-based investment suggestions.  
+- Enhance real-time collaboration for shared wealth tracking.  
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+---
 
-## How can I deploy this project?
+## **Contributing**  
+We welcome contributions! Please follow these steps:  
+1. Fork the repository.  
+2. Create a new branch: `git checkout -b feature/your-feature-name`.  
+3. Commit your changes: `git commit -m "Add new feature"`.  
+4. Push to your branch: `git push origin feature/your-feature-name`.  
+5. Submit a pull request.  
 
-Simply open [Lovable](https://lovable.dev/projects/b6b3afdb-1e35-4db8-84af-5b5399d2977e) and click on Share -> Publish.
+---
 
-## I want to use a custom domain - is that possible?
+## **License**  
+This project is open-sourced under the MIT License.  
 
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+---
+
+## **Contact**  
+For questions, feedback, or collaborations, feel free to connect:  
+- **Vikash Sharma**  
+- LinkedIn: [vikashsparxit](https://linkedin.com/in/vikashsparxit)  
+- GitHub: [vikashsparxit](https://github.com/vikashsparxit)
