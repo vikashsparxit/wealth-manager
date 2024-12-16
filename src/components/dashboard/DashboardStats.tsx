@@ -11,14 +11,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-interface DashboardStatsProps {
-  summary: WealthSummary;
-  liquidAssets: LiquidAsset[];
-  onLiquidAssetsUpdate: (amount: number, owner: string) => void;
-  filteredInvestments: any[];
-  selectedMember: "Wealth Combined" | string;
-}
-
 export const DashboardStats = ({ 
   summary, 
   liquidAssets,
@@ -35,6 +27,30 @@ export const DashboardStats = ({
     totalWealth: number;
     growth: number;
   }>>([]);
+
+  // Calculate annualized return
+  const calculateAnnualizedReturn = (investments: any[]) => {
+    if (investments.length === 0) return 0;
+
+    const totalInvested = investments.reduce((sum, inv) => sum + inv.investedAmount, 0);
+    const currentValue = investments.reduce((sum, inv) => sum + inv.currentValue, 0);
+    
+    // Get the earliest investment date
+    const earliestDate = investments.reduce((earliest, inv) => {
+      const invDate = new Date(inv.dateOfInvestment);
+      return earliest ? (invDate < earliest ? invDate : earliest) : invDate;
+    }, null);
+
+    if (!earliestDate) return 0;
+
+    // Calculate years passed
+    const yearsPassed = (new Date().getTime() - earliestDate.getTime()) / (365 * 24 * 60 * 60 * 1000);
+    if (yearsPassed < 0.01) return 0; // Avoid division by very small numbers
+
+    // Calculate annualized return using CAGR formula
+    const CAGR = (Math.pow(currentValue / totalInvested, 1 / yearsPassed) - 1) * 100;
+    return isNaN(CAGR) ? 0 : CAGR;
+  };
 
   useEffect(() => {
     const calculateTotalLiquidAssets = () => {
@@ -76,7 +92,7 @@ export const DashboardStats = ({
 
   const totalWealth = summary.currentValue + totalLiquidAssets;
   const lastMonthGrowth = 5083.95; // This would need to be calculated based on actual data
-  const annualizedReturn = 4.01; // This would need to be calculated based on actual data
+  const annualizedReturn = calculateAnnualizedReturn(filteredInvestments);
   const averageInvestment = filteredInvestments.length > 0 
     ? summary.totalInvested / filteredInvestments.length 
     : 0;

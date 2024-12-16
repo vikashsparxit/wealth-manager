@@ -77,13 +77,13 @@ export const useInvestmentForm = (investment?: Investment, onSubmit?: (data: Omi
 
         console.log("InvestmentForm - Processed family members:", processedMembers);
         setFamilyMembers(processedMembers);
-        setShowMemberSelect(processedMembers.length > 0);
+        setShowMemberSelect(true); // Always show member select if we have data
 
         // Set investment types
         setInvestmentTypes(typesResponse.data as Array<{ name: InvestmentType }>);
 
         // Set default owner for new investments to the primary user
-        if (!investment && processedMembers.length > 0) {
+        if (!investment) {
           const primaryUser = processedMembers.find(m => m.relationship === 'Primary User');
           if (primaryUser) {
             console.log("InvestmentForm - Setting default owner to primary user:", primaryUser.name);
