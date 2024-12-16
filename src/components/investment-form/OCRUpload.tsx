@@ -54,16 +54,6 @@ export const OCRUpload = ({ onExtractedData }: OCRUploadProps) => {
       // Convert the file to base64
       const reader = new FileReader();
       
-      reader.onerror = (error) => {
-        console.error("Error reading file:", error);
-        setIsProcessing(false);
-        toast({
-          title: "Error",
-          description: "Failed to read the file. Please try again.",
-          variant: "destructive",
-        });
-      };
-      
       reader.onload = async () => {
         try {
           const base64Image = reader.result as string;
@@ -76,7 +66,6 @@ export const OCRUpload = ({ onExtractedData }: OCRUploadProps) => {
           console.log("OCR Response:", { data, error });
 
           if (error) {
-            console.error("OCR function error:", error);
             throw new Error(error.message || "Failed to process document");
           }
 
@@ -104,6 +93,16 @@ export const OCRUpload = ({ onExtractedData }: OCRUploadProps) => {
         } finally {
           setIsProcessing(false);
         }
+      };
+
+      reader.onerror = (error) => {
+        console.error("Error reading file:", error);
+        setIsProcessing(false);
+        toast({
+          title: "Error",
+          description: "Failed to read the file. Please try again.",
+          variant: "destructive",
+        });
       };
 
       reader.readAsDataURL(file);

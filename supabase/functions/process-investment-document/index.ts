@@ -14,7 +14,7 @@ serve(async (req) => {
 
   try {
     const { image } = await req.json()
-    console.log("Received request with image data length:", image?.length || 0)
+    console.log("Received request with image data")
     
     if (!image) {
       console.error("No image data received")
@@ -30,13 +30,14 @@ serve(async (req) => {
       )
     }
 
-    // Validate base64 image format
-    if (!image.startsWith('data:image/')) {
+    // Extract the base64 data after the comma
+    const base64Data = image.split(',')[1]
+    if (!base64Data) {
       console.error("Invalid image format")
       return new Response(
         JSON.stringify({ 
           success: false,
-          error: 'Invalid image format. Must be a base64 encoded image.' 
+          error: 'Invalid image format' 
         }),
         { 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -68,11 +69,9 @@ serve(async (req) => {
       const result = await hf.documentQuestionAnswering({
         model: 'microsoft/layoutlmv3-base',
         inputs: {
-          image,
-          question: "Extract the investment amount, current value, and date from this document.",
+          image: image,
+          question: "What are the investment amount, current value, and date in this document?",
         },
-        use_cache: false,
-        wait_for_model: true
       })
 
       console.log("OCR Result:", result)
@@ -106,10 +105,6 @@ serve(async (req) => {
 
       console.log("Extracted Data:", extractedData)
 
-      if (Object.keys(extractedData).length === 0) {
-        throw new Error("No data could be extracted from the document")
-      }
-
       return new Response(
         JSON.stringify({ 
           success: true, 
@@ -124,7 +119,7 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({ 
           success: false, 
-          error: 'Failed to process document. Please ensure the image is clear and contains investment details.',
+          error: 'Failed to process document',
           details: ocrError.message
         }),
         { 
@@ -134,11 +129,11 @@ serve(async (req) => {
       )
     }
   } catch (error) {
-    console.error('Error processing document:', error)
+    console.error('Error processing request:', error)
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: 'Failed to process document. Please try again.',
+        error: 'Failed to process request',
         details: error.message
       }),
       { 
