@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
-import { AddTypeForm } from "./investment-types/AddTypeForm";
-import { TypesList } from "./investment-types/TypesList";
-import { useInvestmentTypes } from "./investment-types/useInvestmentTypes";
+import { AddTypeForm } from "./AddTypeForm";
+import { TypesList } from "./TypesList";
+import { useInvestmentTypes } from "./useInvestmentTypes";
 
 export const InvestmentTypesManager = () => {
   const {
@@ -18,9 +18,9 @@ export const InvestmentTypesManager = () => {
     toggleTypeStatus,
   } = useInvestmentTypes();
 
-  const handleStartEditing = (type: { id: string; name: string }) => {
-    setEditingId(type.id);
-    setEditValue(type.name);
+  const handleStartEditing = (id: string, name: string) => {
+    setEditingId(id);
+    setEditValue(name);
   };
 
   return (
