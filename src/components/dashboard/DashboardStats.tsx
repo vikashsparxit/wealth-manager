@@ -2,15 +2,8 @@ import { WealthSummary, LiquidAsset, Investment } from "@/types/investment";
 import { StatCard } from "./StatCard";
 import { LiquidAssetsDialog } from "./LiquidAssetsDialog";
 import { useEffect, useState } from "react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { useAuth } from "@/contexts/AuthContext";
+import { WealthSummaryTable } from "./wealth-summary/WealthSummaryTable";
+import { useMemberSummaries } from "./wealth-summary/useMemberSummaries";
 
 interface DashboardStatsProps {
   summary: WealthSummary;
@@ -28,15 +21,7 @@ export const DashboardStats = ({
   selectedMember
 }: DashboardStatsProps) => {
   const [totalLiquidAssets, setTotalLiquidAssets] = useState(0);
-  const [memberSummaries, setMemberSummaries] = useState<Array<{
-    member: string;
-    totalInvested: number;
-    currentValue: number;
-    liquidAssets: number;
-    totalWealth: number;
-    growth: number;
-  }>>([]);
-  const { user } = useAuth();
+  const memberSummaries = useMemberSummaries(filteredInvestments, liquidAssets);
 
   // Calculate annualized return
   const calculateAnnualizedReturn = (investments: Investment[]) => {
@@ -76,42 +61,6 @@ export const DashboardStats = ({
 
     calculateTotalLiquidAssets();
   }, [selectedMember, liquidAssets]);
-
-  useEffect(() => {
-    // Get unique members from both investments and liquid assets
-    const uniqueMembers = new Set([
-      ...filteredInvestments.map(inv => inv.owner),
-      ...liquidAssets.map(asset => asset.owner)
-    ]);
-
-    // Calculate summaries for each unique member
-    const summaries = Array.from(uniqueMembers).map(member => {
-      const memberInvestments = filteredInvestments.filter(inv => inv.owner === member);
-      const memberAsset = liquidAssets.find(asset => asset.owner === member);
-      
-      const totalInvested = memberInvestments.reduce((sum, inv) => sum + inv.investedAmount, 0);
-      const currentValue = memberInvestments.reduce((sum, inv) => sum + inv.currentValue, 0);
-      const liquidAmount = memberAsset ? Number(memberAsset.amount) : 0;
-      const totalWealth = currentValue + liquidAmount;
-      
-      // Calculate growth only if there are investments
-      const growth = totalInvested > 0 
-        ? ((currentValue - totalInvested) / totalInvested) * 100 
-        : 0;
-
-      return {
-        member,
-        totalInvested,
-        currentValue,
-        liquidAssets: liquidAmount,
-        totalWealth,
-        growth
-      };
-    });
-
-    console.log("Updated member summaries:", summaries);
-    setMemberSummaries(summaries);
-  }, [liquidAssets, filteredInvestments]);
 
   const totalWealth = summary.currentValue + totalLiquidAssets;
   const lastMonthGrowth = 5083.95; // This would need to be calculated based on actual data
@@ -174,37 +123,7 @@ export const DashboardStats = ({
         />
       </div>
 
-      <div className="mb-8">
-        <h2 className="text-xl font-semibold mb-4">Individual Wealth Summary</h2>
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Member</TableHead>
-                <TableHead className="text-right">Total Invested</TableHead>
-                <TableHead className="text-right">Current Value</TableHead>
-                <TableHead className="text-right">Liquid Assets</TableHead>
-                <TableHead className="text-right">Total Wealth</TableHead>
-                <TableHead className="text-right">Growth %</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {memberSummaries.map((summary) => (
-                <TableRow key={summary.member}>
-                  <TableCell className="font-medium">{summary.member}</TableCell>
-                  <TableCell className="text-right">₹{summary.totalInvested.toLocaleString()}</TableCell>
-                  <TableCell className="text-right">₹{summary.currentValue.toLocaleString()}</TableCell>
-                  <TableCell className="text-right">₹{summary.liquidAssets.toLocaleString()}</TableCell>
-                  <TableCell className="text-right">₹{summary.totalWealth.toLocaleString()}</TableCell>
-                  <TableCell className={`text-right ${getGrowthColor(summary.growth)}`}>
-                    {summary.growth.toFixed(2)}%
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      </div>
+      <WealthSummaryTable memberSummaries={memberSummaries} />
     </>
   );
 };
