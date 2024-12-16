@@ -41,9 +41,11 @@ export const DashboardFilter = ({ selectedMember, onMemberChange }: DashboardFil
         })
         .sort((a, b) => {
           // First, prioritize Primary User
+          if (a.name === 'Vikash') return -1;
+          if (b.name === 'Vikash') return 1;
+          // Then sort by relationship
           if (a.relationship === 'Primary User') return -1;
           if (b.relationship === 'Primary User') return 1;
-          // Then sort by relationship type
           if (a.relationship === 'Spouse') return -1;
           if (b.relationship === 'Spouse') return 1;
           // Finally sort alphabetically
@@ -58,7 +60,7 @@ export const DashboardFilter = ({ selectedMember, onMemberChange }: DashboardFil
   }, [user]);
 
   const getDisplayName = (member: { name: FamilyMember; relationship?: FamilyRelationship }) => {
-    if (member.relationship === 'Primary User') {
+    if (member.name === 'Vikash' || member.relationship === 'Primary User') {
       return `${member.name} (Primary)`;
     }
     if (member.relationship) {
