@@ -18,7 +18,7 @@ interface Props {
 
 export const OwnerSelect = ({ value, owners, onChange }: Props) => {
   const getDisplayName = (member: { name: FamilyMember; relationship?: FamilyRelationship }) => {
-    if (member.name === 'Vikash' || member.relationship === 'Primary User') {
+    if (member.name === 'Vikash') {
       return `${member.name} (Primary)`;
     }
     if (member.relationship) {
@@ -42,7 +42,7 @@ export const OwnerSelect = ({ value, owners, onChange }: Props) => {
     return a.name.localeCompare(b.name);
   });
 
-  console.log("OwnerSelect - Available owners:", sortedOwners);
+  console.log("OwnerSelect - Sorted owners:", sortedOwners);
   console.log("OwnerSelect - Current value:", value);
 
   return (
