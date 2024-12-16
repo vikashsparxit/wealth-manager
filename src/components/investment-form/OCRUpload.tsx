@@ -94,7 +94,7 @@ export const OCRUpload = ({ onExtractedData }: OCRUploadProps) => {
           </TooltipTrigger>
           <TooltipContent 
             side="top" 
-            className="bg-white text-slate-900 border border-slate-200 shadow-lg p-3 max-w-[250px] text-sm"
+            className="bg-white text-slate-900 border border-slate-200 shadow-md p-2 max-w-[200px] text-xs leading-relaxed"
           >
             <p>Upload an investment document and let AI extract the details automatically</p>
           </TooltipContent>
