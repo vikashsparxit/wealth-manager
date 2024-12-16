@@ -68,25 +68,26 @@ serve(async (req) => {
       // Create a Blob from the Uint8Array with explicit type
       const blob = new Blob([bytes], { type: 'image/jpeg' })
       
-      console.log("Calling Hugging Face API with document question answering task")
-      const result = await hf.questionAnswering({
-        model: "deepset/roberta-base-squad2",
-        inputs: {
-          question: "What are the investment amount, current value, and date in this document?",
-          context: await blob.text()
+      console.log("Calling Hugging Face API with document vision task")
+      const result = await hf.textGeneration({
+        model: "microsoft/donut-base-finetuned-docvqa",
+        inputs: `<image>What are the investment amount, current value, and date in this document?</image>`,
+        parameters: {
+          image: blob,
+          max_new_tokens: 100
         }
       })
 
       console.log("OCR Result:", result)
 
-      if (!result || !result.answer) {
+      if (!result || !result.generated_text) {
         throw new Error("No result from OCR processing")
       }
 
       // Extract relevant information using regex patterns
       const amountPattern = /(?:Rs\.|INR|₹)\s*(\d+(?:,\d+)*(?:\.\d{2})?)/gi
       const datePattern = /(\d{1,2}[-/]\d{1,2}[-/]\d{2,4})/
-      const amounts = result.answer.match(amountPattern) || []
+      const amounts = result.generated_text.match(amountPattern) || []
       
       const extractedData: {
         investedAmount?: string;
@@ -101,7 +102,7 @@ serve(async (req) => {
         extractedData.investedAmount = amounts[0].replace(/[^\d.]/g, '')
       }
 
-      const dateMatch = result.answer.match(datePattern)
+      const dateMatch = result.generated_text.match(datePattern)
       if (dateMatch) {
         extractedData.dateOfInvestment = dateMatch[1]
       }

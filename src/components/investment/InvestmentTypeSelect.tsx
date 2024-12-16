@@ -21,7 +21,7 @@ export const InvestmentTypeSelect = ({ value, types, onChange }: Props) => {
     <div className="space-y-2">
       <label className="text-sm font-medium">Investment Type</label>
       <Select
-        value={value}
+        value={value || ""}
         onValueChange={(value) => onChange(value as InvestmentType)}
       >
         <SelectTrigger 
