@@ -40,11 +40,13 @@ const SharedDashboard = () => {
       console.log("Fetched dashboard:", dashboard);
 
       if (fetchError || !dashboard) {
+        console.error("Error fetching dashboard:", fetchError);
         throw new Error("Invalid or expired share link");
       }
 
       // Check if the link has expired
       if (dashboard.expires_at && new Date(dashboard.expires_at) < new Date()) {
+        console.log("Share link expired:", dashboard.expires_at);
         throw new Error("This share link has expired");
       }
 
