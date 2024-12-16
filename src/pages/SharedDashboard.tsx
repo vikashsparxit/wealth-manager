@@ -56,7 +56,7 @@ const SharedDashboard = () => {
         throw new Error("Incorrect password");
       }
 
-      // Log the access attempt
+      // Log the successful access attempt
       await supabase.from("share_access").insert({
         shared_dashboard_id: dashboard.id,
         success: true,
@@ -80,11 +80,19 @@ const SharedDashboard = () => {
 
       // Log failed attempt
       if (shareToken) {
-        await supabase.from("share_access").insert({
-          shared_dashboard_id: shareToken,
-          success: false,
-          ip_address: null
-        });
+        const { data: dashboard } = await supabase
+          .from("shared_dashboards")
+          .select("id")
+          .eq("share_token", shareToken)
+          .single();
+
+        if (dashboard) {
+          await supabase.from("share_access").insert({
+            shared_dashboard_id: dashboard.id,
+            success: false,
+            ip_address: null
+          });
+        }
       }
     } finally {
       setIsVerifying(false);
