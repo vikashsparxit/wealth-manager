@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Plus, Share2 } from "lucide-react";
+import { Plus, Share2, Activity } from "lucide-react";
 import { AuthButton } from "@/components/auth/AuthButton";
 import { SettingsDialog } from "@/components/settings/SettingsDialog";
 import { useSettings } from "@/hooks/useSettings";
@@ -18,6 +18,7 @@ import { InvestmentTypesManager } from "@/components/settings/InvestmentTypesMan
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { CreateShareDialog } from "@/components/share/CreateShareDialog";
 import { ManageSharesDialog } from "@/components/share/ManageSharesDialog";
+import { ActivityLogModal } from "@/components/activity-log/ActivityLogModal";
 
 interface DashboardHeaderProps {
   onAddInvestment: () => void;
@@ -32,6 +33,7 @@ export const DashboardHeader = ({ onAddInvestment }: DashboardHeaderProps) => {
   const [showTypesDialog, setShowTypesDialog] = useState(false);
   const [showCreateShareDialog, setShowCreateShareDialog] = useState(false);
   const [showManageSharesDialog, setShowManageSharesDialog] = useState(false);
+  const [showActivityLogModal, setShowActivityLogModal] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   
   const dashboardName = settings?.dashboard_name ? `${settings.dashboard_name} Dashboard` : "My Wealth Dashboard";
@@ -90,6 +92,13 @@ export const DashboardHeader = ({ onAddInvestment }: DashboardHeaderProps) => {
               className="cursor-pointer py-2 px-4 hover:bg-accent rounded-md"
             >
               Profile
+            </DropdownMenuItem>
+            <DropdownMenuItem 
+              onClick={() => handleMenuItemClick(() => setShowActivityLogModal(true))}
+              className="cursor-pointer py-2 px-4 hover:bg-accent rounded-md"
+            >
+              <Activity className="mr-2 h-4 w-4" />
+              Activity Log
             </DropdownMenuItem>
             <DropdownMenuItem 
               onClick={() => handleMenuItemClick(() => setShowSettingsDialog(true))}
@@ -163,6 +172,11 @@ export const DashboardHeader = ({ onAddInvestment }: DashboardHeaderProps) => {
       <ManageSharesDialog
         open={showManageSharesDialog}
         onOpenChange={handleDialogChange(setShowManageSharesDialog)}
+      />
+
+      <ActivityLogModal
+        open={showActivityLogModal}
+        onOpenChange={handleDialogChange(setShowActivityLogModal)}
       />
     </div>
   );
