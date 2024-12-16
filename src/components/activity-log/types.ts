@@ -1,10 +1,11 @@
+import { Json } from "@/integrations/supabase/types";
 import { ActivityType } from "@/types/activity";
 
 export interface ActivityLogEntry {
   id: string;
   activityType: ActivityType;
   description: string;
-  metadata: Record<string, any>;
+  metadata: Json;
   createdAt: string;
 }
 
