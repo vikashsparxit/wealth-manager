@@ -106,78 +106,80 @@ export function CreateShareDialog({ open, onOpenChange }: CreateShareDialogProps
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px] p-6">
-        <DialogHeader>
-          <DialogTitle className="text-xl font-semibold">Share Dashboard</DialogTitle>
-        </DialogHeader>
-        <div className="grid gap-6 py-4">
-          <div className="grid gap-2">
-            <Label htmlFor="password">Password</Label>
-            <div className="flex gap-2">
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter a secure password"
-                className="flex-1"
-              />
-              <Button 
-                variant="outline" 
-                onClick={generatePassword}
-                type="button"
+    <>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="sm:max-w-[425px] p-6">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-semibold">Share Dashboard</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-6 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="password">Password</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter a secure password"
+                  className="flex-1"
+                />
+                <Button 
+                  variant="outline" 
+                  onClick={generatePassword}
+                  type="button"
+                >
+                  Generate
+                </Button>
+              </div>
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="expiration">Expires in</Label>
+              <Select
+                value={expiration}
+                onValueChange={setExpiration}
               >
-                Generate
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select expiration" />
+                </SelectTrigger>
+                <SelectContent className="bg-[#F1F0FB]">
+                  <SelectItem value="1">1 Day</SelectItem>
+                  <SelectItem value="5">5 Days</SelectItem>
+                  <SelectItem value="30">30 Days</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <div className="flex justify-between gap-3 mt-6">
+            <Button
+              variant="outline"
+              onClick={() => setShowManageShares(true)}
+            >
+              Manage Shares
+            </Button>
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleCreate}
+                disabled={isLoading || !password}
+                className="bg-blue-500 hover:bg-blue-600 text-white"
+              >
+                Create Share Link
               </Button>
             </div>
           </div>
-          <div className="grid gap-2">
-            <Label htmlFor="expiration">Expires in</Label>
-            <Select
-              value={expiration}
-              onValueChange={setExpiration}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select expiration" />
-              </SelectTrigger>
-              <SelectContent className="bg-[#F1F0FB]">
-                <SelectItem value="1">1 Day</SelectItem>
-                <SelectItem value="5">5 Days</SelectItem>
-                <SelectItem value="30">30 Days</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-        <div className="flex justify-between gap-3 mt-6">
-          <Button
-            variant="outline"
-            onClick={() => setShowManageShares(true)}
-          >
-            Manage Shares
-          </Button>
-          <div className="flex gap-3">
-            <Button
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleCreate}
-              disabled={isLoading || !password}
-              className="bg-blue-500 hover:bg-blue-600 text-white"
-            >
-              Create Share Link
-            </Button>
-          </div>
-        </div>
-      </DialogContent>
-    </Dialog>
+        </DialogContent>
+      </Dialog>
 
-    <ManageSharesDialog
-      open={showManageShares}
-      onOpenChange={setShowManageShares}
-    />
+      <ManageSharesDialog
+        open={showManageShares}
+        onOpenChange={setShowManageShares}
+      />
+    </>
   );
 }
