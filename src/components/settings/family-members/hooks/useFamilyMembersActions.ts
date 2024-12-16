@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { FamilyMemberState, Member } from "../types";
 import { Dispatch, SetStateAction } from "react";
+import { FamilyRelationship } from "@/types/investment";
 
 export const useFamilyMembersActions = (
   state: FamilyMemberState,
@@ -26,7 +27,7 @@ export const useFamilyMembersActions = (
         .from("family_members")
         .insert({
           name: state.newMember.trim(),
-          relationship: state.relationship,
+          relationship: state.relationship as FamilyRelationship,
           user_id: user.id
         });
 
@@ -57,7 +58,7 @@ export const useFamilyMembersActions = (
     }
   };
 
-  const updateMember = async (id: string, newName: string, newRelationship: string) => {
+  const updateMember = async (id: string, newName: string, newRelationship: FamilyRelationship) => {
     try {
       setState(prev => ({ ...prev, loading: true }));
       console.log("Updating family member:", { id, newName, newRelationship });
