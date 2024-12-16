@@ -24,7 +24,7 @@ export const InvestmentTypesManager = () => {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-120px)] max-h-[700px]">
+    <div className="flex flex-col">
       {/* Fixed header section */}
       <div className="bg-background pb-4 border-b">
         <AddTypeForm
@@ -36,8 +36,8 @@ export const InvestmentTypesManager = () => {
       </div>
       
       {/* Scrollable content area */}
-      <div className="flex-1 overflow-y-auto mt-4">
-        <Card className="h-full">
+      <div className="mt-4">
+        <Card className="p-2">
           <TypesList
             types={types}
             editingId={editingId}

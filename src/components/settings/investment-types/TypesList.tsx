@@ -33,8 +33,8 @@ export const TypesList = ({
   setEditValue,
 }: TypesListProps) => {
   return (
-    <ScrollArea className="h-[calc(100vh-280px)] max-h-[400px]">
-      <div className="space-y-2 p-2">
+    <ScrollArea className="h-[400px] px-2">
+      <div className="space-y-2">
         {types.map((type) => (
           <div
             key={type.id}
