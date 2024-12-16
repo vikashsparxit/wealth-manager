@@ -71,8 +71,8 @@ serve(async (req) => {
       const result = await hf.documentQuestionAnswering({
         model: 'microsoft/layoutlmv3-base',
         inputs: {
-          image: blob,
           question: "What are the investment amount, current value, and date in this document?",
+          image: blob,
         },
       })
 
