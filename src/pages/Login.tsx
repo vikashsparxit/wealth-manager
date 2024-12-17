@@ -8,9 +8,9 @@ const Login = () => {
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
             <img 
-              src="/Wealth-Manager-Logo.png" 
+              src="/lovable-uploads/65326e7f-54d5-421b-bba3-2213d746a3dd.png" 
               alt="Wealth Manager" 
-              className="h-12"
+              className="h-12 w-auto"
             />
           </div>
           <CardTitle className="text-2xl font-bold text-[#403E43]">Welcome Back</CardTitle>

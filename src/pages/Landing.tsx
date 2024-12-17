@@ -10,7 +10,7 @@ const Landing = () => {
       <nav className="container mx-auto px-4 py-6 flex justify-between items-center">
         <div className="flex items-center">
           <img 
-            src="/lovable-uploads/89027ba7-eda3-4d79-b9af-b9249ca7e353.png" 
+            src="/lovable-uploads/65326e7f-54d5-421b-bba3-2213d746a3dd.png" 
             alt="Wealth Manager" 
             className="h-12 w-auto"
           />
