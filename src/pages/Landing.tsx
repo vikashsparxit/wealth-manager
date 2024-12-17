@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ChartLine, Shield, Users, ArrowRight, Brain, FileSearch, PieChart, Lock } from "lucide-react";
+import { ChartLine, Shield, Users, ArrowRight, Brain, FileSearch, PieChart, Lock, Share2 } from "lucide-react";
 
 const Landing = () => {
   return (
@@ -10,13 +10,13 @@ const Landing = () => {
       <nav className="container mx-auto px-4 py-6 flex justify-between items-center">
         <div className="flex items-center">
           <img 
-            src="/Wealth-Manager-Logo.png" 
+            src="/lovable-uploads/89027ba7-eda3-4d79-b9af-b9249ca7e353.png" 
             alt="Wealth Manager" 
-            className="h-10"
+            className="h-12 w-auto"
           />
         </div>
         <Link to="/login">
-          <Button>
+          <Button className="bg-[#4F46E5] hover:bg-[#4338CA] text-white">
             Sign In
             <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
@@ -66,10 +66,10 @@ const Landing = () => {
             </p>
           </div>
           <div className="p-6 rounded-lg border bg-card">
-            <Brain className="h-12 w-12 text-[#0FA0CE] mb-4" />
-            <h3 className="text-xl font-semibold mb-2 text-[#403E43]">AI Insights</h3>
+            <Share2 className="h-12 w-12 text-[#0FA0CE] mb-4" />
+            <h3 className="text-xl font-semibold mb-2 text-[#403E43]">Shareable Dashboard</h3>
             <p className="text-muted-foreground">
-              Get intelligent insights and recommendations for portfolio optimization and growth.
+              Share your portfolio insights securely with family members or financial advisors.
             </p>
           </div>
         </div>
@@ -86,10 +86,10 @@ const Landing = () => {
             </p>
           </div>
           <div className="p-6">
-            <Lock className="h-12 w-12 text-[#0FA0CE] mb-4" />
-            <h3 className="text-xl font-semibold mb-2 text-[#403E43]">Secure Sharing</h3>
+            <Brain className="h-12 w-12 text-[#0FA0CE] mb-4" />
+            <h3 className="text-xl font-semibold mb-2 text-[#403E43]">AI Insights</h3>
             <p className="text-muted-foreground">
-              Share portfolio insights securely with family members or financial advisors.
+              Get intelligent recommendations for portfolio optimization and growth.
             </p>
           </div>
           <div className="p-6">
