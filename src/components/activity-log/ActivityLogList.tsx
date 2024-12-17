@@ -35,7 +35,7 @@ export const ActivityLogList = ({ activities, isLoading }: ActivityLogListProps)
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 pb-4">
       {activities.map((activity) => (
         <div key={activity.id} className="flex items-start gap-4 p-4 rounded-lg bg-accent/40">
           <Activity className="h-5 w-5 mt-1 text-primary" />

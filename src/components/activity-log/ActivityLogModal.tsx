@@ -9,7 +9,7 @@ export const ActivityLogModal = ({ open, onOpenChange }: ActivityLogModalProps) 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[80vh] flex flex-col">
+      <DialogContent className="sm:max-w-[600px] h-[80vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>Activity Log</DialogTitle>
         </DialogHeader>
