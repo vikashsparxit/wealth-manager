@@ -38,10 +38,6 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     return <Navigate to="/login" replace />;
   }
 
-  if (settingsLoading) {
-    return <div>Loading settings...</div>;
-  }
-
   if (!settings) {
     console.log("No settings found, redirecting to setup");
     return <Navigate to="/setup" replace />;
@@ -57,7 +53,8 @@ function AppRoutes() {
   console.log("AppRoutes - Auth state:", { user });
   console.log("AppRoutes - Settings state:", { settings, settingsLoading });
 
-  if (user && window.location.pathname === '/login') {
+  // If user is authenticated and on the landing or login page, redirect appropriately
+  if (user && (window.location.pathname === '/' || window.location.pathname === '/login')) {
     if (settingsLoading) {
       return <div>Loading settings...</div>;
     }
@@ -67,7 +64,7 @@ function AppRoutes() {
       return <Navigate to="/setup" replace />;
     }
     console.log("Authenticated user with settings, redirecting to dashboard");
-    return <Navigate to="/" replace />;
+    return <Navigate to="/dashboard" replace />;
   }
 
   return (
