@@ -10,10 +10,10 @@ const Login = () => {
             <img 
               src="/lovable-uploads/65326e7f-54d5-421b-bba3-2213d746a3dd.png" 
               alt="Wealth Manager" 
-              className="h-12 w-auto"
+              className="h-16 w-auto" // Increased size from h-12 to h-16
             />
           </div>
-          <CardTitle className="text-2xl font-bold text-[#403E43]">Welcome Back</CardTitle>
+          <CardTitle className="text-2xl font-bold text-[#374151]">Welcome Back</CardTitle>
           <CardDescription>Sign in to manage your family's wealth</CardDescription>
         </CardHeader>
         <CardContent className="flex justify-center">

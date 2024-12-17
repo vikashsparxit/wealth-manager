@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ChartLine, Shield, Users, ArrowRight, Brain, FileSearch, PieChart, Lock, Share2 } from "lucide-react";
+import { ChartLine, Shield, Users, ArrowRight, Brain, FileSearch, PieChart, Share2 } from "lucide-react";
 
 const Landing = () => {
   return (
@@ -12,11 +12,11 @@ const Landing = () => {
           <img 
             src="/lovable-uploads/65326e7f-54d5-421b-bba3-2213d746a3dd.png" 
             alt="Wealth Manager" 
-            className="h-12 w-auto"
+            className="h-16 w-auto" // Increased size from h-12 to h-16
           />
         </div>
         <Link to="/login">
-          <Button className="bg-[#4F46E5] hover:bg-[#4338CA] text-white">
+          <Button className="bg-[#6366F1] hover:bg-[#4F46E5] text-white">
             Sign In
             <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
@@ -25,16 +25,16 @@ const Landing = () => {
 
       {/* Hero Section */}
       <section className="container mx-auto px-4 py-20 text-center">
-        <h1 className="text-4xl md:text-6xl font-bold mb-6 text-[#403E43]">
+        <h1 className="text-4xl md:text-6xl font-bold mb-6 text-[#374151]">
           Manage Your Family's Wealth
           <br />
-          <span className="text-[#0FA0CE]">With Intelligence</span>
+          <span className="text-[#3B82F6]">With Intelligence</span>
         </h1>
         <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
           A comprehensive solution powered by AI for tracking, managing, and growing your family's investments across multiple asset classes.
         </p>
         <Link to="/login">
-          <Button size="lg" className="text-lg px-8 bg-[#0FA0CE] hover:bg-[#0D8BAF]">
+          <Button size="lg" className="text-lg px-8 bg-[#3B82F6] hover:bg-[#2563EB]">
             Get Started
             <ArrowRight className="ml-2 h-5 w-5" />
           </Button>
@@ -104,12 +104,12 @@ const Landing = () => {
 
       {/* CTA Section */}
       <section className="container mx-auto px-4 py-20 text-center">
-        <h2 className="text-3xl font-bold mb-4 text-[#403E43]">Ready to Start?</h2>
+        <h2 className="text-3xl font-bold mb-4 text-[#374151]">Ready to Start?</h2>
         <p className="text-xl text-muted-foreground mb-8">
           Join thousands of families who trust us with their wealth management needs.
         </p>
         <Link to="/login">
-          <Button size="lg" variant="outline" className="text-lg px-8 border-[#0FA0CE] text-[#0FA0CE] hover:bg-[#0FA0CE] hover:text-white">
+          <Button size="lg" variant="outline" className="text-lg px-8 border-[#3B82F6] text-[#3B82F6] hover:bg-[#3B82F6] hover:text-white">
             Create Your Account
             <ArrowRight className="ml-2 h-5 w-5" />
           </Button>
