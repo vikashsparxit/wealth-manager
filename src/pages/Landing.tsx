@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ChartLineUp, Shield, Users, ArrowRight } from "lucide-react";
+import { ChartLine, Shield, Users, ArrowRight } from "lucide-react";
 
 const Landing = () => {
   return (
@@ -39,7 +39,7 @@ const Landing = () => {
       <section className="container mx-auto px-4 py-20">
         <div className="grid md:grid-cols-3 gap-8">
           <div className="p-6 rounded-lg border bg-card">
-            <ChartLineUp className="h-12 w-12 text-primary mb-4" />
+            <ChartLine className="h-12 w-12 text-primary mb-4" />
             <h3 className="text-xl font-semibold mb-2">Investment Tracking</h3>
             <p className="text-muted-foreground">
               Track investments across multiple asset classes, from stocks and mutual funds to real estate and gold.
