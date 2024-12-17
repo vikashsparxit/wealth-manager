@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
-import { LogIn, LogOut } from "lucide-react";
+import { LogOut, LucideGoogle } from "lucide-react";
 
 export const AuthButton = () => {
   const { user, signInWithGoogle, signOut } = useAuth();
@@ -15,8 +15,8 @@ export const AuthButton = () => {
   }
 
   return (
-    <Button onClick={signInWithGoogle}>
-      <LogIn className="mr-2 h-4 w-4" />
+    <Button onClick={signInWithGoogle} className="bg-[#4285F4] hover:bg-[#357ABD]">
+      <LucideGoogle className="mr-2 h-4 w-4" />
       Sign in with Google
     </Button>
   );
